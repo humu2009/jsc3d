@@ -1,0 +1,6 @@
+# File created by ZBrush
+# ToolType: PolyMesh3D
+# www.zbrush.com
+newmtl defaultMat
+Kd 0.9 0.9 0.9
+map_Kd TT1024X1024.jpg

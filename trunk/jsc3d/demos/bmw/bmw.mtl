@@ -1,0 +1,545 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+newmtl VMtl01
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd whipers.jpg
+#
+newmtl VMtl02
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd whipers.jpg
+#
+newmtl VMtl03
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl04
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl05
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl06
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl07
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl08
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl09
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.9
+illum 2
+#
+newmtl VMtl10
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.1 0.1 0.1
+d 1.0
+Ns 0.8
+illum 2
+#
+newmtl VMtl11
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd vent_grill.jpg
+#
+newmtl VMtl12
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.1 0.1 0.1
+d 1.0
+Ns 0.8
+illum 2
+#
+newmtl VMtl13
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl14
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 2.0
+illum 2
+#
+newmtl VMtl15
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 2.0
+illum 2
+#
+newmtl VMtl16
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 2.0
+illum 2
+#
+newmtl VMtl17
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl18
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl19
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 2.0
+illum 2
+#
+newmtl VMtl20
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 2.0
+illum 2
+#
+newmtl VMtl21
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd window.jpg
+#
+newmtl VMtl22
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl23
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl24
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl25
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.1 0.1 0.1
+d 1.0
+Ns 0.8
+illum 2
+#
+newmtl VMtl26
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd grill_low_center.jpg
+#
+newmtl VMtl27
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl28
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 2.0
+illum 2
+#
+newmtl VMtl29
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl30
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl31
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl32
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen_profil.jpg
+#
+newmtl VMtl33
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen.jpg
+#
+newmtl VMtl34
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl35
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl36
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen_profil.jpg
+#
+newmtl VMtl37
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen.jpg
+#
+newmtl VMtl38
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen_profil.jpg
+#
+newmtl VMtl39
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl40
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl41
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen.jpg
+#
+newmtl VMtl42
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen_profil.jpg
+#
+newmtl VMtl43
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl44
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd felge2.jpg
+#
+newmtl VMtl45
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd reifen.jpg
+#
+newmtl VMtl46
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd bmw1.jpg
+#
+newmtl VMtl47
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+d 0.9
+Ns 0.9
+illum 2
+map_Kd window.jpg
+#
+newmtl VMtl48
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd license.jpg
+#
+newmtl VMtl49
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd license.jpg
+#
+newmtl VMtl50
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 0.1 0.1 0.1
+d 1.0
+Ns 0.8
+illum 2
+#
+newmtl VMtl51
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+d 0.9
+Ns 0.9
+illum 2
+map_Kd window.jpg
+#
+newmtl VMtl52
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+d 0.9
+Ns 0.9
+illum 2
+map_Kd window.jpg
+#
+newmtl VMtl53
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+d 0.9
+Ns 0.9
+illum 2
+map_Kd window.jpg
+#
+newmtl VMtl54
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd logo.jpg
+#
+newmtl VMtl55
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd logo.jpg
+#
+newmtl VMtl56
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl57
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl58
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl59
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl60
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.9
+illum 2
+#
+newmtl VMtl61
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 0.25
+Ns 2.0
+illum 2
+map_Kd shadow.png
+#
+newmtl VMtl62
+Ka 0.9 0.9 0.9
+Kd 0.9 0.9 0.9
+Ks 0.8 0.8 0.8
+d 1.0
+Ns 2.2
+illum 2
+map_Kd dullchrome.jpg
+#
+newmtl VMtl63
+Ka 0.9 0.9 0.9
+Kd 0.9 0.9 0.9
+Ks 0.8 0.8 0.8
+d 1.0
+Ns 2.2
+illum 2
+#
+# EOF

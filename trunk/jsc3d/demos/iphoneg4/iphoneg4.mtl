@@ -1,0 +1,53 @@
+#  ==========================================================================
+#  Wavefront Material file
+#  Exported by Red-i Productions' "Riptide Pro"
+#  (a commercial plugin for Cinema 4D PC & Mac, R9.6 or later)
+#  
+#  Red-i Productions
+#  http://skinprops.com
+#  
+#  ==========================================================================
+
+newmtl lcd.1
+illum 2
+Kd 0.800000 0.800000 0.800000
+map_Kd lcdSurface_Color.jpg
+
+newmtl glass
+d 0.300000
+Ni 1.500000
+illum 2
+Kd 0.490000 0.490000 0.490000
+
+newmtl Chrome
+illum 2
+Kd 0.800000 0.800000 0.800000
+
+newmtl Metal-Perforated-01
+illum 2
+Kd 0.900000 0.900000 0.900000
+
+newmtl plastic_mat
+Ns 50.781250
+illum 2
+Kd 0.000000 0.000000 0.000000
+Ks 1.000000 1.000000 1.000000
+
+newmtl Rubber
+Ns 50.781250
+illum 2
+Kd 0.086021 0.086021 0.086021
+
+newmtl HighGlossy/black
+illum 2
+Kd 0.000000 0.000000 0.000000
+map_Kd color.jpg
+
+newmtl Plastic_w_gloss
+illum 2
+Kd 0.900000 0.900000 0.900000
+
+newmtl HighGlossy/apple
+illum 2
+Kd 0.800000 0.800000 0.800000
+map_Kd bl_frameSurface_Color.jpg

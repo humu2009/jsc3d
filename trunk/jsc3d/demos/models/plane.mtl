@@ -1,0 +1,47 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+# Multi/Sub Material__35 (5) to come 
+#
+newmtl TELA
+Ka 0.9 0.8 0.5
+Kd 0.9 0.8 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.0
+illum 2
+#
+newmtl METAL
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 10.0
+illum 2
+#
+newmtl MADERA-OSCURA
+Ka 0.5 0.3 0.1
+Kd 0.5 0.3 0.1
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.0
+illum 2
+#
+newmtl Material__3
+Ka 0.0 0.0 0.0
+Kd 0.0 0.0 0.0
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.0
+illum 2
+#
+newmtl ligthWood
+Ka 0.8 0.6 0.4
+Kd 0.8 0.6 0.4
+Ks 0.9 0.9 0.9
+d 1.0
+Ns 0.0
+illum 2
+#
+# Multi/Sub Material__35 done 
+#
+# EOF

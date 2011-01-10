@@ -1,0 +1,41 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+newmtl ojo
+Ka 0.1 0.1 0.1
+Kd 0.1 0.1 0.1
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+#
+newmtl TRIGarr
+Ka 0.2 0.2 0.1
+Kd 0.2 0.2 0.1
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd TRICUER.JPG
+bump TRICUERB.JPG
+#
+newmtl TRICUER
+Ka 0.6 0.5 0.4
+Kd 0.6 0.5 0.4
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd TRILAT.JPG
+bump TRILATB.JPG
+#
+newmtl CUEREMI
+Ka 0.6 0.6 0.5
+Kd 0.6 0.6 0.5
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+map_Kd TRICUER.JPG
+bump TRICUERB.JPG
+#
+# EOF

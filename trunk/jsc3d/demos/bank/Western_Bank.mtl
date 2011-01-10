@@ -1,0 +1,207 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 26.01.2010 16:08:25
+
+newmtl Material__34782
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+
+newmtl Material__34984
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka WOO006.JPG
+map_Kd WOO006.JPG
+map_bump WOO006B.JPG
+bump WOO006B.JPG
+
+newmtl Material__34784
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+
+newmtl Material__34102
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka SHINGLES.JPG
+map_Kd SHINGLES.JPG
+map_bump SHINGLESB.jpg
+bump SHINGLESB.jpg
+
+newmtl Doors_Windows
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka WOO010.JPG
+map_Kd WOO010.JPG
+map_bump WOO010B.JPG
+bump WOO010B.JPG
+
+newmtl Material__47491
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka 3639-v7.jpg
+map_Kd 3639-v7.jpg
+map_bump 3639-v7-B.jpg
+bump 3639-v7-B.jpg
+
+newmtl Material__46554
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka 3639-v6.jpg
+map_Kd 3639-v6.jpg
+map_bump 3639-v6-B.jpg
+bump 3639-v6-B.jpg
+
+newmtl Material__34104
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka mod-wood.jpg
+map_Kd mod-wood.jpg
+map_bump mod-wood_B.jpg
+bump mod-wood_B.jpg
+
+newmtl Material__34220
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka wood1a.jpg
+map_Kd wood1a.jpg
+map_bump wood1b.jpg
+bump wood1b.jpg
+
+newmtl Material__34256
+Ns 10.0000
+Ni 1.5000
+d 0.5000
+Tr 0.5000
+Tf 0.5000 0.5000 0.5000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka window_pane_Grey.jpg
+map_Kd window_pane_Grey.jpg
+
+newmtl blank
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.1529 0.1529 0.1529
+Kd 0.1529 0.1529 0.1529
+Ks 0.2160 0.2160 0.2160
+Ke 0.0000 0.0000 0.0000
+map_bump -bm 0.3000 Map__562_Noise.tga
+
+newmtl Material__51548
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka Bank.jpg
+map_Kd Bank.jpg
+
+newmtl Material__65195
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka TEXTURE1.JPG
+map_Kd TEXTURE1.JPG
+
+newmtl Material__65194
+Ns 10.0000
+Ni 1.5000
+d 1.0000
+Tr 0.0000
+Tf 1.0000 1.0000 1.0000 
+illum 2
+#Ka 0.5880 0.5880 0.5880
+Kd 0.5880 0.5880 0.5880
+Ks 0.0000 0.0000 0.0000
+Ke 0.0000 0.0000 0.0000
+map_#Ka TEXTURE1.JPG
+map_Kd TEXTURE1.JPG
