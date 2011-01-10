@@ -1,0 +1,210 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+newmtl VMtl01
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343306.jpg
+#
+newmtl VMtl02
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343306r.jpg
+#
+newmtl VMtl03
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343311.jpg
+#
+newmtl VMtl04
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343311r.jpg
+#
+newmtl VMtl05
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343322.jpg
+#
+newmtl VMtl06
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343322r.jpg
+#
+newmtl VMtl07
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343324.jpg
+#
+newmtl VMtl08
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343325.jpg
+#
+newmtl VMtl09
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343325r.jpg
+#
+newmtl VMtl10
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343326.jpg
+#
+newmtl VMtl11
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343326r.jpg
+#
+newmtl VMtl12
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343601.jpg
+#
+newmtl VMtl13
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343602r.jpg
+#
+newmtl VMtl14
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343602.jpg
+#
+newmtl VMtl15
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53343602r.jpg
+#
+newmtl VMtl16
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53351411.jpg
+#
+newmtl VMtl17
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53351411r.jpg
+#
+newmtl VMtl18
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53351502.jpg
+#
+newmtl VMtl19
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53351502r.jpg
+#
+newmtl VMtl20
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53351508.jpg
+#
+newmtl VMtl21
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd 53351508r.jpg
+#
+newmtl VMtl22
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd flag_us.jpg
+#
+newmtl VMtl23
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd ground.jpg
+#
+# EOF

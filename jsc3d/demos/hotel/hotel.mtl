@@ -1,0 +1,292 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+# Multi/Sub Material__57 (32) to come 
+#
+newmtl Hotel_Paded_Beig
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd BEYGE.JPG
+bump BEYGE.JPG
+#
+newmtl Hotel_Madera
+Ka 0.8 0.8 0.6
+Kd 0.8 0.8 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+map_Kd ASHWOOD.JPG
+#
+newmtl Hotel_Torres_Gri
+Ka 0.3 0.3 0.2
+Kd 0.3 0.3 0.2
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 6.0
+illum 2
+map_Kd CONOS.JPG
+#
+newmtl Hotel_Metal
+Ka 0.6 0.6 0.6
+Kd 0.6 0.6 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+#
+newmtl Hotel_Cristales
+Ka 0.1 0.2 0.0
+Kd 0.1 0.2 0.0
+Ks 1.0 1.0 1.0
+d 0.8
+Ns 10.0
+illum 2
+#
+newmtl Hotel_Escalera_T
+Ka 0.3 0.3 0.2
+Kd 0.3 0.3 0.2
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 6.0
+illum 2
+map_Kd ESCAL_01.JPG
+#
+newmtl Hotel_Escalera_D
+Ka 0.3 0.3 0.2
+Kd 0.3 0.3 0.2
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 6.0
+illum 2
+map_Kd ESCALERA.JPG
+#
+newmtl Hotel_Suelo
+Ka 0.4 0.4 0.4
+Kd 0.4 0.4 0.4
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+map_Kd FLOOR.JPG
+bump FLOOR.JPG
+#
+newmtl Hotel_Bohardilla
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd ATICO.JPG
+#
+newmtl Hotel_Letrero_ba
+Ka 0.6 0.6 0.6
+Kd 0.6 0.6 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+map_Kd BANNER.JPG
+#
+newmtl Hotel_Letrero_Ch
+Ka 0.7 0.7 0.7
+Kd 0.7 0.7 0.7
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 5.0
+illum 2
+map_Kd CHANEL.JPG
+#
+newmtl Hotel_Front_lat
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd L_UP_FRO.JPG
+#
+newmtl Hotel_lateral_ar
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd L_UP.JPG
+#
+newmtl Hotel_Pared_Azul
+Ka 0.5 0.5 0.4
+Kd 0.5 0.5 0.4
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+#
+newmtl Hotel_Pared_azul
+Ka 0.5 0.5 0.4
+Kd 0.5 0.5 0.4
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+map_Kd L_PUERTA.JPG
+#
+newmtl Hotel_Pared_a1
+Ka 0.5 0.5 0.4
+Kd 0.5 0.5 0.4
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+map_Kd L_VENTAN.JPG
+#
+newmtl Hotel_Pared_Dela
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd PARED01.JPG
+#
+newmtl Hotel_Pared_Tras
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd PARED02.JPG
+#
+newmtl Hotel_Metal1
+Ka 0.6 0.6 0.6
+Kd 0.6 0.6 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+#
+newmtl TEJAS2
+Ka 0.5 0.5 0.3
+Kd 0.5 0.5 0.3
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 1.0
+illum 2
+map_Kd TILE.JPG
+#
+newmtl TEJAS1
+Ka 0.5 0.5 0.3
+Kd 0.5 0.5 0.3
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 5.0
+illum 2
+map_Kd TILE.JPG
+#
+newmtl TEJAS11
+Ka 0.5 0.5 0.3
+Kd 0.5 0.5 0.3
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 5.0
+illum 2
+map_Kd TILE.JPG
+#
+newmtl TEJAS12
+Ka 0.5 0.5 0.3
+Kd 0.5 0.5 0.3
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 5.0
+illum 2
+map_Kd TILE.JPG
+#
+newmtl TEJAS21
+Ka 0.5 0.5 0.3
+Kd 0.5 0.5 0.3
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 1.0
+illum 2
+map_Kd TILE.JPG
+#
+newmtl Hotel_Madera1
+Ka 0.8 0.8 0.6
+Kd 0.8 0.8 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+map_Kd ASHWOOD.JPG
+#
+newmtl Hotel_Madera2
+Ka 0.8 0.8 0.6
+Kd 0.8 0.8 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+map_Kd ASHWOOD.JPG
+#
+newmtl Hotel_Madera3
+Ka 0.8 0.8 0.6
+Kd 0.8 0.8 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+map_Kd ASHWOOD.JPG
+#
+newmtl Hotel_Madera4
+Ka 0.8 0.8 0.6
+Kd 0.8 0.8 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+map_Kd ASHWOOD.JPG
+#
+newmtl Hotel_Terraza
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd TERRAZA1.JPG
+#
+newmtl Hotel_Torreon
+Ka 0.7 0.7 0.6
+Kd 0.7 0.7 0.6
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 0.0
+illum 2
+map_Kd TORREON.JPG
+#
+newmtl Hotel_Torres_1
+Ka 0.3 0.3 0.2
+Kd 0.3 0.3 0.2
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 6.0
+illum 2
+bump BEYGE.JPG
+#
+newmtl Hotel_Ventanas
+Ka 0.7 0.8 0.7
+Kd 0.7 0.8 0.7
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 3.0
+illum 2
+#
+# Multi/Sub Material__57 done 
+#
+# EOF
