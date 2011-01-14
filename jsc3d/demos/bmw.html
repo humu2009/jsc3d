@@ -31,6 +31,83 @@
 	viewer.init();
 	viewer.update();
 
+	var ctx = canvas.getContext('2d');
+
+	var colorMenu = new Image;
+	colorMenu.src = 'bmw/menu.gif';
+
+	var isMenuOpen = false;
+	var menuOffsetX = 10;
+	var menuOffsetY = 10;
+	var menuItems = [undefined, '#EFEBE0', '#FF9900', '#CC0000', '#330033', '#000066', '#003333'];
+
+	function isMenuLoaded() {
+		return colorMenu.width > 0 && colorMenu.height > 0;
+	}
+
+	function whichMenuItem(x, y) {
+		if(isMenuLoaded() && 
+			x >= menuOffsetX && x < menuOffsetX + colorMenu.width &&
+			y >= menuOffsetY && y < menuOffsetY + colorMenu.height)
+			return Math.floor((y - menuOffsetY) * menuItems.length /  colorMenu.height);
+
+		return -1;
+	}
+
+	function drawMenu() {
+		if(isMenuLoaded()) {
+			if(isMenuOpen)
+				ctx.drawImage(colorMenu, menuOffsetX, menuOffsetY, colorMenu.width, colorMenu.height);
+			else
+				ctx.drawImage(colorMenu, 0, 0, colorMenu.width, colorMenu.height / menuItems.length, menuOffsetX, menuOffsetY, colorMenu.width, colorMenu.height / menuItems.length);
+		}
+	}
+
+	function changeCarBodyColor(color) {
+		var scene = viewer.getScene();
+		if(scene) {
+			var objects = scene.getChildren();
+			for(var i=0; i<objects.length; i++) {
+				if(objects[i].material && 
+					objects[i].hasTexture() && objects[i].texture.srcUrl.indexOf('dullchrome.jpg') >= 0) {
+					// change diffuse color of car body to the given one
+					objects[i].material.diffuseColor = color;
+					objects[i].material.simulateSpecular = true;
+					// re-generate material's palette to apply the changes
+					objects[i].material.generatePalette();
+				}
+			}
+
+			viewer.update();
+		}
+	}
+
+	viewer.afterupdate = function() {
+		drawMenu();
+	};
+
+	viewer.onmouseup = function(x, y) {
+		if(isMenuLoaded()) {
+			var itemIndex = whichMenuItem(x, y);
+			if(isMenuOpen) {
+				if(itemIndex > 0) {
+					var item = menuItems[itemIndex];
+					changeCarBodyColor(parseInt(item.substring(1), 16));
+				}
+				else if(itemIndex == 0)
+					// fold menu
+					isMenuOpen = false;
+					viewer.update(true); // do not generate new frame, just repaint it to apply the new menu state
+			}
+			else {
+				if(itemIndex == 0)
+					// unfold menu
+					isMenuOpen = true;
+					viewer.update(true); // do not generate new frame, just repaint it
+			}
+		}
+	};
+
 	function setDefinition(definition) {
 		if(viewer.getScene()) {
 			viewer.setDefinition(definition);
