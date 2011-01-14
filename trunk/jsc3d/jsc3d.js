@@ -89,6 +89,11 @@ JSC3D.Viewer = function(canvas) {
 	this.keyStates = {};
 	this.mouseX = 0;
 	this.mouseY = 0;
+	this.onmousedown = null;
+	this.onmouseup = null;
+	this.onmousemove = null;
+	this.beforeupdate = null;
+	this.afterupdate = null;
 	this.isDefaultInputHandlerEnabled = true;
 
 	// setup input handlers
@@ -189,14 +194,17 @@ JSC3D.Viewer.prototype.init = function() {
 };
 
 /**
-	Ask viewer to render a new frame or just repaint the current frame.
-	@param {boolean} repaintOnly true to repaint the current frame; false(default) to render a new frame.
+	Ask viewer to render a new frame or just repaint last frame.
+	@param {boolean} repaintOnly true to repaint last frame; false(default) to render a new frame.
 */
 JSC3D.Viewer.prototype.update = function(repaintOnly) {
 	if(this.isFailed) {
 		this.reportError(this.errorMsg);
 		return;
 	}
+
+	if(this.beforeupdate != null && (typeof this.beforeupdate) == 'function')
+		this.beforeupdate();
 
 	if(this.scene) {
 		if(!repaintOnly && this.colorBuffer != null) {
@@ -210,6 +218,9 @@ JSC3D.Viewer.prototype.update = function(repaintOnly) {
 	else {
 		this.drawBackground();
 	}
+
+	if(this.afterupdate != null && (typeof this.afterupdate) == 'function')
+		this.afterupdate();
 };
 
 /**
@@ -228,6 +239,7 @@ JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 	Set render mode.
 	Available render modes are:
 	'point':         render meshes as point clouds;
+	'wireframe':     render meshes as wireframe;
 	'flat':          render meshes as solid objects using flat shading;
 	'smooth':        render meshes as solid objects using smooth shading;
 	'texture':       render meshes as solid textured objects, no lighting will be apllied;
@@ -349,24 +361,26 @@ JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 	var canvasX = clientX - canvasRect.left;
 	var canvasY = clientY - canvasRect.top;
 	
+	var frameX = canvasX;
+	var frameY = canvasY;
 	if( this.selectionBuffer != null && 
 		canvasX >= 0 && canvasX < this.canvas.width && 
 		canvasY >= 0 && canvasY < this.canvas.height ) {
 		switch(this.definition) {
 		case 'low':
-			canvasX = ~~(canvasX / 2);
-			canvasY = ~~(canvasY / 2);
+			frameX = ~~(frameX / 2);
+			frameY = ~~(frameY / 2);
 			break;
 		case 'high':
-			canvasX *= 2;
-			canvasY *= 2;
+			frameX *= 2;
+			frameY *= 2;
 			break;
 		case 'standard':
 		default:
 			break;
 		}
 
-		var pickedId = this.selectionBuffer[canvasY * this.frameWidth + canvasX];
+		var pickedId = this.selectionBuffer[frameY * this.frameWidth + frameX];
 		if(pickedId > 0) {
 			var meshes = this.scene.getChildren();
 			for(var i=0; i<meshes.length; i++) {
@@ -381,7 +395,7 @@ JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 	pickInfo.canvasX = canvasX;
 	pickInfo.canvasY = canvasY;
 	if(pickInfo.mesh)
-		pickInfo.depth = this.zBuffer[canvasY * this.frameWidth + canvasX];
+		pickInfo.depth = this.zBuffer[frameY * this.frameWidth + frameX];
 
 	return pickInfo;
 };
@@ -775,6 +789,9 @@ JSC3D.Viewer.prototype.render = function() {
 				case 'point':
 					this.renderPoint(mesh);
 					break;
+				case 'wireframe':
+					this.renderWireframe(mesh);
+					break;
 				case 'flat':
 					this.renderSolidFlat(mesh);
 					break;
@@ -869,7 +886,7 @@ JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 	var sbuf = this.selectionBuffer;
 	var numOfVertices = vbuf.length / 3;
 	var id = mesh.internalId;
-	var palette = mesh.material ? mesh.material.getPalette() : this.defaultMaterial.getPalette();
+	var color = mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor;
 	
 	if(!nbuf || nbuf.length < numOfVertices) {
 		mesh.transformedVertexNormalZBuffer = new Array(numOfVertices);
@@ -888,7 +905,6 @@ JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 			var z = vbuf[j + 2];
 			if(x >=0 && x < xbound && y >=0 && y < ybound) {
 				var pix = y * w + x;
-				var color = palette[~~(xformedNz * 255)];
 				if(z > zbuf[pix]) {
 					zbuf[pix] = z;
 					cbuf[pix] = color;
@@ -913,6 +929,124 @@ JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 					sbuf[pix] = id;
 				}
 			}
+		}
+	}
+};
+
+/**
+	Render the given mesh as wireframe.
+	@private
+*/
+JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
+	var w = this.frameWidth;
+	var h = this.frameHeight;
+	var xbound = w - 1;
+	var ybound = h - 1;
+	var ibuf = mesh.indexBuffer;
+	var vbuf = mesh.transformedVertexBuffer;
+	var nbuf = mesh.transformedFaceNormalZBuffer;
+	var cbuf = this.colorBuffer;
+	var zbuf = this.zBuffer;
+	var sbuf = this.selectionBuffer;
+	var numOfFaces = mesh.faceCount;
+	var id = mesh.internalId;
+	var color = mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor;
+
+	if(!nbuf || nbuf.length < numOfFaces) {
+		mesh.transformedFaceNormalZBuffer = new Array(numOfFaces);
+		nbuf = mesh.transformedFaceNormalZBuffer;
+	}
+
+	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.faceNormalBuffer, nbuf);
+
+	var i = 0, j = 0;
+	while(i < numOfFaces) {
+		var xformedNz = nbuf[i++];
+		if(mesh.isDoubleSided)
+			xformedNz = xformedNz > 0 ? xformedNz : -xformedNz;
+		if(xformedNz < 0) {
+			do {
+			} while (ibuf[j++] != -1);
+		}
+		else {
+			var vStart, v0, v1;
+			v0 = ibuf[j++] * 3;
+			v1 = ibuf[j++] * 3;
+			vStart = v0;
+
+			var isClosed = false;
+			while(!isClosed) {
+				var x0 = ~~(vbuf[v0]     + 0.5);
+				var y0 = ~~(vbuf[v0 + 1] + 0.5);
+				var z0 = vbuf[v0 + 2];
+				var x1 = ~~(vbuf[v1]     + 0.5);
+				var y1 = ~~(vbuf[v1 + 1] + 0.5);
+				var z1 = vbuf[v1 + 2];
+
+				var dx = x1 - x0;
+				var dy = y1 - y0;
+				var dz = z1 - z0;
+
+				var dd;
+				var xInc, yInc, zInc;
+				if(Math.abs(dx) > Math.abs(dy)) {
+					dd = dx;
+					xInc = dx > 0 ? 1 : -1;
+					yInc = dx != 0 ? xInc * dy / dx : 0;
+					zInc = dx != 0 ? xInc * dz / dx : 0;
+				}
+				else {
+					dd = dy;
+					yInc = dy > 0 ? 1 : -1;
+					xInc = dy != 0 ? yInc * dx / dy : 0;
+					zInc = dy != 0 ? yInc * dz / dy : 0;
+				}
+
+				var x = x0;
+				var y = y0;
+				var z = z0;
+
+				if(dd < 0) {
+					x = x1;
+					y = y1;
+					z = z1;
+					dd = -dd;
+					xInc = -xInc;
+					yInc = -yInc;
+					zInc = -zInc;
+				}
+
+				for(var k=0; k<dd; k++) {
+					if(x >=0 && x < xbound && y >=0 && y < ybound) {
+						var pix = (~~y) * w + (~~x);
+						if(z > zbuf[pix]) {
+							zbuf[pix] = z;
+							cbuf[pix] = color;
+							sbuf[pix] = id;
+						}
+					}
+
+					x += xInc;
+					y += yInc;
+					z += zInc;
+				}
+
+				if(v1 == vStart) {
+					isClosed = true;
+				}
+				else {
+					v0 = v1;
+
+					if(ibuf[j] != -1) {
+						v1 = ibuf[j++] * 3;
+					}
+					else {
+						v1 = vStart;
+					}
+				}
+			}
+
+			j++;
 		}
 	}
 };
@@ -2259,6 +2393,8 @@ JSC3D.Viewer.prototype.mouseY = 0;
 JSC3D.Viewer.prototype.onmousedown = null;
 JSC3D.Viewer.prototype.onmouseup = null;
 JSC3D.Viewer.prototype.onmousemove = null;
+JSC3D.Viewer.prototype.beforeupdate = null;
+JSC3D.Viewer.prototype.afterupdate = null;
 JSC3D.Viewer.prototype.isDefaultInputHandlerEnabled = false;
 
 
@@ -2776,6 +2912,7 @@ JSC3D.Texture = function() {
 	this.mipmaps = null;
 	this.mipentries = null;
 	this.hasTransparency = false;
+	this.srcUrl = '';
 	this.onready = null;
 };
 
@@ -2795,6 +2932,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 		self.width = 0;
 		self.height = 0;
 		self.hasTransparency = false;
+		self.srcUrl = '';
 		self.createFromImage(this, useMipmap);
 	};
 
@@ -2805,6 +2943,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 		self.width = 0;
 		self.height = 0;
 		self.hasTransparency = false;
+		self.srcUrl = '';
 	};
 
 	img.src = imageUrl;
@@ -2879,6 +3018,8 @@ JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 	if(useMipmap)
 		this.generateMipmaps();
 
+	this.srcUrl = image.src;
+
 	if(this.onready != null && (typeof this.onready) == 'function')
 		this.onready();
 };
@@ -2947,6 +3088,7 @@ JSC3D.Texture.prototype.mipentries = null;
 JSC3D.Texture.prototype.width = 0;
 JSC3D.Texture.prototype.height = 0;
 JSC3D.Texture.prototype.hasTransparency = false;
+JSC3D.Texture.prototype.srcUrl = '';
 JSC3D.Texture.prototype.onready = null;
 JSC3D.Texture.cv = null;
 
