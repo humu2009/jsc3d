@@ -8,7 +8,7 @@
  <BODY>
 	<div style="width:600px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
 		<canvas id="cv" style="border: 1px solid;" width="600" height="450" ></canvas>
-		<p style="font-family:Arial,sans-serif;">The model is from the internet, so <b>should not</b> be used for any commercial purpose.<p>
+		<p style="font-family:Arial,sans-serif;">The model is from the internet, thus <b><big>should not</big></b> be used for any commercial purpose.<p>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
 	<script type="text/javascript">
@@ -25,7 +25,13 @@
 	viewer.init();
 	viewer.update();
 
+	// the scene
 	var scene = new JSC3D.Scene();
+
+	/*
+	 * materials
+	 */
+
 	var mat1 = new JSC3D.Material();
 	mat1.simulateSpecular = false;
 	mat1.diffuseColor = 0xcfcfcf;
@@ -40,6 +46,10 @@
 	mat3.simulateSpecular = false;
 	mat3.diffuseColor = 0x21160d;
 	mat3.transparency = 0;
+
+	/*
+	 * scene objects
+	 */
 
 	var wall = new JSC3D.Mesh;
 	wall.name = 'wall';
@@ -255,7 +265,12 @@
 	box3.init();	
 	scene.addChild(box3);
 
+	// setup scene
 	viewer.replaceScene(scene);
+
+	/*
+	 * textures
+	 */
 
 	var tex1 = new JSC3D.Texture;
 	tex1.onready = function() {
@@ -300,6 +315,98 @@
 	};
 	tex4.createFromUrl('models/oars.jpg');
 
+
+
+	/*
+	 * draw a tip on canvas to show some information of the scene object which the pointer currently stays at, if any.
+	 */
+
+	var ctx = canvas.getContext('2d');
+
+	var pointerX = -1;
+	var pointerY = -1;
+	var isPointerMoving = false;
+	var pointedObject = null;
+
+	var isTipOn = false;
+	var tipText = '';
+	var tipTextMargin = 5;
+	var tipTextHeight = 12;
+	var tipTextFont = '12px Courier New'
+	var tipTextColor = '#000000';
+	var tipBackgroundColor = '#FFFF00';
+	var tipFrameColor = '#000000';
+	var tipOffsetX = 0;
+	var tipOffsetY = 16;
+
+	var tipTimerID = 0;
+	
+	function onMouseMove(x, y, button, depth, mesh) {
+		// hide the tip when the pointer is moving
+		if(isTipOn && (x != pointerX || y != pointerY)) {
+			isTipOn = false;
+			drawTip();
+		}
+
+		pointerX = x;
+		pointerY = y;
+		isPointerMoving = true;
+		pointedObject = mesh;
+	}
+
+	function onTimer() {
+		if(isPointerMoving) {
+			isPointerMoving = false;
+		}
+		else if(!isTipOn && pointedObject != null) {
+			// the pointer stays at an object. show tip on it.
+			isTipOn = true;
+			tipText = pointedObject.name != '' ? pointedObject.name : '(anonymous)';
+			drawTip();
+		}
+	}
+
+	function drawTip() {
+		if(isTipOn) {
+			ctx.font = tipTextFont;
+
+			var textWidth = ctx.measureText(tipText).width;
+			var rectLeft = pointerX + tipOffsetX;
+			var rectRight = rectLeft + textWidth + tipTextMargin * 2;
+			var rectTop = pointerY + tipOffsetY;
+			var rectBottom = rectTop + tipTextHeight + tipTextMargin * 2;
+
+			// generate a rounded rectangle as the tip box
+			ctx.beginPath();
+			ctx.moveTo(rectLeft, rectTop + 2);
+			ctx.quadraticCurveTo(rectLeft, rectTop, rectLeft + 2, rectTop);
+			ctx.lineTo(rectRight - 2, rectTop);
+			ctx.quadraticCurveTo(rectRight, rectTop, rectRight, rectTop + 2);
+			ctx.lineTo(rectRight, rectBottom - 2);
+			ctx.quadraticCurveTo(rectRight, rectBottom, rectRight - 2, rectBottom);
+			ctx.lineTo(rectLeft + 2, rectBottom);
+			ctx.quadraticCurveTo(rectLeft, rectBottom, rectLeft, rectBottom - 2);
+			ctx.closePath();
+
+			// draw frame of tip box
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = tipFrameColor;
+			ctx.stroke();
+			// draw tip box
+			ctx.fillStyle = tipBackgroundColor;
+			ctx.fill();
+			// draw tip text
+			ctx.fillStyle = tipTextColor;
+			ctx.fillText(tipText, rectLeft + tipTextMargin, rectTop + tipTextMargin + tipTextHeight - 2);
+		}
+		else {
+			// call viewer to repaint to erase the tip stuff
+			viewer.update(true/*repaint only*/);
+		}
+	}
+
+	viewer.onmousemove = onMouseMove;
+	setInterval(onTimer, 500);
   </script>
  </BODY>
 </HTML>
