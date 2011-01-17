@@ -1,0 +1,54 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+newmtl DINOMAT
+Ka 0.0 0.0 0.0
+Kd 0.8 0.8 0.8
+Ks 0.7 0.7 0.7
+d 1.0
+Ns 1.9
+illum 2
+map_Kd GRANDECO.JPG
+
+#
+# Multi/Sub Material__35 (2) to come 
+#
+newmtl DINOMAT
+Ka 0.0 0.0 0.0
+Kd 0.8 0.8 0.8
+Ks 0.7 0.7 0.7
+d 1.0
+Ns 1.9
+illum 2
+map_Kd GRANDECO.JPG
+
+#
+newmtl DINOOJO
+Ka 0.0 0.0 0.0
+Kd 0.8 0.8 0.8
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 10.0
+illum 2
+map_Kd GRANDECO.JPG
+#
+# Multi/Sub Material__35 done 
+#
+newmtl DINODIENTE
+Ka 0.0 0.0 0.0
+Kd 0.8 0.8 0.8
+Ks 1.0 1.0 1.0
+d 1.0
+Ns 2.0
+illum 2
+map_Kd GRANDECO.JPG
+
+#
+newmtl U¥A
+Ka 0.0 0.0 0.0
+Kd 0.8 0.8 0.8
+Ks 0.4 0.4 0.4
+d 1.0
+Ns 4.6
+illum 2
+#
+# EOF
