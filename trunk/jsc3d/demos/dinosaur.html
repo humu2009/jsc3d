@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> JSC3D - Dinosaurs Demo </TITLE>
+ </HEAD>
+
+ <BODY onload="init()">
+	<div style="width:560px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+		<canvas id="cv" style="border: 1px solid;" width="560" height="420" ></canvas>
+		<div>
+		<select id="model_list">
+		<option>ptero.obj</option>
+		<option>tirarex.obj</option>
+		<option>parasau.obj</option>
+		</select>
+		<button id="load" onclick="loadModel();">Load</button>
+		</div>
+		<p style="font-family:Arial,sans-serif;">The models are from the internet and <b><big>should not</big></b> be used for any commercial purpose.<p>
+	</div>
+	<script type="text/javascript" src="../jsc3d.js"></script>
+	<script type="text/javascript">
+	var canvas;
+	var viewer;
+
+	function init() {
+		canvas = document.getElementById('cv');
+		viewer = new JSC3D.Viewer(canvas);
+		viewer.setParameter('SceneUrl', 'models/ptero.obj');
+		viewer.setParameter('InitRotationX', 0);
+		viewer.setParameter('InitRotationY', -30);
+		viewer.setParameter('InitRotationZ', 0);
+		viewer.setParameter('ModelColor', '#FFFFFF');
+		viewer.setParameter('BackgroundColor1', '#AFAFAF');
+		viewer.setParameter('BackgroundColor2', '#000000');
+		viewer.setParameter('RenderMode', 'texturesmooth');
+		viewer.setParameter('MipMapping', 'on');
+		viewer.init();
+		viewer.update();
+	}
+
+	function loadModel() {
+		var models = document.getElementById('model_list');
+		viewer.replaceSceneFromUrl('models/' + models[models.selectedIndex].innerHTML);
+		viewer.update();
+	}
+  </script>
+ </BODY>
+</HTML>
