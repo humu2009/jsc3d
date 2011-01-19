@@ -27,6 +27,7 @@
 		<div style="float:right;">
 		<select id="render_mode_list">
 		<option>render as points</option>
+		<option>render as wireframe</option>
 		<option>render as flat solid</option>
 		<option>render as smooth solid</option>
 		</select>
@@ -53,6 +54,27 @@
 	logoTimerID = setInterval(function(){viewer.rotate(0, 10, 0);viewer.update();}, 100);
 	setTimeout(function(){viewer.enableDefaultInputHandler(true); loadModel();}, 8000);
 
+	var ctx = canvas.getContext('2d');
+	ctx.font = '12px Courier New';
+	ctx.fillStyle = '#FF0000';
+	viewer.afterupdate = function() {
+		if(logoTimerID > 0)
+			return;
+
+		var scene = viewer.getScene();
+		if(scene != null && scene.getChildren().length > 0) {
+			var objects = scene.getChildren();
+			var totalFaceCount = 0;
+			var totalVertexCount = 0
+			for(var i=0; i<objects.length; i++) {
+				totalFaceCount += objects[i].faceCount;
+				totalVertexCount += objects[i].vertexBuffer.length / 3;
+			}
+			ctx.fillText(totalVertexCount.toString() + ' vertices', 10, 20);
+			ctx.fillText(totalFaceCount.toString() + ' faces', 10, 35);
+		}
+	};
+
 	function loadModel() {
 		if(logoTimerID > 0) {
 			clearInterval(logoTimerID);
@@ -73,9 +95,12 @@
 			viewer.setRenderMode('point');
 			break;
 		case 1:
-			viewer.setRenderMode('flat');
+			viewer.setRenderMode('wireframe');
 			break;
 		case 2:
+			viewer.setRenderMode('flat');
+			break;
+		case 3:
 			viewer.setRenderMode('smooth');
 			break;
 		default:
