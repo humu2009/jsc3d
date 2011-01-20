@@ -41,7 +41,7 @@
 
 		function onTimer() {
 			if(!tvScreen) {
-				// find screen component of the television model
+				// find screen of the television model
 				var scene = viewer.getScene();
 				if(scene) {
 					var objects = scene.getChildren();
@@ -55,7 +55,7 @@
 				}
 			}
 			else if(!video.paused && !video.ended) {
-				// update texture of the screen component to the current frame of the video
+				// update texture of the screen to the current frame of the video
 				innerCtx.drawImage(video, 0, 0, innerCanvas.width, innerCanvas.height);
 				tvScreen.texture.createFromImage(innerCanvas);
 			}
