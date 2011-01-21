@@ -55,7 +55,8 @@ JSC3D.Viewer = function(canvas) {
 		BackgroundColor2: '#383840', 
 		RenderMode: 'flat', 
 		Definition: 'standard', 
-		MipMapping: 'off'
+		MipMapping: 'off', 
+		SphereMapUrl: ''
 	};
 
 	this.canvas = canvas;
@@ -69,6 +70,7 @@ JSC3D.Viewer = function(canvas) {
 	this.frameHeight = canvas.height;
 	this.scene = null;
 	this.defaultMaterial = null;
+	this.sphereMap = null;
 	this.isLoaded = false;
 	this.isFailed = false;
 	this.errorMsg = '';
@@ -85,6 +87,7 @@ JSC3D.Viewer = function(canvas) {
 	this.renderMode = 'flat';
 	this.definition = 'standard';
 	this.isMipMappingOn = false;
+	this.sphereMapUrl = '';
 	this.buttonStates = {};
 	this.keyStates = {};
 	this.mouseX = 0;
@@ -116,8 +119,9 @@ JSC3D.Viewer = function(canvas) {
 	'BackgroundColor1': color at the top of the background, default: '#ffffff';
 	'BackgroundColor2': color at the bottom of the background, default: '#383840';
 	'RenderMode':       render mode, default: 'flat';
-	'Definition':       quality level of rendering, default: 'standard'.
-	'MipMapping':       turn on/off mip-mapping, default: 'off'.
+	'Definition':       quality level of rendering, default: 'standard';
+	'MipMapping':       turn on/off mip-mapping, default: 'off';
+	'SphereMapUrl':     url string that describes where to load the image used for sphere mapping, default: ''.
 	@param {string} name name of the parameter to set.
 	@param value new value for the parameter.
 */
@@ -139,6 +143,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.renderMode = this.params['RenderMode'].toLowerCase();
 	this.definition = this.params['Definition'].toLowerCase();
 	this.isMipMappingOn = this.params['MipMapping'].toLowerCase() == 'on';
+	this.sphereMapUrl = this.params['SphereMapUrl'];
 
 	try {
 		this.ctx = this.canvas.getContext('2d');
@@ -187,6 +192,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.defaultMaterial.diffuseColor = this.modelColor;
 	this.defaultMaterial.transparency = 0;
 	this.defaultMaterial.simulateSpecular = true;
+	this.setSphereMap(this.sphereMapUrl);
 	this.drawBackground();
 
 	// load scene if any
@@ -306,6 +312,30 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 	// zoom factor should be adjusted, 
 	// otherwise there would be an abrupt zoom-in or zoom-out on next frame
 	this.zoomFactor *= this.frameWidth / oldFrameWidth;
+};
+
+/**
+	Specify a new image from the given url which will be used for applying sphere mapping.
+	@param {string} sphereMapUrl url string that describes where to load the image.
+*/
+JSC3D.Viewer.prototype.setSphereMap = function(sphereMapUrl) {
+	if(sphereMapUrl == '') {
+		this.sphereMap = null;
+		return;
+	}
+
+	this.params['SphereMapUrl'] = sphereMapUrl;
+	this.sphereMapUrl = sphereMapUrl;
+
+	var self = this;
+	var newSphereMap = new JSC3D.Texture;
+
+	newSphereMap.onready = function() {
+		self.sphereMap = newSphereMap;
+		self.update();
+	};
+
+	newSphereMap.createFromUrl(this.sphereMapUrl);
 };
 
 /**
@@ -811,7 +841,9 @@ JSC3D.Viewer.prototype.render = function() {
 						this.renderSolidFlat(mesh);
 					break;
 				case 'texturesmooth':
-					if(mesh.hasTexture())
+					if(mesh.isEnvironmentCast && this.sphereMap != null && this.sphereMap.hasData())
+						this.renderSolidSphereMapped(mesh);
+					else if(mesh.hasTexture())
 						this.renderTextureSmooth(mesh);
 					else
 						this.renderSolidSmooth(mesh);
@@ -2358,6 +2390,275 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	}
 };
 
+/**
+	Render the given mesh as solid object with sphere mapping, lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	@private
+*/
+JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
+	var w = this.frameWidth;
+	var h = this.frameHeight;
+	var ibuf = mesh.indexBuffer;
+	var vbuf = mesh.transformedVertexBuffer;
+	var vnbuf = mesh.transformedVertexNormalBuffer;
+	var fnbuf = mesh.transformedFaceNormalZBuffer;
+	var cbuf = this.colorBuffer;
+	var zbuf = this.zBuffer;
+	var sbuf = this.selectionBuffer;
+	var numOfFaces = mesh.faceCount;
+	var numOfVertices = vbuf.length / 3;
+	var id = mesh.internalId;
+	var material = mesh.material ? mesh.material : this.defaultMaterial;
+	var palette = material.getPalette();
+	var sphereMap = this.sphereMap;
+	var sdata = sphereMap.data;
+	var sdim = sphereMap.width;
+	var sbound = sdim - 1;
+	var isOpaque = material.transparency == 0;
+	var trans = material.transparency * 255;
+	var opaci = 255 - trans;
+
+	// skip this mesh if it is fully transparent
+	if(material.transparency == 1)
+		return;
+
+	if(!vnbuf || vnbuf.length < numOfVertices * 3) {
+		mesh.transformedVertexNormalBuffer = new Array(numOfVertices * 3);
+		vnbuf = mesh.transformedVertexNormalBuffer;
+	}
+
+	if(!fnbuf || fnbuf.length < numOfFaces) {
+		mesh.transformedFaceNormalZBuffer = new Array(numOfFaces);
+		fnbuf = mesh.transformedFaceNormalZBuffer;
+	}
+
+	JSC3D.Math3D.transformVectors(this.rotMatrix, mesh.vertexNormalBuffer, vnbuf);
+	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.faceNormalBuffer, fnbuf);
+
+	var isDoubleSided = mesh.isDoubleSided;
+
+	var Xs = new Array(3);
+	var Ys = new Array(3);
+	var Zs = new Array(3);
+	var NXs = new Array(3);
+	var NYs = new Array(3);
+	var NZs = new Array(3);
+	var i = 0, j = 0;
+	while(i < numOfFaces) {
+		var xformedFNz = fnbuf[i++];
+		if(isDoubleSided)
+			xformedFNz = xformedFNz > 0 ? xformedFNz : -xformedFNz;
+		if(xformedFNz < 0) {
+			do {
+			} while (ibuf[j++] != -1);
+		}
+		else {
+			var v0, v1, v2;
+			v0 = ibuf[j++] * 3;
+			v1 = ibuf[j++] * 3;
+
+			do {
+				v2 = ibuf[j++] * 3;
+
+				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
+				Zs[0] = vbuf[v0 + 2];
+				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
+				Zs[1] = vbuf[v1 + 2];
+				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
+				Zs[2] = vbuf[v2 + 2];
+
+				NXs[0] = vnbuf[v0];
+				NYs[0] = vnbuf[v0 + 1];
+				NZs[0] = vnbuf[v0 + 2];
+				NXs[1] = vnbuf[v1];
+				NYs[1] = vnbuf[v1 + 1];
+				NZs[1] = vnbuf[v1 + 2];
+				NXs[2] = vnbuf[v2];
+				NYs[2] = vnbuf[v2 + 1];
+				NZs[2] = vnbuf[v2 + 2];
+				if(isDoubleSided) {
+					if(NZs[0] < 0)
+						NZs[0] = -NZs[0];
+					if(NZs[1] < 0)
+						NZs[1] = -NZs[1];
+					if(NZs[2] < 0)
+						NZs[2] = -NZs[2];
+				}
+
+				var high = Ys[0] < Ys[1] ? 0 : 1;
+				high = Ys[high] < Ys[2] ? high : 2;
+				var low = Ys[0] > Ys[1] ? 0 : 1;
+				low = Ys[low] > Ys[2] ? low : 2;
+				var mid = 3 - low - high;
+
+				if(high != low) {
+					var x0 = Xs[low];
+					var z0 = Zs[low];
+					var n0 = NZs[low] * 255;
+					var sh0 = ((NXs[low] / 2 + 0.5) * sdim) & sbound;
+					var sv0 = ((0.5 - NYs[low] / 2) * sdim) & sbound;
+					var dy0 = Ys[low] - Ys[high];
+					dy0 = dy0 != 0 ? dy0 : 1;
+					var xStep0 = (Xs[low] - Xs[high]) / dy0;
+					var zStep0 = (Zs[low] - Zs[high]) / dy0;
+					var nStep0 = (NZs[low] - NZs[high]) * 255 / dy0;
+					var shStep0 = (((NXs[low] - NXs[high]) / 2) * sdim) / dy0;
+					var svStep0 = (((NYs[high] - NYs[low]) / 2) * sdim) / dy0;
+
+					var x1 = Xs[low];
+					var z1 = Zs[low];
+					var n1 = NZs[low] * 255;
+					var sh1 = ((NXs[low] / 2 + 0.5) * sdim) & sbound;
+					var sv1 = ((0.5 - NYs[low] / 2) * sdim) & sbound;
+					var dy1 = Ys[low] - Ys[mid];
+					dy1 = dy1 != 0 ? dy1 : 1;
+					var xStep1 = (Xs[low] - Xs[mid]) / dy1;
+					var zStep1 = (Zs[low] - Zs[mid]) / dy1;
+					var nStep1 = (NZs[low] - NZs[mid]) * 255 / dy1;
+					var shStep1 = (((NXs[low] - NXs[mid]) / 2) * sdim) / dy1;
+					var svStep1 = (((NYs[mid] - NYs[low]) / 2) * sdim) / dy1;
+
+					var x2 = Xs[mid];
+					var z2 = Zs[mid];
+					var n2 = NZs[mid] * 255;
+					var sh2 = ((NXs[mid] / 2 + 0.5) * sdim) & sbound;
+					var sv2 = ((0.5 - NYs[mid] / 2) * sdim) & sbound;
+					var dy2 = Ys[mid] - Ys[high];
+					dy2 = dy2 != 0 ? dy2 : 1;
+					var xStep2 = (Xs[mid] - Xs[high]) / dy2;
+					var zStep2 = (Zs[mid] - Zs[high]) / dy2;
+					var nStep2 = (NZs[mid] - NZs[high]) * 255 / dy2;
+					var shStep2 = (((NXs[mid] - NXs[high]) / 2) * sdim) / dy2;
+					var svStep2 = (((NYs[high] - NYs[mid]) / 2) * sdim) / dy2;
+
+					var linebase = Ys[low] * w;
+					for(var y=Ys[low]; y>Ys[high]; y--) {
+						if(y >=0 && y < h) {
+							var xLeft = ~~x0;
+							var zLeft = z0;
+							var nLeft = n0;
+							var shLeft = sh0;
+							var svLeft = sv0;
+							var xRight, zRight, nRight, shRight, svRight;
+							if(y > Ys[mid]) {
+								xRight = ~~x1;
+								zRight = z1;
+								nRight = n1;
+								shRight = sh1;
+								svRight = sv1;
+							}
+							else {
+								xRight = ~~x2;
+								zRight = z2;
+								nRight = n2;
+								shRight = sh2;
+								svRight = sv2;
+							}
+
+							if(xLeft > xRight) {
+								var temp;
+								temp = xLeft;
+								xLeft = xRight;
+								xRight = temp;
+								temp = zLeft;
+								zLeft = zRight;
+								zRight = temp;
+								temp = nLeft;
+								nLeft = nRight;
+								nRight = temp;
+								temp = shLeft;
+								shLeft = shRight;
+								shRight = temp;
+								temp = svLeft;
+								svLeft = svRight;
+								svRight = temp;
+							}
+
+							var zInc = (xLeft != xRight) ? ((zRight - zLeft) / (xRight - xLeft)) : 1;
+							var nInc = (xLeft != xRight) ? ((nRight - nLeft) / (xRight - xLeft)) : 1;
+							var shInc = (xLeft != xRight) ? ((shRight - shLeft) / (xRight - xLeft)) : 1;
+							var svInc = (xLeft != xRight) ? ((svRight - svLeft) / (xRight - xLeft)) : 1;
+							if(xLeft < 0) {
+								zLeft -= xLeft * zInc;
+								nLeft -= xLeft * nInc;
+								shLeft -= shLeft * shInc;
+								svLeft -= svLeft * svInc;
+								xLeft = 0;
+							}
+							if(xRight >= w) {
+								xRight = w - 1;
+							}
+							var pix = linebase + xLeft;
+							if(isOpaque) {
+								for(var x=xLeft, z=zLeft, n=nLeft, sh=shLeft, sv=svLeft; x<=xRight; x++, z+=zInc, n+=nInc, sh+=shInc, sv+=svInc) {
+									if(z > zbuf[pix]) {
+										zbuf[pix] = z;
+										var color = palette[n > 0 ? (~~n) : 0];
+										var stexel = sdata[(sv & sbound) * sdim + (sh & sbound)];
+										var rr = (((color & 0xff0000) >> 16) * ((stexel & 0xff0000) >> 8));
+										var gg = (((color & 0xff00) >> 8) * ((stexel & 0xff00) >> 8));
+										var bb = ((color & 0xff) * (stexel & 0xff)) >> 8;
+										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										sbuf[pix] = id;
+									}
+									pix++;
+								}
+							}
+							else {
+								for(var x=xLeft, z=zLeft, n=nLeft, sh=shLeft, sv=svLeft; x<xRight; x++, z+=zInc, n+=nInc, sh+=shInc, sv+=svInc) {
+									if(z > zbuf[pix]) {
+										var color = palette[n > 0 ? (~~n) : 0];
+										var foreColor = sdata[(sv & sbound) * sdim + (sh & sbound)];
+										var backColor = cbuf[pix];										
+										var rr = (((color & 0xff0000) >> 16) * ((foreColor & 0xff0000) >> 8));
+										var gg = (((color & 0xff00) >> 8) * ((foreColor & 0xff00) >> 8));
+										var bb = ((color & 0xff) * (foreColor & 0xff)) >> 8;
+										rr = (rr * opaci + (backColor & 0xff0000) * trans) >> 8;
+										gg = (gg * opaci + (backColor & 0xff00) * trans) >> 8;
+										bb = (bb * opaci + (backColor & 0xff) * trans) >> 8;										
+										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										sbuf[pix] = id;
+									}
+									pix++;
+								}
+							}
+						}
+
+						// step up to next scanline
+						//
+						x0 -= xStep0;
+						z0 -= zStep0;
+						n0 -= nStep0;
+						sh0 -= shStep0;
+						sv0 -= svStep0;
+						if(y > Ys[mid]) {
+							x1 -= xStep1;
+							z1 -= zStep1;
+							n1 -= nStep1;
+							sh1 -= shStep1;
+							sv1 -= svStep1;
+						}
+						else {
+							x2 -= xStep2;
+							z2 -= zStep2;
+							n2 -= nStep2;
+							sh2 -= shStep2;
+							sv2 -= svStep2;
+						}
+						linebase -= w;
+					}
+				}
+
+				v1 = v2;
+			} while (ibuf[j] != -1);
+
+			j++;
+		}
+	}
+};
+
 JSC3D.Viewer.prototype.params = null;
 JSC3D.Viewer.prototype.canvas = null;
 JSC3D.Viewer.prototype.ctx = null;
@@ -2370,6 +2671,7 @@ JSC3D.Viewer.prototype.frameWidth = 0;
 JSC3D.Viewer.prototype.frameHeight = 0;
 JSC3D.Viewer.prototype.scene = null;
 JSC3D.Viewer.prototype.defaultMaterial = null;
+JSC3D.Viewer.prototype.sphereMap = null;
 JSC3D.Viewer.prototype.isLoaded = false;
 JSC3D.Viewer.prototype.isFailed = false;
 JSC3D.Viewer.prototype.errorMsg = '';
@@ -2386,6 +2688,7 @@ JSC3D.Viewer.prototype.bkgColor2 = 0xffff80;
 JSC3D.Viewer.prototype.renderMode = 'flat';
 JSC3D.Viewer.prototype.definition = 'standard';
 JSC3D.Viewer.prototype.isMipMappingOn = false;
+JSC3D.Viewer.prototype.sphereMapUrl = '';
 JSC3D.Viewer.prototype.buttonStates = null;
 JSC3D.Viewer.prototype.keyStates = null;
 JSC3D.Viewer.prototype.mouseX = 0;
@@ -2537,12 +2840,14 @@ JSC3D.Mesh = function() {
 	this.texture = null;
 	this.faceCount = 0;
 	this.isDoubleSided = false;
+	this.isEnvironmentCast = false;
 	this.internalId = 0;
 	this.texCoordBuffer = null;
 	this.texCoordIndexBuffer = null;
 	this.transformedVertexBuffer = null;
 	this.transformedVertexNormalZBuffer = null;
 	this.transformedFaceNormalZBuffer = null;
+	this.transformedVertexNormalBuffer = null;
 };
 
 /**
@@ -2799,10 +3104,12 @@ JSC3D.Mesh.prototype.material = null;
 JSC3D.Mesh.prototype.texture = null;
 JSC3D.Mesh.prototype.faceCount = 0;
 JSC3D.Mesh.prototype.isDoubleSided = false;
+JSC3D.Mesh.prototype.isEnvironmentCast = false;
 JSC3D.Mesh.prototype.internalId = 0;
 JSC3D.Mesh.prototype.transformedVertexBuffer = null;
 JSC3D.Mesh.prototype.transformedVertexNormalZBuffer = null;
 JSC3D.Mesh.prototype.transformedFaceNormalZBuffer = null;
+JSC3D.Mesh.prototype.transformedVertexNormalBuffer = null;
 
 
 /**
@@ -3414,6 +3721,7 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 	};
 
 	if(this.onprogress) {
+		this.onprogress('Loading obj file ...', 0);
 		xhr.onprogress = function(event) {
 			self.onprogress('Loading obj file ...', event.position / event.totalSize);
 		};
@@ -3469,6 +3777,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 	};
 
 	if(this.onprogress) {
+		this.onprogress('Loading mtl file ...', 0);
 		xhr.onprogress = function(event) {
 			self.onprogress('Loading mtl file ...', event.position / event.totalSize);
 		};
