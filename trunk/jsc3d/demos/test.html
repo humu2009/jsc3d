@@ -28,8 +28,9 @@
 		<select id="render_mode_list">
 		<option>render as points</option>
 		<option>render as wireframe</option>
-		<option>render as flat solid</option>
-		<option>render as smooth solid</option>
+		<option>render as flat</option>
+		<option>render as smooth</option>
+		<option>render with environment</option>
 		</select>
 		<button id="change" onclick="setRenderMode();">Change</button>
 		</div>
@@ -47,12 +48,20 @@
 	viewer.setParameter('BackgroundColor1', '#FFFFFF');
 	viewer.setParameter('BackgroundColor2', '#383840');
 	viewer.setParameter('RenderMode', 'smooth');
+	viewer.setParameter('SphereMapUrl', 'models/chrome.jpg');
 	viewer.init();
 	viewer.update();
 
 	viewer.enableDefaultInputHandler(false);
-	logoTimerID = setInterval(function(){viewer.rotate(0, 10, 0);viewer.update();}, 100);
-	setTimeout(function(){viewer.enableDefaultInputHandler(true); loadModel();}, 8000);
+	logoTimerID = setInterval( function() { 
+		viewer.rotate(0, 10, 0);
+		viewer.update();
+	}, 100);
+	setTimeout( function() {
+		viewer.enableDefaultInputHandler(true); 
+		if(logoTimerID > 0)
+			loadModel();
+	}, 8000);
 
 	var ctx = canvas.getContext('2d');
 	ctx.font = '12px Courier New';
@@ -102,6 +111,15 @@
 			break;
 		case 3:
 			viewer.setRenderMode('smooth');
+			break;
+		case 4:
+			viewer.setRenderMode('texturesmooth');
+			var scene = viewer.getScene();
+			if(scene) {
+				var objects = scene.getChildren();
+				for(var i=0; i<objects.length; i++)
+					objects[i].isEnvironmentCast = true;
+			}
 			break;
 		default:
 			viewer.setRenderMode('flat');
