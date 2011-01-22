@@ -74,6 +74,8 @@ JSC3D.Viewer = function(canvas) {
 	this.isLoaded = false;
 	this.isFailed = false;
 	this.errorMsg = '';
+	this.needUpdate = false;
+	this.needRepaint = false;
 	this.initRotX = 0;
 	this.initRotY = 0;
 	this.initRotZ = 0;
@@ -179,6 +181,8 @@ JSC3D.Viewer.prototype.init = function() {
 	this.isLoaded = false;
 	this.isFailed = false;
 	this.errorMsg = '';
+	this.needUpdate = false;
+	this.needRepaint = false;
 	this.scene = null;
 	// allocate memory storage for frame buffers
 	this.colorBuffer = new Array(this.frameWidth * this.frameHeight);
@@ -195,6 +199,10 @@ JSC3D.Viewer.prototype.init = function() {
 	this.setSphereMap(this.sphereMapUrl);
 	this.drawBackground();
 
+	// set a timer to do updating (if needed) per 16 milliseconds
+	var self = this;
+	setInterval(function(){self.doUpdate();}, 16);
+
 	// load scene if any
 	this.loadScene();
 };
@@ -209,24 +217,10 @@ JSC3D.Viewer.prototype.update = function(repaintOnly) {
 		return;
 	}
 
-	if(this.beforeupdate != null && (typeof this.beforeupdate) == 'function')
-		this.beforeupdate();
-
-	if(this.scene) {
-		if(!repaintOnly && this.colorBuffer != null) {
-			this.beginScene();
-			this.render();
-			this.endScene();
-		}
-
-		this.paint();
-	}
-	else {
-		this.drawBackground();
-	}
-
-	if(this.afterupdate != null && (typeof this.afterupdate) == 'function')
-		this.afterupdate();
+	if(repaintOnly)
+		this.needRepaint = true;
+	else
+		this.needUpdate = true;
 };
 
 /**
@@ -431,6 +425,36 @@ JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 };
 
 /**
+	Render a new frame or repaint the last frame.
+	@private
+*/
+JSC3D.Viewer.prototype.doUpdate = function() {
+	if(this.needUpdate || this.needRepaint) {
+		if(this.beforeupdate != null && (typeof this.beforeupdate) == 'function')
+			this.beforeupdate();
+
+		if(this.scene) {
+			if(this.needUpdate && this.colorBuffer != null) {
+				this.beginScene();
+				this.render();
+				this.endScene();
+			}
+
+			this.paint();
+		}
+		else {
+			this.drawBackground();
+		}
+
+		this.needRepaint = false;
+		this.needUpdate = false;
+
+		if(this.afterupdate != null && (typeof this.afterupdate) == 'function')
+			this.afterupdate();
+	}
+};
+
+/**
 	Paint onto canvas.
 	@private
 */
@@ -603,6 +627,8 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
 	this.isLoaded = true;
 	this.isFailed = false;
 	this.errorMsg = '';
+	this.needUpdate = false;
+	this.needRepaint = false;
 	this.update();
 };
 
@@ -2675,6 +2701,8 @@ JSC3D.Viewer.prototype.sphereMap = null;
 JSC3D.Viewer.prototype.isLoaded = false;
 JSC3D.Viewer.prototype.isFailed = false;
 JSC3D.Viewer.prototype.errorMsg = '';
+JSC3D.Viewer.prototype.needUpdate = false;
+JSC3D.Viewer.prototype.needRepaint = false;
 JSC3D.Viewer.prototype.initRotX = 0;
 JSC3D.Viewer.prototype.initRotY = 0;
 JSC3D.Viewer.prototype.initRotZ = 0;
