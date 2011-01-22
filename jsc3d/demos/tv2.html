@@ -57,9 +57,14 @@
 				}
 			}
 			else if(!video.paused && !video.ended) {
-				// update texture of the screen to the current frame of the video
+				/*
+				 * bupdate texture of the screen to the current frame of the video
+				 */
+				// draw the current frame
 				innerCtx.drawImage(video, 0, 0, innerCanvas.width, innerCanvas.height);
+				// draw a logo on the upper-left conner
 				innerCtx.fillText(myLogo, 10, 65);
+				// update content of the texture
 				tvScreen.texture.createFromImage(innerCanvas);
 			}
 		}
