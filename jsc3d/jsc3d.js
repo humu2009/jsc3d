@@ -196,15 +196,17 @@ JSC3D.Viewer.prototype.init = function() {
 	this.defaultMaterial.diffuseColor = this.modelColor;
 	this.defaultMaterial.transparency = 0;
 	this.defaultMaterial.simulateSpecular = true;
-	this.setSphereMap(this.sphereMapUrl);
 	this.drawBackground();
 
-	// set a timer to do updating (if needed) per 16 milliseconds
+	// set a timer to wake up update routine per 30 milliseconds
 	var self = this;
-	setInterval(function(){self.doUpdate();}, 16);
+	setInterval(function(){self.doUpdate();}, 30);
 
 	// load scene if any
 	this.loadScene();
+	
+	// load sphere mapping image if any
+	this.setSphereMapFromUrl(this.sphereMapUrl);
 };
 
 /**
@@ -312,7 +314,7 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 	Specify a new image from the given url which will be used for applying sphere mapping.
 	@param {string} sphereMapUrl url string that describes where to load the image.
 */
-JSC3D.Viewer.prototype.setSphereMap = function(sphereMapUrl) {
+JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
 	if(sphereMapUrl == '') {
 		this.sphereMap = null;
 		return;
@@ -425,7 +427,7 @@ JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 };
 
 /**
-	Render a new frame or repaint the last frame.
+	Render a new frame or repaint last frame.
 	@private
 */
 JSC3D.Viewer.prototype.doUpdate = function() {
@@ -2643,7 +2645,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 										var bb = ((color & 0xff) * (foreColor & 0xff)) >> 8;
 										rr = (rr * opaci + (backColor & 0xff0000) * trans) >> 8;
 										gg = (gg * opaci + (backColor & 0xff00) * trans) >> 8;
-										bb = (bb * opaci + (backColor & 0xff) * trans) >> 8;										
+										bb = (bb * opaci + (backColor & 0xff) * trans) >> 8;
 										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
@@ -3793,7 +3795,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 						}
 					}
 				}
-				for(textureFileName in textures)
+				for(var textureFileName in textures)
 					self.setupTexture(textures[textureFileName], urlPath + textureFileName);
 			}
 			else {
@@ -3912,7 +3914,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 	var viBuffer = tempVertexBuffer.length >= 3 ? (new Array(tempVertexBuffer.length / 3)) : null;
 	var tiBuffer = tempTexCoordBuffer.length >= 2 ? (new Array(tempTexCoordBuffer.length / 2)) : null;
 
-	for(id in meshes) {
+	for(var id in meshes) {
 		var mesh = meshes[id];
 
 		// split vertices into the mesh, the indices are also re-calculated
