@@ -1,0 +1,95 @@
+FlashCanvas Pro
+===============
+
+FlashCanvas Pro is released under the FlashCanvas Pro License. It
+contains, however, several files which are derived from other projects.
+The following is a summary of those files and their licenses.
+
+
+Predecessor projects
+--------------------
+
+FlashCanvas Pro is based on the following works:
+
+ * The first implementation of FlashCanvas by Grant Jones
+   http://gxjones.blogspot.com/2008/07/flashcanvas.html
+   Apache License 2.0
+
+ * ASCanvas by Colin Leung
+   http://code.google.com/p/ascanvas/
+   CC0 / Public domain
+
+ * haXe version of FlashCanvas by Tim Cameron Ryan
+   http://timcameronryan.github.com/FlashCanvas/
+   MIT License
+
+
+Third-party libraries used in FlashCanvas Pro
+---------------------------------------------
+
+ * bezier_lib.as by Timothée Groleau
+   http://www.timotheegroleau.com/Flash/articles/cubic_bezier_in_flash.htm
+
+ * JavaScript implementation of arcTo() by MindCat
+   http://d.hatena.ne.jp/mindcat/20100131/1264958828
+   Public domain
+
+ * BitString.as, JPGEncoder.as and PNGEncoder.as by Adobe Systems Incorporated
+   https://github.com/mikechambers/as3corelib
+   New BSD License
+
+
+Examples included in this package
+---------------------------------
+
+This package includes examples from the following pages. The examples
+are modified so as to use FlashCanvas Pro if the browser is Internet
+Explorer 8 or earlier.
+
+ * ExplorerCanvas
+   http://code.google.com/p/explorercanvas/
+   Apache License 2.0
+
+ * Canvas text
+   http://code.google.com/p/canvas-text/
+   MIT License
+
+ * uuCanvas.js
+   http://uupaa-js-spinoff.googlecode.com/svn/trunk/uuCanvas.js/README.htm
+   MIT License & Apache License 2.0
+
+ * Canvas tutorial - Mozilla Developer Center
+   https://developer.mozilla.org/en/Canvas_tutorial
+   MIT License
+
+ * The canvas element - WHATWG
+   http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
+
+
+ * Kaleidoscope by Christophe Résigné
+   http://www.chiptune.com/kaleidoscope/
+   (Included with the permission of the author)
+
+ * Starfield by Christophe Résigné
+   http://www.chiptune.com/starfield/starfield.html
+   (Included with the permission of the author)
+
+ * Cloth Simulation by Andrew Hoyer
+   http://www.andrew-hoyer.com/experiments/cloth
+   (Included with the permission of the author)
+
+ * Same Game by Renaudeau Gaëtan
+   http://blog.grenlibre.fr/2010/02/the-same-game-in-html5-canvas
+   GPL License
+
+ * HTML5 TAMAYOKE!!!111 by Hojamaka Games
+   http://www.hojamaka.com/game/html5yoke/
+   (Included with the permission of the author)
+
+ * Canvas drawImage Benchmark 2010 by Yu Kobayashi
+   http://d.hatena.ne.jp/yukoba/20100310/p1
+   New BSD License
+
+ * HTML5 Canvas Tests by MindCat
+   http://d.hatena.ne.jp/mindcat/
+   (Included with the permission of the author)

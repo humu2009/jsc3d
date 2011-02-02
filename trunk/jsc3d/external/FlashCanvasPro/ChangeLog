@@ -1,0 +1,112 @@
+FlashCanvas Pro
+===============
+
+Version 1.4 (Nov. 15, 2010)
+---------------------------
+
+(Enhancements)
+
+ - Added new features to drawImage() and createPattern().
+   - Made it possible to take an HTMLCanvasElement as an argument.
+   - Made it possible to load image files from other domain.
+ - Prepared FlashCanvas.saveImage() method.
+ - textAlign gets to support the directionality of "rtl".
+ - Refactored the handling of resize event.
+ - Some performance improvements.
+
+(Bug fixes)
+
+ - Canvas was rendered incorrectly when printed.
+   - Canvas was expanded if the page was in quirks mode.
+   - The background was painted gray.
+ - Tweaked the color parser to check the input more strictly.
+ - Shadows were not rendered according to the drawing model.
+
+(etc.)
+
+ - Included canvas2png.js script that can be used to save a canvas image.
+ - Included more benchmark programs and test cases.
+ - Made the examples compatible with IE9.
+
+
+Version 1.3 (Sep. 4, 2010)
+--------------------------
+
+(Enhancements)
+
+ - Supported data URI scheme in drawImage() and createPattern().
+ - Supported repetitions of "repeat-x", "repeat-y" and "no-repeat" in
+   createPattern().
+ - Made it possible to call initElement() before appendChild().
+ - Switched to use JavaScript implementation of measureText().
+
+(Bug fixes)
+
+ - Line styles were not set when the strokeStyle attribute was a
+   CanvasGradient or CanvasPattern object.
+ - Patterns were painted ignoring the globalAlpha attribute.
+ - Patterns assigned to the strokeStyle attribute were not transformed.
+ - The transformation matrix mistakenly affected the shadowOffsetX and
+   shadowOffsetY attributes.
+ - arc() didn't add the end point to the subpath when the central angle
+   was greater than 2 pi.
+ - closePath() must do nothing if the context has no subpaths.
+ - IE8 didn't preload the swf file when the URL was a relative one.
+ - Resize event canceled createLinearGradient().
+ - The disableContextMenu option disabled mouse clicks on the outside of
+   the canvas element.
+ - Many minor bug fixes.
+
+
+Version 1.2.1 (Jun. 14, 2010)
+-----------------------------
+
+ - Supported Flash Player 10.1.
+ - Included one more Canvas game.
+
+
+Version 1.2 (Apr. 23, 2010)
+---------------------------
+
+ - Added a code which emulates ExplorerCanvas library.
+ - Implemented asynchronous data transfer via FlashVars.
+ - Made it possible to use FlashCanvas library installed in other domain.
+ - Optimized drawImage().
+ - Optimized fillText() and strokeText().
+ - Implemented setOptions() method to configure FlashCanvas.
+   - "disableContextMenu" option
+   - "turbo" option
+   - "delay" option
+ - Fixed a bug that fillText(), strokeText(), measureText() caused an
+   error when the first argument was number.
+ - Fixed a bug that swf.resize() method could be called before
+   ExternalInterface was ready for use.
+ - Switched to using onunload event instead of onbeforeunload event.
+ - Included several additional Canvas demos.
+
+
+Version 1.1 (Feb. 28, 2010)
+---------------------------
+
+ - Various bug fixes in drawImage().
+   - draw-image-flip.html, an example from ExplorerCanvas project, is
+     now rendered correctly.
+   - Images are rendered in the right order.
+ - Optimized stroke().
+   - 5_2_canvas_translate.html and 5_4_canvas_scale.html, examples from
+     Mozilla Developer Center, are now rendered in a moment.
+ - Optimized fillText() and strokeText().
+ - Optimized drawImage().
+   - example3.html and resizing.html, examples from ExplorerCanvas
+     project, are now rendered smoothly.
+ - Reduced CPU time consumption.
+ - Added JPEG support to toDataURL().
+ - Implemented "Save Image As..." in the right-click context menu.
+ - Implemented event bubbling for click and dblclick events.
+ - Removed ambiguity from the license.
+
+
+Version 1.0 (Feb. 7, 2010)
+--------------------------
+
+ - Initial release
