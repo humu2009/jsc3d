@@ -1,5 +1,5 @@
 /**
-	@preserve Copyright (c) 2010 Humu humu2009@gmail.com
+	@preserve Copyright (c) 2011 Humu humu2009@gmail.com
 	jsc3d is freely distributable under the terms of the MIT license.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,16 +33,16 @@ JSC3D = {};
 
 	Viewer is the main class of JSC3D. It provides presentation of and interaction with a simple static 3D scene 
 	which can either be given as the url of the scene file, or be manually constructed and passed in. It 
-	also provides some settings to adjust the mode and quality of the rendering.
+	also provides some settings to adjust the mode and quality of the rendering.<br /><br />
 
-	Viewer should be constructed with an existing canvas object where to perform the rendering.
+	Viewer should be constructed with an existing canvas object where to perform the rendering.<br /><br />
 
-	Viewer provides 3 way to specify the scene:
+	Viewer provides 3 way to specify the scene:<br />
 	1. Use setParameter() method before initilization and set 'SceneUrl' parameter with a valid url  
-	   that describes where to load the scene. 
-	2. Use replaceSceneFromUrl() method, passing in a valid url to load/replace scene at runtime.
+	   that describes where to load the scene. <br />
+	2. Use replaceSceneFromUrl() method, passing in a valid url to load/replace scene at runtime.<br />
 	3. Use replaceScene() method, passing in a manually constructed scene to replace the current one 
-	   at runtime.
+	   at runtime.<br />
 */
 JSC3D.Viewer = function(canvas) {
 	this.params = {
@@ -109,19 +109,19 @@ JSC3D.Viewer = function(canvas) {
 };
 
 /**
-	Set the initial value for a parameter to parameterize viewer before initialization.
-	Available parameters are:
-	'SceneUrl':         url string that describes where to load the scene, default: '';
-	'InitRotationX':    initial rotation angle around x-axis for the whole scene, default: 0;
-	'InitRotationY':    initial rotation angle around y-axis for the whole scene, default: 0;
-	'InitRotationZ':    initial rotation angle around z-axis for the whole scene, default: 0;
-	'ModelColor':       fallback color for all meshes, default: '#caa618';
-	'BackgroundColor1': color at the top of the background, default: '#ffffff';
-	'BackgroundColor2': color at the bottom of the background, default: '#383840';
-	'RenderMode':       render mode, default: 'flat';
-	'Definition':       quality level of rendering, default: 'standard'.
-	'MipMapping':       turn on/off mip-mapping, default: 'off'.
-	'SphereMapUrl':     url string that describes where to load the image used for sphere mapping, default: ''.
+	Set the initial value for a parameter to parameterize viewer before initialization.<br />
+	Available parameters are:<br />
+	'<b>SceneUrl</b>':         url string that describes where to load the scene, default: '';<br />
+	'<b>InitRotationX</b>':    initial rotation angle around x-axis for the whole scene, default: 0;<br />
+	'<b>InitRotationY</b>':    initial rotation angle around y-axis for the whole scene, default: 0;<br />
+	'<b>InitRotationZ</b>':    initial rotation angle around z-axis for the whole scene, default: 0;<br />
+	'<b>ModelColor</b>':       fallback color for all meshes, default: '#caa618';<br />
+	'<b>BackgroundColor1</b>': color at the top of the background, default: '#ffffff';<br />
+	'<b>BackgroundColor2</b>': color at the bottom of the background, default: '#383840';<br />
+	'<b>RenderMode</b>':       render mode, default: 'flat';<br />
+	'<b>Definition</b>':       quality level of rendering, default: 'standard';<br />
+	'<b>MipMapping</b>':       turn on/off mip-mapping, default: 'off';<br />
+	'<b>SphereMapUrl</b>':     url string that describes where to load the image used for sphere mapping, default: ''.<br />
 	@param {string} name name of the parameter to set.
 	@param value new value for the parameter.
 */
@@ -244,15 +244,15 @@ JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 };
 
 /**
-	Set render mode.
-	Available render modes are:
-	'point':         render meshes as point clouds;
-	'wireframe':     render meshes as wireframe;
-	'flat':          render meshes as solid objects using flat shading;
-	'smooth':        render meshes as solid objects using smooth shading;
-	'texture':       render meshes as solid textured objects, no lighting will be apllied;
-	'textureflat':   render meshes as solid textured objects, lighting will be calculated per face;
-	'texturesmooth': render meshes as solid textured objects, lighting will be calculated per vertex and interpolated.
+	Set render mode.<br />
+	Available render modes are:<br />
+	'<b>point</b>':         render meshes as point clouds;<br />
+	'<b>wireframe</b>':     render meshes as wireframe;<br />
+	'<b>flat</b>':          render meshes as solid objects using flat shading;<br />
+	'<b>smooth</b>':        render meshes as solid objects using smooth shading;<br />
+	'<b>texture</b>':       render meshes as solid textured objects, no lighting will be apllied;<br />
+	'<b>textureflat</b>':   render meshes as solid textured objects, lighting will be calculated per face;<br />
+	'<b>texturesmooth</b>': render meshes as solid textured objects, lighting will be calculated per vertex and interpolated.<br />
 	@param {string} mode new render mode.
 */
 JSC3D.Viewer.prototype.setRenderMode = function(mode) {
@@ -261,11 +261,11 @@ JSC3D.Viewer.prototype.setRenderMode = function(mode) {
 };
 
 /**
-	Set quality level of rendering.
-	Available quality levels are:
-	'low':      low-quality rendering will be applied, with highest performance;
-	'standard': normal-quality rendering will be applied, with modest performace;
-	'high':     high-quality rendering will be applied, with lowest performace.
+	Set quality level of rendering.<br />
+	Available quality levels are:<br />
+	'<b>low</b>':      low-quality rendering will be applied, with highest performance;<br />
+	'<b>standard</b>': normal-quality rendering will be applied, with modest performace;<br />
+	'<b>high</b>':     high-quality rendering will be applied, with lowest performace.<br />
 	@params {string} definition new quality level.
 */
 JSC3D.Viewer.prototype.setDefinition = function(definition) {
@@ -2839,10 +2839,10 @@ JSC3D.Scene.prototype.maxChildId = 1;
 /**
 	@class Mesh
 
-	This class implements mesh that is used as an expression of 3D object and the basic primitive for rendering. 
-	A mesh basically consists of a sequence of faces, and optioanlly a material, a texture mapping and other attributes and metadata.
-	A face consists of 3 or more coplanary vertex that should be descript in counter-clockwise order.
-	A texture mapping includes a valid texture object with a sequence of texture coordinats specified per vertex.
+	This class implements mesh that is used as an expression of 3D object and the basic primitive for rendering. <br />
+	A mesh basically consists of a sequence of faces, and optioanlly a material, a texture mapping and other attributes and metadata.<br />
+	A face consists of 3 or more coplanary vertex that should be descript in counter-clockwise order.<br />
+	A texture mapping includes a valid texture object with a sequence of texture coordinats specified per vertex.<br />
 */
 JSC3D.Mesh = function() {
 	this.name = '';
@@ -3709,7 +3709,7 @@ JSC3D.ObjLoader = function() {
 
 /**
 	Load scene from a given obj file.
-	@param {string} urlName the url string that specifies where to fetch the obj file.
+	@param {string} urlName a string that specifies where to fetch the obj file.
 */
 JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 	var urlPath = '';
@@ -4094,3 +4094,239 @@ JSC3D.ObjLoader.prototype.onresource = null;
 JSC3D.ObjLoader.prototype.requestCount = 0;
 
 JSC3D.LoaderSelector.registerLoader('obj', JSC3D.ObjLoader);
+
+
+/**
+	@class StlLoader
+
+	This class implements a scene loader from a binary STL file. 
+*/
+JSC3D.StlLoader = function() {
+	this.onload = null;
+	this.onerror = null;
+	this.onprogress = null;
+	this.onresource = null;
+	this.decimalPrecision = 3;
+};
+
+/**
+	Load scene from a given binary STL file.
+	@param {string} urlName a string that specifies where to fetch the STL file.
+*/
+JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
+	var self = this;
+	var xhr = window.XMLHttpRequest ? new XMLHttpRequest : new ActiveXObject('MSXML2.XMLHTTP.3.0');
+	xhr.open('GET', urlName, true);
+	xhr.setRequestHeader("Accept-Charset", "x-user-defined");
+
+	xhr.onreadystatechange = function() {
+		if(this.readyState == 4) {
+			if(this.status == 200 || this.status == 0) {
+				if(self.onload) {
+					if(self.onprogress)
+						self.onprogress('Loading stl file ...', 1);
+					var scene = new JSC3D.Scene;
+					// Hack !!!!!! 
+					// As javascript cannot access contents of the XHR's responseBody property which hold the raw binary data returned by the request, 
+					// we need to generate and execute a vbscript function to extract those data to a javascript array before we can parse them.
+					var data_convert_function = 
+						'Function BinaryToArray(Binary)\n' + 
+						'  Dim length\n' + 
+						'  length = LenB(Binary)\n' + 
+						'  ReDim byteArray(length)\n' + 
+						'  Dim i\n' + 
+						'  For i = 1 To length\n' + 
+						'    byteArray(i-1) = AscB(MidB(Binary, i, 1))\n' + 
+						'  Next\n' + 
+						'  BinaryToArray = byteArray\n' + 
+						'End Function';
+					try {
+						execScript(data_convert_function, 'vbscript');
+						self.parseStl(scene, BinaryToArray(this.responseBody).toArray());
+					} catch(e) {}
+					self.onload(scene);
+				}
+			}
+			else if(self.onerror) {
+				self.onerror('Failed to load stl file \'' + urlName + '\'.');
+			}
+		}
+	};
+
+	if(this.onprogress && xhr.onprogress) {
+		this.onprogress('Loading stl file ...', 0);
+		xhr.onprogress = function(event) {
+			self.onprogress('Loading stl file ...', event.position / event.totalSize);
+		};
+	}
+
+	xhr.send();
+};
+
+/**
+	Set decimal precision that defines the threshold to detect and weld vertices that coincide.
+	@param {number} precision the decimal preciison.
+*/
+JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
+	this.decimalPrecision = precision;
+};
+
+/**
+	Parse contents of a binary STL file and generate the scene.
+	@private
+*/
+JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
+	var UINT16_BYTES = 2;
+	var UINT32_BYTES = 4;
+	var FLOAT_BYTES = 4;
+	var HEADER_BYTES = 80;
+	var FACE_COUNT_BYTES = UINT32_BYTES;
+	var FACE_NORMAL_BYTES = FLOAT_BYTES * 3;
+	var FACE_VERTICES = 3;
+	var VERTEX_BYTES = FLOAT_BYTES * 3;
+	var ATTRIB_BYTE_COUNT_BYTES = UINT16_BYTES;
+
+	// 84 is the minimun length of a valid binary stl file
+	if(data.length < HEADER_BYTES + FACE_COUNT_BYTES)
+		return;
+
+	var cur = 0;
+
+	// skip 80-byte's stl file header
+	cur += HEADER_BYTES;
+
+	// read face count
+	var numOfFaces = this.readUInt32LittleEndian(data, cur);
+	cur += UINT32_BYTES;
+
+	var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
+						(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
+	
+	// file is not complete
+	if(data.length < expectedLen)
+		return;
+
+	var mesh = new JSC3D.Mesh;
+	mesh.faceCount = numOfFaces;
+	mesh.vertexBuffer = [];
+	mesh.indexBuffer = [];
+	mesh.faceNormalBuffer = [];
+	var v2i = {};
+
+	// read faces
+	for(var i=0; i<numOfFaces; i++) {
+		// read normal vector of a face
+		mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
+		cur += FLOAT_BYTES;
+		mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
+		cur += FLOAT_BYTES;
+		mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
+		cur += FLOAT_BYTES;
+
+		// read all 3 vertices of a face
+		for(var j=0; j<FACE_VERTICES; j++) {
+			// read coords of a vertex
+			var x, y, z;
+			x = this.readFloatLittleEndian(data, cur);
+			cur += FLOAT_BYTES;
+			y = this.readFloatLittleEndian(data, cur);
+			cur += FLOAT_BYTES;
+			z = this.readFloatLittleEndian(data, cur);
+			cur += FLOAT_BYTES;
+
+			// weld vertices by the given decimal precision
+			var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
+			var vi = v2i[vertKey];
+			if(vi != undefined) {
+				mesh.indexBuffer.push(vi);
+			}
+			else {
+				vi = mesh.vertexBuffer.length / 3;
+				v2i[vertKey] = vi;
+				mesh.vertexBuffer.push(x);
+				mesh.vertexBuffer.push(y);
+				mesh.vertexBuffer.push(z);
+				mesh.indexBuffer.push(vi);
+			}
+		}
+
+		// mark the end of the indices of a face
+		mesh.indexBuffer.push(-1);
+
+		// skip 2-bytes's 'attribute byte count' field, since we do not deal with any additional attribs
+		cur += ATTRIB_BYTE_COUNT_BYTES;
+		
+	}
+
+	// add mesh to scene
+	if(!mesh.isTrivial())
+		scene.addChild(mesh);
+};
+
+/**
+	@private
+*/
+JSC3D.StlLoader.prototype.readUInt32LittleEndian = function(data, start) {
+	var rv = 0, f = 1;
+	for (var i=0; i<4; i++) {
+		rv += (data[start + i] * f);
+		f *= 256;
+	}
+
+	return rv;
+};
+
+/**
+	@private
+*/
+JSC3D.StlLoader.prototype.readFloatLittleEndian = function(data, start) {
+	var mLen = 23;
+	var eLen = 8;		// 4 * 8 - 23 - 1
+	var eMax = 255;		// (1 << eLen) - 1;
+	var eBias = 127;	// eMax >> 1;
+
+	var i = 3; 
+	var d = -1; 
+	var s = data[start + i]; 
+	i += d; 
+	var bits = -7;
+	var e = s & ((1 << (-bits)) - 1);
+	s >>= -bits;
+	bits += eLen
+	while(bits > 0) {
+		e = e * 256 + data[start + i];
+		i += d;
+		bits -= 8;
+	}
+
+	var m = e & ((1 << (-bits)) - 1);
+	e >>= -bits;
+	bits += mLen;
+	while(bits > 0) {
+		 m = m * 256 + data[start + i];
+		 i += d;
+		 bits -= 8;
+	}
+
+	switch(e) {
+		case 0:		// 0 or denormalized number
+			e = 1 - eBias;
+			break;
+		case eMax:	// NaN or +/-Infinity
+			return m ? NaN:((s ? -1 : 1) * Infinity);
+		default:	// normalized number
+			m = m + Math.pow(2, mLen);
+			e = e - eBias;
+			break;
+	}
+
+	return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+};
+
+JSC3D.StlLoader.prototype.onload = null;
+JSC3D.StlLoader.prototype.onerror = null;
+JSC3D.StlLoader.prototype.onprogress = null;
+JSC3D.StlLoader.prototype.onresource = null;
+JSC3D.StlLoader.prototype.decimalPrecision = 3;
+
+JSC3D.LoaderSelector.registerLoader('stl', JSC3D.StlLoader);
