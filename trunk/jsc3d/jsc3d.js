@@ -2909,6 +2909,8 @@ JSC3D.Mesh.prototype.init = function() {
 		this.calcVertexNormals();
 	}
 
+	this.normalizeFaceNormals();
+
 	this.transformedVertexBuffer = new Array(this.vertexBuffer.length);
 };
 
@@ -3002,7 +3004,7 @@ JSC3D.Mesh.prototype.calcAABB = function() {
 };
 
 /**
-	Calculate per face normals.
+	Calculate per face normals. The reault remain un-normalized for later vertex normal calculations.
 	@private
 */
 JSC3D.Mesh.prototype.calcFaceNormals = function() {
@@ -3036,12 +3038,6 @@ JSC3D.Mesh.prototype.calcFaceNormals = function() {
 		var nx = dy1 * dz2 - dz1 * dy2;
 		var ny = dz1 * dx2 - dx1 * dz2;
 		var nz = dx1 * dy2 - dy1 * dx2;
-		var len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-		if(len > 0) {
-			nx /= len;
-			ny /= len;
-			nz /= len;
-		}
 
 		nbuf[j++] = nx;
 		nbuf[j++] = ny;
@@ -3071,10 +3067,6 @@ JSC3D.Mesh.prototype.calcVertexNormals = function() {
 	}
 
 	var numOfVertices = vbuf.length / 3;
-	var adjFaceCountBuffer = new Array(numOfVertices);
-	for(var i=0; i<numOfVertices; i++) {
-		adjFaceCountBuffer[i] = 0;
-	}
 
 	var i = 0, j = 0, k = 0;
 	while(i < ibuf.length) {
@@ -3084,10 +3076,9 @@ JSC3D.Mesh.prototype.calcVertexNormals = function() {
 		}
 		else {
 			var index = k * 3;
-			vnbuf[index]     += fnbuf[j];
+			vnbuf[index    ] += fnbuf[j];
 			vnbuf[index + 1] += fnbuf[j + 1];
 			vnbuf[index + 2] += fnbuf[j + 2];
-			adjFaceCountBuffer[k]++;
 		}
 	}
 
@@ -3095,14 +3086,6 @@ JSC3D.Mesh.prototype.calcVertexNormals = function() {
 		var nx = vnbuf[i];
 		var ny = vnbuf[i + 1];
 		var nz = vnbuf[i + 2];
-		var faceCount = adjFaceCountBuffer[j];
-
-		if(faceCount > 1) {
-			nx /= faceCount;
-			ny /= faceCount;
-			nz /= faceCount;
-		}
-
 		var len = Math.sqrt(nx * nx + ny * ny + nz * nz);
 		if(len > 0) {
 			nx /= len;
@@ -3110,9 +3093,33 @@ JSC3D.Mesh.prototype.calcVertexNormals = function() {
 			nz /= len;
 		}
 
-		vnbuf[i]     = nx;
+		vnbuf[i    ] = nx;
 		vnbuf[i + 1] = ny;
 		vnbuf[i + 2] = nz;
+	}
+};
+
+/**
+	Normalize face normals.
+	@private
+*/
+JSC3D.Mesh.prototype.normalizeFaceNormals = function() {
+	var nbuf = this.faceNormalBuffer;
+
+	for(var i=0; i<nbuf.length; i+=3) {
+		var nx = nbuf[i];
+		var ny = nbuf[i + 1];
+		var nz = nbuf[i + 2];
+		var len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+		if(len > 0) {
+			nx /= len;
+			ny /= len;
+			nz /= len;
+		}
+
+		nbuf[i    ] = nx;
+		nbuf[i + 1] = ny;
+		nbuf[i + 2] = nz;
 	}
 };
 
