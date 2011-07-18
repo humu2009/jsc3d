@@ -4096,7 +4096,7 @@ JSC3D.LoaderSelector.registerLoader('obj', JSC3D.ObjLoader);
 /**
 	@class StlLoader
 
-	This class implements a scene loader from a binary STL file. 
+	This class implements a scene loader from an STL file. Both binary and ASCII STL files are supported.
 */
 JSC3D.StlLoader = function() {
 	this.onload = null;
@@ -4107,7 +4107,7 @@ JSC3D.StlLoader = function() {
 };
 
 /**
-	Load scene from a given binary STL file.
+	Load scene from a given STL file.
 	@param {string} urlName a string that specifies where to fetch the STL file.
 */
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
@@ -4152,7 +4152,7 @@ JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 };
 
 /**
-	Parse contents of a binary STL file and generate the scene.
+	Parse contents of an STL file and generate the scene.
 	@private
 */
 JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
@@ -4166,78 +4166,138 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	var VERTEX_BYTES = FLOAT_BYTES * 3;
 	var ATTRIB_BYTE_COUNT_BYTES = UINT16_BYTES;
 
-	// 84 is the minimun length of a valid binary stl file
-	if(data.length < HEADER_BYTES + FACE_COUNT_BYTES)
-		return;
-
-	var cur = 0;
-
-	// skip 80-byte's stl file header
-	cur += HEADER_BYTES;
-
-	// read face count
-	var numOfFaces = this.readUInt32LittleEndian(data, cur);
-	cur += UINT32_BYTES;
-
-	var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
-						(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
-	
-	// file is not complete
-	if(data.length < expectedLen)
-		return;
-
 	var mesh = new JSC3D.Mesh;
-	mesh.faceCount = numOfFaces;
 	mesh.vertexBuffer = [];
 	mesh.indexBuffer = [];
 	mesh.faceNormalBuffer = [];
-	var v2i = {};
+	
+	if (data.substring(0, 5).toLowerCase() == 'solid') {
+		/*
+			we have an ASCII STL file.
 
-	// read faces
-	for(var i=0; i<numOfFaces; i++) {
-		// read normal vector of a face
-		mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
-		cur += FLOAT_BYTES;
-		mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
-		cur += FLOAT_BYTES;
-		mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
-		cur += FLOAT_BYTES;
+			code submitted by Triffid Hunter
+		*/
 
-		// read all 3 vertices of a face
-		for(var j=0; j<FACE_VERTICES; j++) {
-			// read coords of a vertex
-			var x, y, z;
-			x = this.readFloatLittleEndian(data, cur);
-			cur += FLOAT_BYTES;
-			y = this.readFloatLittleEndian(data, cur);
-			cur += FLOAT_BYTES;
-			z = this.readFloatLittleEndian(data, cur);
-			cur += FLOAT_BYTES;
+		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+								'outer\\s+loop\\s+' + 
+									'vertex\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+									'vertex\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+									'vertex\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+								'endloop\\s+' + 
+							'endfacet';
+		var faceRegExp = new RegExp(facePattern, 'ig');
+		var matches = data.match(faceRegExp);
 
-			// weld vertices by the given decimal precision
-			var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
-			var vi = v2i[vertKey];
-			if(vi != undefined) {
-				mesh.indexBuffer.push(vi);
-			}
-			else {
-				vi = mesh.vertexBuffer.length / 3;
-				v2i[vertKey] = vi;
-				mesh.vertexBuffer.push(x);
-				mesh.vertexBuffer.push(y);
-				mesh.vertexBuffer.push(z);
-				mesh.indexBuffer.push(vi);
+		if(matches) {		
+			var numOfFaces = matches.length;
+
+			mesh.faceCount = numOfFaces;
+			var v2i = {};
+			
+			// reset regexp for vertex extraction
+			faceRegExp.lastIndex = 0;
+			faceRegExp.global = false;
+
+			// read faces
+			for (var r = faceRegExp.exec(data); r != null;r = faceRegExp.exec(data)) {
+				mesh.faceNormalBuffer.push(parseFloat(r[1]), parseFloat(r[2]), parseFloat(r[3]));
+
+				for (var i = 0; i < 3; i++) {
+					var x = parseFloat(r[4 + (i * 3)]);
+					var y = parseFloat(r[5 + (i * 3)]);
+					var z = parseFloat(r[6 + (i * 3)]);
+					
+					// weld vertices by the given decimal precision
+					var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
+					var vi = v2i[vertKey];
+					if(vi === undefined) {
+						vi = mesh.vertexBuffer.length / 3;
+						v2i[vertKey] = vi;
+						mesh.vertexBuffer.push(x);
+						mesh.vertexBuffer.push(y);
+						mesh.vertexBuffer.push(z);
+					}
+					mesh.indexBuffer.push(vi);
+				}
+				
+				// mark the end of the indices of a face
+				mesh.indexBuffer.push(-1);
 			}
 		}
-
-		// mark the end of the indices of a face
-		mesh.indexBuffer.push(-1);
-
-		// skip 2-bytes's 'attribute byte count' field, since we do not deal with any additional attribs
-		cur += ATTRIB_BYTE_COUNT_BYTES;
-		
 	}
+	else {
+		/*
+			we (probably) have a binary STL file
+		*/
 
+		// 84 is the minimun length of a valid binary stl file
+		if(data.length < HEADER_BYTES + FACE_COUNT_BYTES)
+			return;
+	
+		var cur = 0;
+	
+		// skip 80-byte's stl file header
+		cur += HEADER_BYTES;
+	
+		// read face count
+		var numOfFaces = this.readUInt32LittleEndian(data, cur);
+		cur += UINT32_BYTES;
+	
+		var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
+							(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
+		
+		// file is not complete
+		if(data.length < expectedLen)
+			return;
+	
+		mesh.faceCount = numOfFaces;
+		var v2i = {};
+	
+		// read faces
+		for(var i=0; i<numOfFaces; i++) {
+			// read normal vector of a face
+			mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
+			cur += FLOAT_BYTES;
+			mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
+			cur += FLOAT_BYTES;
+			mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
+			cur += FLOAT_BYTES;
+	
+			// read all 3 vertices of a face
+			for(var j=0; j<FACE_VERTICES; j++) {
+				// read coords of a vertex
+				var x, y, z;
+				x = this.readFloatLittleEndian(data, cur);
+				cur += FLOAT_BYTES;
+				y = this.readFloatLittleEndian(data, cur);
+				cur += FLOAT_BYTES;
+				z = this.readFloatLittleEndian(data, cur);
+				cur += FLOAT_BYTES;
+	
+				// weld vertices by the given decimal precision
+				var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
+				var vi = v2i[vertKey];
+				if(vi != undefined) {
+					mesh.indexBuffer.push(vi);
+				}
+				else {
+					vi = mesh.vertexBuffer.length / 3;
+					v2i[vertKey] = vi;
+					mesh.vertexBuffer.push(x);
+					mesh.vertexBuffer.push(y);
+					mesh.vertexBuffer.push(z);
+					mesh.indexBuffer.push(vi);
+				}
+			}
+	
+			// mark the end of the indices of a face
+			mesh.indexBuffer.push(-1);
+	
+			// skip 2-bytes's 'attribute byte count' field, since we do not deal with any additional attribs
+			cur += ATTRIB_BYTE_COUNT_BYTES;			
+		}
+	}
+	
 	// add mesh to scene
 	if(!mesh.isTrivial())
 		scene.addChild(mesh);
