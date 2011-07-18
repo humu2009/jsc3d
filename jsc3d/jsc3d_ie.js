@@ -4106,7 +4106,7 @@ JSC3D.LoaderSelector.registerLoader('obj', JSC3D.ObjLoader);
 /**
 	@class StlLoader
 
-	This class implements a scene loader from a binary STL file. 
+	This class implements a scene loader from an STL file. Both binary and ASCII STL files are supported.
 */
 JSC3D.StlLoader = function() {
 	this.onload = null;
@@ -4117,14 +4117,18 @@ JSC3D.StlLoader = function() {
 };
 
 /**
-	Load scene from a given binary STL file.
+	Load scene from a given STL file.
 	@param {string} urlName a string that specifies where to fetch the STL file.
 */
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
+	/*
+		we assume this is an ASCII STL file and load it in that manner. 
+		if it is not, we load the same file a second time and treat it as a binary stream.
+	*/
+
 	var self = this;
 	var xhr = window.XMLHttpRequest ? new XMLHttpRequest : new ActiveXObject('MSXML2.XMLHTTP.3.0');
 	xhr.open('GET', urlName, true);
-	xhr.setRequestHeader("Accept-Charset", "x-user-defined");
 
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
@@ -4132,26 +4136,15 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading stl file ...', 1);
-					var scene = new JSC3D.Scene;
-					// Hack !!!!!! 
-					// As javascript cannot access contents of the XHR's responseBody property which hold the raw binary data returned by the request, 
-					// we need to generate and execute a vbscript function to extract those data to a javascript array before we can parse them.
-					var data_convert_function = 
-						'Function BinaryToArray(Binary)\n' + 
-						'  Dim length\n' + 
-						'  length = LenB(Binary)\n' + 
-						'  ReDim byteArray(length)\n' + 
-						'  Dim i\n' + 
-						'  For i = 1 To length\n' + 
-						'    byteArray(i-1) = AscB(MidB(Binary, i, 1))\n' + 
-						'  Next\n' + 
-						'  BinaryToArray = byteArray\n' + 
-						'End Function';
-					try {
-						execScript(data_convert_function, 'vbscript');
-						self.parseStl(scene, BinaryToArray(this.responseBody).toArray());
-					} catch(e) {}
-					self.onload(scene);
+					if(this.responseText.substring(0, 5).toLowerCase() == 'solid') {
+						var scene = new JSC3D.Scene;
+						self.parseStlAscii(scene, this.responseText);
+						self.onload(scene);
+					}
+					else {
+						// this is not an ASCII STL file, reload it as a binary STL file
+						self.loadBinaryFromUrl(urlName);
+					}
 				}
 			}
 			else if(self.onerror) {
@@ -4171,6 +4164,60 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 };
 
 /**
+	Load scene from a given binary STL file.
+	@private
+*/
+JSC3D.StlLoader.prototype.loadBinaryFromUrl = function(urlName) {
+	var self = this;
+	var xhr = window.XMLHttpRequest ? new XMLHttpRequest : new ActiveXObject('MSXML2.XMLHTTP.3.0');
+	xhr.open('GET', urlName, true);
+	xhr.setRequestHeader("Accept-Charset", "x-user-defined");
+
+	xhr.onreadystatechange = function() {
+		if(this.readyState == 4) {
+			if(this.status == 200 || this.status == 0) {
+				if(self.onload) {
+					if(self.onprogress)
+						self.onprogress('Loading binary stl file ...', 1);
+					var scene = new JSC3D.Scene;
+					// Hack !!!!!! 
+					// As javascript cannot access contents of the XHR's responseBody property which hold the raw binary data returned by the request, 
+					// we need to generate and execute a vbscript function to extract those data to a javascript array before we can parse them.
+					var data_convert_function = 
+						'Function BinaryToArray(Binary)\n' + 
+						'  Dim length\n' + 
+						'  length = LenB(Binary)\n' + 
+						'  ReDim byteArray(length)\n' + 
+						'  Dim i\n' + 
+						'  For i = 1 To length\n' + 
+						'    byteArray(i-1) = AscB(MidB(Binary, i, 1))\n' + 
+						'  Next\n' + 
+						'  BinaryToArray = byteArray\n' + 
+						'End Function';
+					try {
+						execScript(data_convert_function, 'vbscript');
+						self.parseStlBinary(scene, BinaryToArray(this.responseBody).toArray());
+					} catch(e) {}
+					self.onload(scene);
+				}
+			}
+			else if(self.onerror) {
+				self.onerror('Failed to load binary stl file \'' + urlName + '\'.');
+			}
+		}
+	};
+
+	if(this.onprogress && xhr.onprogress) {
+		this.onprogress('Loading binary stl file ...', 0);
+		xhr.onprogress = function(event) {
+			self.onprogress('Loading binary stl file ...', event.position / event.totalSize);
+		};
+	}
+
+	xhr.send();
+};
+
+/**
 	Set decimal precision that defines the threshold to detect and weld vertices that coincide.
 	@param {number} precision the decimal preciison.
 */
@@ -4179,10 +4226,73 @@ JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 };
 
 /**
+	Parse contents of an ASCII STL file and generate the scene.
+	Submitted by Triffid Hunter.
+	@private
+*/
+JSC3D.StlLoader.prototype.parseStlAscii = function(scene, data) {
+	var mesh = new JSC3D.Mesh;
+	mesh.vertexBuffer = [];
+	mesh.indexBuffer = [];
+	mesh.faceNormalBuffer = [];
+
+	var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+							'outer\\s+loop\\s+' + 
+								'vertex\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+								'vertex\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+								'vertex\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
+							'endloop\\s+' + 
+						'endfacet';
+	var faceRegExp = new RegExp(facePattern, 'ig');
+	var matches = data.match(faceRegExp);
+
+	if(matches) {		
+		var numOfFaces = matches.length;
+
+		mesh.faceCount = numOfFaces;
+		var v2i = {};
+		
+		// reset regexp for vertex extraction
+		faceRegExp.lastIndex = 0;
+		faceRegExp.global = false;
+
+		// read faces
+		for (var r = faceRegExp.exec(data); r != null;r = faceRegExp.exec(data)) {
+			mesh.faceNormalBuffer.push(parseFloat(r[1]), parseFloat(r[2]), parseFloat(r[3]));
+
+			for (var i = 0; i < 3; i++) {
+				var x = parseFloat(r[4 + (i * 3)]);
+				var y = parseFloat(r[5 + (i * 3)]);
+				var z = parseFloat(r[6 + (i * 3)]);
+				
+				// weld vertices by the given decimal precision
+				var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
+				var vi = v2i[vertKey];
+				if(vi == undefined) {
+					vi = mesh.vertexBuffer.length / 3;
+					v2i[vertKey] = vi;
+					mesh.vertexBuffer.push(x);
+					mesh.vertexBuffer.push(y);
+					mesh.vertexBuffer.push(z);
+				}
+				mesh.indexBuffer.push(vi);
+			}
+			
+			// mark the end of the indices of a face
+			mesh.indexBuffer.push(-1);
+		}
+	}
+
+	// add mesh to scene
+	if(!mesh.isTrivial())
+		scene.addChild(mesh);
+};
+
+/**
 	Parse contents of a binary STL file and generate the scene.
 	@private
 */
-JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
+JSC3D.StlLoader.prototype.parseStlBinary = function(scene, data) {
 	var UINT16_BYTES = 2;
 	var UINT32_BYTES = 4;
 	var FLOAT_BYTES = 4;
