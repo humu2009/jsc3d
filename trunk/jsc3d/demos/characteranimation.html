@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> JSC3D - Character Animation Demo </TITLE>
+  <META NAME="Author" CONTENT="Cal3DJS">
+ </HEAD>
+
+ <BODY>
+	<div style="width:480px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+		<canvas id="cv" style="border: 1px solid;" width="480" height="360" ></canvas>
+		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:6px; top:312px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
+			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
+		</div>
+		<p style="font-family:Arial,sans-serif;">This demo is based on the <a href="http://code.google.com/p/cal3djs/">Cal3DJS</a> 3d character animation library.<p>
+	</div>
+	<script type="text/javascript" src="characteranimation/cal3d.all.min.js"></script>
+	<script type="text/javascript" src="../jsc3d.js"></script>
+
+	<script type="text/javascript">
+		var canvas = document.getElementById('cv');
+		var viewer = new JSC3D.Viewer(canvas);
+		viewer.setParameter('SceneUrl', '');
+		viewer.setParameter('InitRotationX', 90);
+		viewer.setParameter('InitRotationY', -45);
+		viewer.setParameter('InitRotationZ', 0);
+		viewer.setParameter('ModelColor', '#CAA618');
+		viewer.setParameter('BackgroundColor1', '#000034');
+		viewer.setParameter('BackgroundColor2', '#000034');
+		viewer.setParameter('RenderMode', 'smooth');
+		viewer.init();
+		viewer.update();
+
+		viewer.onmousemove = function(x, y, button, unused, mesh) {
+			isPointerUpon = mesh != null;
+		};
+
+		var theModel = null;
+		var scene = new JSC3D.Scene();
+		var isFirstTime = true;
+		var lastTime = 0;
+		var weight0 = 1;
+		var isPointerUpon = false;
+
+		var loadingCallback = {};
+		loadingCallback.onload = function(loaded, url) {
+			theModel = loaded.model;
+			theModel.getMixer().blendCycle(2, weight0, 0);
+			theModel.getMixer().blendCycle(4, 1 - weight0, 0);
+			animate();
+		};
+		loadingCallback.onerror = function(code, url) {
+			viewer.reportError('Failed to load ' + url + '. ' + Cal3D.CalError.getErrorDescription(code));
+		};
+
+		Cal3D.CalLoader.loadModelFromConfigFile('characteranimation/data/cally.cfg', loadingCallback);
+
+		var adjustMotion = function() {
+			weight0 += isPointerUpon ? -0.035 : 0.035;
+			weight0 = weight0 > 0 ? (weight0 < 1 ? weight0 : 1) : 0;
+			theModel.getMixer().blendCycle(2, weight0, 0);
+			theModel.getMixer().blendCycle(4, 1 - weight0, 0);
+		};
+
+		var updateModel = function(deltaTime) {
+			theModel.update(deltaTime);
+		};
+
+		
+		var renderModel = function() {
+			// get the renderer of the model
+			var cal_renderer = theModel.getRenderer();
+
+			// begin the rendering loop
+			if(!cal_renderer.beginRendering())
+				return;
+
+			var m = 0;
+
+			// get the number of meshes in the model
+			var meshCount = cal_renderer.getMeshCount();
+			// render all meshes of the model
+			for(meshId=0; meshId<meshCount; meshId++) {
+				// get the number of submeshes in a mesh
+				var submeshCount = cal_renderer.getSubmeshCount(meshId);
+				// render all submeshes of the mesh
+				for(var submeshId=0; submeshId<submeshCount; submeshId++) {
+					// select mesh and submesh for further data access
+					cal_renderer.selectMeshSubmesh(meshId, submeshId);
+
+					// get the number of faces and vertices of the model
+					var faceCount = cal_renderer.getFaceCount();
+					var vertexCount = cal_renderer.getVertexCount();
+
+					// create and setup all the meshes before the first rendering
+					if(isFirstTime) {
+						var mesh = new JSC3D.Mesh;
+						mesh.indexBuffer = new Array(faceCount * 4);
+						mesh.vertexBuffer = new Array(vertexCount * 3);
+						mesh.vertexNormalBuffer = new Array(vertexCount * 3);
+
+						// get the face indices
+						var indices = new Array(faceCount * 3);
+						cal_renderer.getFaces(indices);
+						// JSC3D calls for a -1 succeeding each group of indices to mark the end of a face
+						for(var k=0; k<faceCount; k++) {
+							var i = k * 4;
+							var j = k * 3;
+							mesh.indexBuffer[i    ] = indices[j    ];
+							mesh.indexBuffer[i + 1] = indices[j + 1];
+							mesh.indexBuffer[i + 2] = indices[j + 2];
+							mesh.indexBuffer[i + 3] = -1;
+						}
+
+						// get coordinates and normals of the vertices
+						cal_renderer.getVertices(mesh.vertexBuffer);
+						cal_renderer.getNormals(mesh.vertexNormalBuffer);
+
+						mesh.init();
+
+						// get the material ambient color
+						var ambientColor = [0, 0, 0, 0];
+						cal_renderer.getAmbientColor(ambientColor);
+						// get the material diffuse color
+						var diffuseColor = [0, 0, 0, 0];
+						cal_renderer.getDiffuseColor(diffuseColor);
+
+						// set the material of the mesh
+						var mat = new JSC3D.Material();
+						//mat.ambientColor = (ambientColor[0] << 16) | (ambientColor[1] << 8) | ambientColor[2];
+						mat.diffuseColor = (diffuseColor[0] << 16) | (diffuseColor[1] << 8) | diffuseColor[2];
+						mat.transparency = 0;
+						mesh.setMaterial(mat);
+
+						// add the mesh to scene
+						scene.addChild(mesh);
+					}
+					else {
+						var mesh = scene.getChildren()[m];
+
+						// update the vertices and normals of the mesh
+						cal_renderer.getVertices(mesh.vertexBuffer);
+						cal_renderer.getNormals(mesh.vertexNormalBuffer);
+
+						// a little Hack into the JSC3D.Mesh, for we need to re-calculate the face normals
+						mesh.calcFaceNormals();
+						mesh.normalizeFaceNormals();
+					}
+
+					m++;
+				}
+			}
+
+			if(isFirstTime) {
+				viewer.replaceScene(scene);
+				isFirstTime = false;
+			}
+
+			// end the rendering loop
+			cal_renderer.endRendering();
+
+			// notify the viewer to render a new frame
+			viewer.update();
+		};
+
+		var animate = function() {
+			lastTime = Date.now() / 1000;
+			setInterval( function() {
+				var currentTime = Date.now() / 1000;
+				var deltaTime = currentTime - lastTime;
+				lastTime = currentTime;
+				if(theModel) {
+					updateModel(deltaTime);
+					renderModel();
+					adjustMotion();
+				}
+			}, 60 /* 16 fps expected */ );
+		};
+  </script>
+ </BODY>
+</HTML>
