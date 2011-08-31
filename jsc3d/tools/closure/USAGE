@@ -1,0 +1,87 @@
+Usage: java [jvm-flags...] com.google.javascript.jscomp.CompilerRunner [flags...] [args...]
+where flags are
+ Standard flags:
+   --help describes all flags
+   --helpshort describes the main class' flags
+   --helpxml emits XML description of all flags
+
+  Flags for com.google.javascript.jscomp.AbstractCompilerRunner:
+   --charset Input charset for all files.; default: 
+   --create_source_map If specified, a source map file mapping the
+      generated source files back to the original source file will be
+      output to the specified path. The %outname% placeholder will
+      expand to the name of the output file that the source map
+      corresponds to.; default: 
+   --D Override the value of a variable annotated @define. The format
+      is <name>[=<val>], where <name> is the name of a @define
+      variable and <val> is a boolean, number, or a single-quoted
+      string that contains no single quotes. If [=<val>] is omitted,
+      the variable is marked true; default: 
+   --externs The file containing javascript externs. You may specify
+      multiple; default: 
+   --js The javascript filename. You may specify multiple; default: 
+   --js_output_file Primary output filename. If not specified, output
+      is written to stdout; default: 
+   --jscomp_error Make the named class of warnings an error.
+      Options:accessControls, checkVars, checkTypes, deprecated,
+      fileoverviewTags, invalidCasts, missingProperties,
+      nonStandardJsDocs, strictModuleDepCheck, undefinedVars,
+      unknownDefines, visibility; default: 
+   --jscomp_off Turn off the named class of warnings.
+      Options:accessControls, checkVars, checkTypes, deprecated,
+      fileoverviewTags, invalidCasts, missingProperties,
+      nonStandardJsDocs, strictModuleDepCheck, undefinedVars,
+      unknownDefines, visibility; default: 
+   --jscomp_warning Make the named class of warnings a normal warning.
+      Options:accessControls, checkVars, checkTypes, deprecated,
+      fileoverviewTags, invalidCasts, missingProperties,
+      nonStandardJsDocs, strictModuleDepCheck, undefinedVars,
+      unknownDefines, visibility; default: 
+   --module A javascript module specification. The format is
+      <name>:<num-js-files>[:[<dep>,...][:]]]. Module names must be
+      unique. Each dep is the name of a module that this module
+      depends on. Modules must be listed in dependency order, and js
+      source files must be listed in the corresponding order. Where
+      --module flags occur in relation to --js flags is unimportant;
+      default: 
+   --module_output_path_prefix Prefix for filenames of compiled js
+      modules. <module-name>.js will be appended to this prefix.
+      Directories will be created as needed. Use with --module;
+      default: ./
+   --module_wrapper An output wrapper for a javascript module
+      (optional). The format is <name>:<wrapper>. The module name must
+      correspond with a module specified using --module. The wrapper
+      must contain %s as the code placeholder; default: 
+   --output_wrapper Interpolate output into this string at the place
+      denoted by the marker token %output%. See
+      --output_wrapper_marker; default: 
+   --output_wrapper_marker Use this token as output marker in the
+      value of --output_wrapper; default: %output%
+   --property_map_output_file File where the serialized version of the
+      property renaming map produced should be saved; default: 
+   --summary_detail_level Controls how detailed the compilation
+      summary is. Values: 0 (never print summary), 1 (print summary
+      only if there are errors or warnings), 2 (print summary if type
+      checking is on, see --check_types), 3 (always print summary).
+      The default level is 1; default: 1
+   --third_party Check source validity but do not enforce Closure
+      style rules and conventions; default: false
+   --variable_map_input_file File containing the serialized version of
+      the variable renaming map produced by a previous compilation;
+      default: 
+
+  Flags for com.google.javascript.jscomp.CompilerRunner:
+   --compilation_level Specifies the compilation level to use.
+      Options: WHITESPACE_ONLY, SIMPLE_OPTIMIZATIONS,
+      ADVANCED_OPTIMIZATIONS; default: SIMPLE_OPTIMIZATIONS
+   --debug Enable debugging options; default: false
+   --formatting Specifies which formatting options, if any, should be
+      applied to the output JS. Options: PRETTY_PRINT,
+      PRINT_INPUT_DELIMITER; default: 
+   --process_closure_primitives Processes built-ins from the Closure
+      library, such as goog.require(), goog.provide(), and
+      goog.exportSymbol(); default: true
+   --use_only_custom_externs Specifies whether the default externs
+      should be excluded; default: false
+   --warning_level Specifies the warning level to use. Options: QUIET,
+      DEFAULT, VERBOSE; default: DEFAULT
