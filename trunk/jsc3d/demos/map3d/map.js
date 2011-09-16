@@ -1,28 +1,28 @@
 /**
-	This file is exported by TileBuilder 0.1.3.
+	This file is exported by TileBuilder 0.2.0.
 	Do NOT edit it manually.
 	11:23 2011/9/7
 */
 
 /**
-	class MapMesh
+	class MapPart
 */
-MapMesh = function() {
+MapPart = function() {
 	this.vertices = [];
 	this.uvs = [];
 	this.textureUrl = '';
 };
 
-MapMesh.prototype.addTriangle = function(x0, y0, z0, u0, v0, x1, y1, z1, u1, v1, x2, y2, z2, u2, v2) {
+MapPart.prototype.addTriangle = function(x0, y0, z0, u0, v0, x1, y1, z1, u1, v1, x2, y2, z2, u2, v2) {
 	this.vertices.push(x0, y0, z0, x1, y1, z1, x2, y2, z2);
 	this.uvs.push(u0, v0, u1, v1, u2, v2);
 };
 
-MapMesh.prototype.setTextureUrl = function(url) {
+MapPart.prototype.setTextureUrl = function(url) {
 	this.textureUrl = url;
 };
 
-MapMesh.prototype.toJscMesh = function() {
+MapPart.prototype.toJscMesh = function() {
 	var jscMesh = new JSC3D.Mesh;
 
 	jscMesh.vertexBuffer = this.vertices;
@@ -79,7 +79,7 @@ var scene = new JSC3D.Scene();
 	The map data:
 */
 
-var map1 = new MapMesh;
+var map1 = new MapPart;
 map1.setTextureUrl('map3d/image_3.jpg');
 map1.addTriangle(348.260039, 930.880623, 65.375489, 0.825194, 0.999023, 348.260039, 927.130566, 67.818238, 0.825194, 0.995121, 355.774802, 930.880623, 65.563568, 0.833015, 0.999023);
 map1.addTriangle(348.260039, 927.130566, 67.818238, 0.825194, 0.995121, 346.385039, 913.97604, 72.044269, 0.823243, 0.981447, 355.774802, 930.880623, 65.563568, 0.833015, 0.999023);
@@ -1374,7 +1374,7 @@ mesh1.setMaterial(mat);
 mesh1.init();
 scene.addChild(mesh1);
 
-var map2 = new MapMesh;
+var map2 = new MapPart;
 map2.setTextureUrl('map3d/image_10.jpg');
 map2.addTriangle(209.229603, 532.598193, 33.25062, 0.062013, 0.997072, 214.869366, 510.053905, 82.295896, 0.09337, 0.973626, 218.634071, 532.598193, 84.067583, 0.098187, 0.997072);
 map2.addTriangle(207.354603, 489.399265, 32.029253, 0.059422, 0.952147, 214.869366, 510.053905, 82.295896, 0.09337, 0.973626, 209.229603, 532.598193, 33.25062, 0.062013, 0.997072);
@@ -2638,7 +2638,7 @@ mesh2.setMaterial(mat);
 mesh2.init();
 scene.addChild(mesh2);
 
-var map3 = new MapMesh;
+var map3 = new MapPart;
 map3.setTextureUrl('map3d/image_9.jpg');
 map3.addTriangle(-374.094706, 792.802335, 65.84454, 0.037104, 0.984526, -406.9663, 806.894361, 68.568246, 0.002927, 0.997758, -360.002694, 781.405679, 79.941396, 0.051754, 0.965349);
 map3.addTriangle(-374.094706, 792.802335, 65.84454, 0.037104, 0.984526, -360.002694, 781.405679, 79.941396, 0.051754, 0.965349, -338.39592, 780.116616, 69.167313, 0.074224, 0.969617);
@@ -2653,7 +2653,7 @@ mesh3.setMaterial(mat);
 mesh3.init();
 scene.addChild(mesh3);
 
-var map4 = new MapMesh;
+var map4 = new MapPart;
 map4.setTextureUrl('map3d/image_12.jpg');
 map4.addTriangle(-803.37006, -27.240701, 82.846789, 0.172857, 0.999023, -805.245118, -46.020284, 92.804129, 0.170892, 0.979495, -793.965649, -27.240701, 82.471663, 0.182621, 0.999023);
 map4.addTriangle(-812.75988, -27.240701, 77.399219, 0.163092, 0.999023, -805.245118, -46.020284, 92.804129, 0.170892, 0.979495, -803.37006, -27.240701, 82.846789, 0.172857, 0.999023);
@@ -4186,7 +4186,7 @@ mesh4.setMaterial(mat);
 mesh4.init();
 scene.addChild(mesh4);
 
-var map5 = new MapMesh;
+var map5 = new MapPart;
 map5.setTextureUrl('map3d/image_11.jpg');
 map5.addTriangle(-1023.173239, -397.339136, 32.239806, 0.395512, 0.981447, -1045.717528, -381.372053, 32.969447, 0.372068, 0.998047, -1063.090832, -382.309611, 35.457231, 0.354001, 0.997072);
 map5.addTriangle(-1063.090832, -382.309611, 35.457231, 0.354001, 0.997072, -1043.842499, -424.937193, 28.447323, 0.374018, 0.952757, -1023.173239, -397.339136, 32.239806, 0.395512, 0.981447);
@@ -5774,7 +5774,7 @@ mesh5.setMaterial(mat);
 mesh5.init();
 scene.addChild(mesh5);
 
-var map6 = new MapMesh;
+var map6 = new MapPart;
 map6.setTextureUrl('map3d/image_6.jpg');
 map6.addTriangle(-542.228419, -756.158075, -9.207518, 0.174807, 0.995502, -538.478362, -759.92278, 47.527228, 0.178706, 0.962102, -523.448836, -756.158075, -12.777393, 0.194336, 0.997361);
 map6.addTriangle(-564.3039, -779.654526, 48.561906, 0.151849, 0.941065, -538.478362, -759.92278, 47.527228, 0.178706, 0.962102, -542.228419, -756.158075, -9.207518, 0.174807, 0.995502);
@@ -6498,7 +6498,7 @@ mesh6.setMaterial(mat);
 mesh6.init();
 scene.addChild(mesh6);
 
-var map7 = new MapMesh;
+var map7 = new MapPart;
 map7.setTextureUrl('map3d/image_5.jpg');
 map7.addTriangle(-470.845496, 930.880623, 24.044679, 0.561522, 0.99903, -476.470553, 917.257347, 27.473187, 0.55566, 0.984866, -442.661445, 930.880623, 23.856471, 0.590821, 0.99903);
 map7.addTriangle(-486.812522, 888.370228, 25.829223, 0.544924, 0.954832, -442.661445, 930.880623, 23.856471, 0.590821, 0.99903, -476.470553, 917.257347, 27.473187, 0.55566, 0.984866);
@@ -8045,7 +8045,7 @@ mesh7.setMaterial(mat);
 mesh7.init();
 scene.addChild(mesh7);
 
-var map8 = new MapMesh;
+var map8 = new MapPart;
 map8.setTextureUrl('map3d/image_8.jpg');
 map8.addTriangle(-876.62804, 607.745822, 60.867138, 0.418945, 0.985354, -852.208694, 617.135584, 61.148311, 0.44433, 0.995111, -861.598514, 619.02529, 70.259252, 0.434569, 0.997063);
 map8.addTriangle(-876.62804, 607.745822, 60.867138, 0.418945, 0.985354, -842.818932, 592.716296, 68.005328, 0.454106, 0.969727, -852.208694, 617.135584, 61.148311, 0.44433, 0.995111);
@@ -9365,7 +9365,7 @@ mesh8.setMaterial(mat);
 mesh8.init();
 scene.addChild(mesh8);
 
-var map9 = new MapMesh;
+var map9 = new MapPart;
 map9.setTextureUrl('map3d/image_7.jpg');
 map9.addTriangle(-1089.751389, 298.322158, 39.559137, 0.138801, 0.997657, -1035.609934, 253.028474, 39.61356, 0.195067, 0.950564, -1055.576069, 282.267213, 39.754139, 0.174312, 0.980963);
 map9.addTriangle(-1089.751389, 298.322158, 39.559137, 0.138801, 0.997657, -1034.438059, 194.448486, 38.885682, 0.196285, 0.889642, -1035.609934, 253.028474, 39.61356, 0.195067, 0.950564);
@@ -9944,7 +9944,7 @@ mesh9.setMaterial(mat);
 mesh9.init();
 scene.addChild(mesh9);
 
-var map10 = new MapMesh;
+var map10 = new MapPart;
 map10.setTextureUrl('map3d/image_4.jpg');
 map10.addTriangle(-279.215332, -27.240701, 0.186273, 0.026372, 0.999023, -301.75962, -27.240701, 5.258416, 0.002927, 0.999023, -298.478313, -43.676476, 7.065678, 0.006342, 0.981934);
 map10.addTriangle(-298.478313, -43.676476, 7.065678, 0.006342, 0.981934, -224.736964, -177.535957, -0.001448, 0.083004, 0.842771, -279.215332, -27.240701, 0.186273, 0.026372, 0.999023);
@@ -11200,7 +11200,7 @@ mesh10.setMaterial(mat);
 mesh10.init();
 scene.addChild(mesh10);
 
-var map11 = new MapMesh;
+var map11 = new MapPart;
 map11.setTextureUrl('map3d/image_2.jpg');
 map11.addTriangle(-360.471452, -57.299752, 1.194808, 0.088385, 0.967773, -376.907249, -27.240701, 2.628477, 0.071281, 0.999023, -418.245768, -27.240701, 5.446137, 0.028324, 0.999023);
 map11.addTriangle(-444.540114, -57.299752, 3.942522, 0.000976, 0.967773, -360.471452, -57.299752, 1.194808, 0.088385, 0.967773, -418.245768, -27.240701, 5.446137, 0.028324, 0.999023);
@@ -12316,7 +12316,7 @@ mesh11.setMaterial(mat);
 mesh11.init();
 scene.addChild(mesh11);
 
-var map12 = new MapMesh;
+var map12 = new MapPart;
 map12.setTextureUrl('map3d/image_1.jpg');
 map12.addTriangle(-118.358381, -683.603248, -5.920176, 0.025641, 0.996675, -119.530284, -715.771703, 32.028851, 0.024421, 0.943504, -99.798524, -718.584261, -7.563653, 0.044924, 0.961157);
 map12.addTriangle(-119.530284, -715.771703, 32.028851, 0.024421, 0.943504, -110.140493, -726.099023, 30.808659, 0.034177, 0.933397, -99.798524, -718.584261, -7.563653, 0.044924, 0.961157);
@@ -12625,5 +12625,18 @@ var mesh12 = map12.toJscMesh();
 mesh12.setMaterial(mat);
 mesh12.init();
 scene.addChild(mesh12);
+
+map1 = undefined;
+map2 = undefined;
+map3 = undefined;
+map4 = undefined;
+map5 = undefined;
+map6 = undefined;
+map7 = undefined;
+map8 = undefined;
+map9 = undefined;
+map10 = undefined;
+map11 = undefined;
+map12 = undefined;
 
 viewer.replaceScene(scene);
