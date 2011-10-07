@@ -55,10 +55,18 @@
 		Cal3D.CalLoader.loadModelFromConfigFile('characteranimation/data/cally.cfg', loadingCallback);
 
 		var adjustMotion = function() {
+			// adjust 'walk' and 'jog' animation blending factors
 			weight0 += isPointerUpon ? -0.035 : 0.035;
 			weight0 = weight0 > 0 ? (weight0 < 1 ? weight0 : 1) : 0;
 			theModel.getMixer().blendCycle(2, weight0, 0);
 			theModel.getMixer().blendCycle(4, 1 - weight0, 0);
+		};
+
+		var randomWave = function() {
+			// randomly execute a 'wave' animation
+			if(Math.random() > 0.99) {
+				theModel.getMixer().executeAction(6, 0.3, 0.3);
+			}
 		};
 
 		var updateModel = function(deltaTime) {
@@ -172,6 +180,7 @@
 					updateModel(deltaTime);
 					renderModel();
 					adjustMotion();
+					randomWave();
 				}
 			}, 60 /* 16 fps expected */ );
 		};
