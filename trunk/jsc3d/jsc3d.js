@@ -41,7 +41,7 @@ JSC3D = {};
 	1. Use setParameter() method before initilization and set 'SceneUrl' parameter with a valid url  
 	   that describes where to load the scene. <br />
 	2. Use replaceSceneFromUrl() method, passing in a valid url to load/replace scene at runtime.<br />
-	3. Use replaceScene() method, passing in a manually constructed scene to replace the current one 
+	3. Use replaceScene() method, passing in a manually constructed scene object to replace the current one 
 	   at runtime.<br />
 */
 JSC3D.Viewer = function(canvas) {
@@ -1782,7 +1782,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 };
 
 /**
-	Render the given mesh as textured object, lighting will be calculated per face.
+	Render the given mesh as textured object. Lighting will be calculated per face.
 	@private
 */
 JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
@@ -2078,7 +2078,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 };
 
 /**
-	Render the given mesh as textured object, lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	Render the given mesh as textured object. Lighting will be calculated per vertex and then inerpolated between and inside scanlines.
 	@private
 */
 JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
@@ -2419,7 +2419,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 };
 
 /**
-	Render the given mesh as solid object with sphere mapping, lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	Render the given mesh as solid object with sphere mapping. Lighting will be calculated per vertex and then inerpolated between and inside scanlines.
 	@private
 */
 JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
@@ -3672,7 +3672,7 @@ JSC3D.LoaderSelector = {
 		@returns {object} loader object for the specific format; null if not found.
 	*/
 	getLoader: function(fileExtName) {
-		var loaderCtor = JSC3D.LoaderSelector.loaderTable[fileExtName];
+		var loaderCtor = JSC3D.LoaderSelector.loaderTable[fileExtName.toLowerCase()];
 		if(!loaderCtor)
 			return null;
 
@@ -4156,26 +4156,40 @@ JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 	@private
 */
 JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
-	var UINT16_BYTES = 2;
-	var UINT32_BYTES = 4;
-	var FLOAT_BYTES = 4;
-	var HEADER_BYTES = 80;
-	var FACE_COUNT_BYTES = UINT32_BYTES;
-	var FACE_NORMAL_BYTES = FLOAT_BYTES * 3;
-	var FACE_VERTICES = 3;
-	var VERTEX_BYTES = FLOAT_BYTES * 3;
+	var UINT16_BYTES            = 2;
+	var UINT32_BYTES            = 4;
+	var FLOAT_BYTES             = 4;
+	var HEADER_BYTES            = 80;
+	var FACE_COUNT_BYTES        = UINT32_BYTES;
+	var FACE_NORMAL_BYTES       = FLOAT_BYTES * 3;
+	var FACE_VERTICES           = 3;
+	var VERTEX_BYTES            = FLOAT_BYTES * 3;
 	var ATTRIB_BYTE_COUNT_BYTES = UINT16_BYTES;
 
 	var mesh = new JSC3D.Mesh;
 	mesh.vertexBuffer = [];
 	mesh.indexBuffer = [];
 	mesh.faceNormalBuffer = [];
-	
-	if (data.substring(0, 5).toLowerCase() == 'solid') {
-		/*
-			we have an ASCII STL file.
 
-			code submitted by Triffid Hunter
+	var isBinary = false;
+
+	// detect whether it is an ASCII STL file or a binary STL file by checking a snippet of file contents.
+	if(data.length >= HEADER_BYTES + FACE_COUNT_BYTES) {
+		var startOfSnippet = HEADER_BYTES + FACE_COUNT_BYTES;
+		var endOfSnippet   = startOfSnippet + Math.min(256, data.length - startOfSnippet);
+		for(var i=startOfSnippet; i<endOfSnippet; i++) {
+			if((data[i].charCodeAt(0) & 0xff) > 0x7f) {
+				isBinary = true;
+				break;
+			}
+		}
+	}
+	
+	if(!isBinary) {
+		/*
+			this should be an ASCII STL file.
+
+			code contributed by Triffid Hunter
 		*/
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
@@ -4199,10 +4213,10 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 			faceRegExp.global = false;
 
 			// read faces
-			for (var r = faceRegExp.exec(data); r != null;r = faceRegExp.exec(data)) {
+			for(var r = faceRegExp.exec(data); r != null;r = faceRegExp.exec(data)) {
 				mesh.faceNormalBuffer.push(parseFloat(r[1]), parseFloat(r[2]), parseFloat(r[3]));
 
-				for (var i = 0; i < 3; i++) {
+				for(var i = 0; i < 3; i++) {
 					var x = parseFloat(r[4 + (i * 3)]);
 					var y = parseFloat(r[5 + (i * 3)]);
 					var z = parseFloat(r[6 + (i * 3)]);
@@ -4227,13 +4241,9 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	}
 	else {
 		/*
-			we (probably) have a binary STL file
+			this is a binary STL file
 		*/
 
-		// 84 is the minimun length of a valid binary stl file
-		if(data.length < HEADER_BYTES + FACE_COUNT_BYTES)
-			return;
-	
 		var cur = 0;
 	
 		// skip 80-byte's stl file header
