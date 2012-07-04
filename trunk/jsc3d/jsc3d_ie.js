@@ -41,7 +41,7 @@ JSC3D = {};
 	1. Use setParameter() method before initilization and set 'SceneUrl' parameter with a valid url  
 	   that describes where to load the scene. <br />
 	2. Use replaceSceneFromUrl() method, passing in a valid url to load/replace scene at runtime.<br />
-	3. Use replaceScene() method, passing in a manually constructed scene to replace the current one 
+	3. Use replaceScene() method, passing in a manually constructed scene object to replace the current one 
 	   at runtime.<br />
 */
 JSC3D.Viewer = function(canvas) {
@@ -1771,7 +1771,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 };
 
 /**
-	Render the given mesh as textured object, lighting will be calculated per face.
+	Render the given mesh as textured object. Lighting will be calculated per face.
 	@private
 */
 JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
@@ -2067,7 +2067,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 };
 
 /**
-	Render the given mesh as textured object, lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	Render the given mesh as textured object. Lighting will be calculated per vertex and then inerpolated between and inside scanlines.
 	@private
 */
 JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
@@ -2408,7 +2408,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 };
 
 /**
-	Render the given mesh as solid object with sphere mapping, lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	Render the given mesh as solid object with sphere mapping. Lighting will be calculated per vertex and then inerpolated between and inside scanlines.
 	@private
 */
 JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
@@ -3682,7 +3682,7 @@ JSC3D.LoaderSelector = {
 		@returns {object} loader object for the specific format; null if not found.
 	*/
 	getLoader: function(fileExtName) {
-		var loaderCtor = JSC3D.LoaderSelector.loaderTable[fileExtName];
+		var loaderCtor = JSC3D.LoaderSelector.loaderTable[fileExtName.toLowerCase()];
 		if(!loaderCtor)
 			return null;
 
@@ -3816,7 +3816,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 					self.setupTexture(textures[textureFileName], urlPath + textureFileName);
 			}
 			else {
-				//TODO: when failed to load mtl file ...
+				//TODO: when failed to load an mtl file ...
 			}
 			if(--self.requestCount == 0)
 				self.onload(scene);
@@ -3861,35 +3861,41 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 	var lines = data.split("\n");
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
-		var tokens = line.split(' ');
+		var tokens = line.split(/[ \t]+/);
 		if(tokens.length > 0) {
 			var keyword = tokens[0];
 			switch(keyword) {
 			case 'v':
-				for(var j=1; j<tokens.length; j++) {
-					tempVertexBuffer.push( parseFloat(tokens[j]) );
+				if(tokens.length > 3) {
+					for(var j=1; j<4; j++) {
+						tempVertexBuffer.push( parseFloat(tokens[j]) );
+					}
 				}
 				break;
 			case 'vn':
 				// ignore vertex normals
 				break;
 			case 'vt':
-				tempTexCoordBuffer.push( parseFloat(tokens[1]) );
-				tempTexCoordBuffer.push( 1 - parseFloat(tokens[2]) );
+				if(tokens.length > 2) {
+					tempTexCoordBuffer.push( parseFloat(tokens[1]) );
+					tempTexCoordBuffer.push( 1 - parseFloat(tokens[2]) );
+				}
 				break;
 			case 'f':
-				for(var j=1; j<tokens.length; j++) {
-					var refs = tokens[j].split('/');
-					curMesh.indexBuffer.push( parseInt(refs[0]) - 1 );
-					if(refs.length > 1 && refs[1] != '') {
-						if(!curMesh.texCoordIndexBuffer)
-							curMesh.texCoordIndexBuffer = [];
-						curMesh.texCoordIndexBuffer.push( parseInt(refs[1]) - 1 );
+				if(tokens.length > 3) {
+					for(var j=1; j<tokens.length; j++) {
+						var refs = tokens[j].split('/');
+						curMesh.indexBuffer.push( parseInt(refs[0]) - 1 );
+						if(refs.length > 1 && refs[1] != '') {
+							if(!curMesh.texCoordIndexBuffer)
+								curMesh.texCoordIndexBuffer = [];
+							curMesh.texCoordIndexBuffer.push( parseInt(refs[1]) - 1 );
+						}
 					}
+					curMesh.indexBuffer.push(-1);				// mark the end of vertex index sequence for the face
+					if(curMesh.texCoordIndexBuffer)
+						curMesh.texCoordIndexBuffer.push(-1);	// mark the end of vertex tex coord index sequence for the face
 				}
-				curMesh.indexBuffer.push(-1);				// mark the end of vertex index sequence for the face
-				if(curMesh.texCoordIndexBuffer)
-					curMesh.texCoordIndexBuffer.push(-1);	// mark the end of vertex tex coord index sequence for the face
 				break;
 			case 'mtllib':
 				if(tokens.length > 1) {
@@ -4004,7 +4010,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 	var lines = data.split("\n");
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
-		var tokens = line.split(' ');
+		var tokens = line.split(/[ \t]+/);
 		if(tokens.length > 0) {
 			var keyword = tokens[0];
 			switch(keyword) {

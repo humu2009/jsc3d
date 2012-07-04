@@ -3806,7 +3806,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 					self.setupTexture(textures[textureFileName], urlPath + textureFileName);
 			}
 			else {
-				//TODO: when failed to load mtl file ...
+				//TODO: when failed to load an mtl file ...
 			}
 			if(--self.requestCount == 0)
 				self.onload(scene);
@@ -3851,35 +3851,41 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 	var lines = data.split("\n");
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
-		var tokens = line.split(' ');
+		var tokens = line.split(/[ \t]+/);
 		if(tokens.length > 0) {
 			var keyword = tokens[0];
 			switch(keyword) {
 			case 'v':
-				for(var j=1; j<tokens.length; j++) {
-					tempVertexBuffer.push( parseFloat(tokens[j]) );
+				if(tokens.length > 3) {
+					for(var j=1; j<4; j++) {
+						tempVertexBuffer.push( parseFloat(tokens[j]) );
+					}
 				}
 				break;
 			case 'vn':
 				// ignore vertex normals
 				break;
 			case 'vt':
-				tempTexCoordBuffer.push( parseFloat(tokens[1]) );
-				tempTexCoordBuffer.push( 1 - parseFloat(tokens[2]) );
+				if(tokens.length > 2) {
+					tempTexCoordBuffer.push( parseFloat(tokens[1]) );
+					tempTexCoordBuffer.push( 1 - parseFloat(tokens[2]) );
+				}
 				break;
 			case 'f':
-				for(var j=1; j<tokens.length; j++) {
-					var refs = tokens[j].split('/');
-					curMesh.indexBuffer.push( parseInt(refs[0]) - 1 );
-					if(refs.length > 1 && refs[1] != '') {
-						if(!curMesh.texCoordIndexBuffer)
-							curMesh.texCoordIndexBuffer = [];
-						curMesh.texCoordIndexBuffer.push( parseInt(refs[1]) - 1 );
+				if(tokens.length > 3) {
+					for(var j=1; j<tokens.length; j++) {
+						var refs = tokens[j].split('/');
+						curMesh.indexBuffer.push( parseInt(refs[0]) - 1 );
+						if(refs.length > 1 && refs[1] != '') {
+							if(!curMesh.texCoordIndexBuffer)
+								curMesh.texCoordIndexBuffer = [];
+							curMesh.texCoordIndexBuffer.push( parseInt(refs[1]) - 1 );
+						}
 					}
+					curMesh.indexBuffer.push(-1);				// mark the end of vertex index sequence for the face
+					if(curMesh.texCoordIndexBuffer)
+						curMesh.texCoordIndexBuffer.push(-1);	// mark the end of vertex tex coord index sequence for the face
 				}
-				curMesh.indexBuffer.push(-1);				// mark the end of vertex index sequence for the face
-				if(curMesh.texCoordIndexBuffer)
-					curMesh.texCoordIndexBuffer.push(-1);	// mark the end of vertex tex coord index sequence for the face
 				break;
 			case 'mtllib':
 				if(tokens.length > 1) {
@@ -3994,7 +4000,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 	var lines = data.split("\n");
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
-		var tokens = line.split(' ');
+		var tokens = line.split(/[ \t]+/);
 		if(tokens.length > 0) {
 			var keyword = tokens[0];
 			switch(keyword) {
