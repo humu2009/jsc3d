@@ -25,7 +25,7 @@
 /**
 	@namespace JSC3D
 */
-JSC3D = {};
+var JSC3D = JSC3D || {};
 
 
 /**
@@ -44,20 +44,35 @@ JSC3D = {};
 	3. Use replaceScene() method, passing in a manually constructed scene object to replace the current one 
 	   at runtime.<br />
 */
-JSC3D.Viewer = function(canvas) {
-	this.params = {
-		SceneUrl: '', 
-		InitRotationX: 0, 
-		InitRotationY: 0, 
-		InitRotationZ: 0, 
-		ModelColor: '#caa618', 
-		BackgroundColor1: '#ffffff', 
-		BackgroundColor2: '#383840', 
-		RenderMode: 'flat', 
-		Definition: 'standard', 
-		MipMapping: 'off', 
-		SphereMapUrl: ''
-	};
+JSC3D.Viewer = function(canvas, parameters) {
+	if(parameters)
+		this.params = {
+			SceneUrl:			parameters.SceneUrl || '', 
+			InitRotationX:		parameters.InitRotationX || 0, 
+			InitRotationY:		parameters.InitRotationY || 0, 
+			InitRotationZ:		parameters.InitRotationZ || 0, 
+			ModelColor:			parameters.ModelColor || '#caa618', 
+			BackgroundColor1:	parameters.BackgroundColor1 || '#ffffff', 
+			BackgroundColor2:	parameters.BackgroundColor2 || '#383840', 
+			RenderMode:			parameters.RenderMode || 'flat', 
+			Definition:			parameters.Definition || 'standard', 
+			MipMapping:			parameters.MipMapping || 'off', 
+			SphereMapUrl:		parameters.SphereMapUrl || ''
+		};
+	else
+		this.params = {
+			SceneUrl: '', 
+			InitRotationX: 0, 
+			InitRotationY: 0, 
+			InitRotationZ: 0, 
+			ModelColor: '#caa618', 
+			BackgroundColor1: '#ffffff', 
+			BackgroundColor2: '#383840', 
+			RenderMode: 'flat', 
+			Definition: 'standard', 
+			MipMapping: 'off', 
+			SphereMapUrl: ''
+		};
 
 	this.canvas = canvas;
 	this.ctx = null;
@@ -2737,8 +2752,8 @@ JSC3D.PickInfo = function() {
 
 	This class implements scene that contains a group of meshes that forms the world. 
 */
-JSC3D.Scene = function() {
-	this.name = '';
+JSC3D.Scene = function(name) {
+	this.name = name || '';
 	this.aabb = null;
 	this.children = [];
 	this.maxChildId = 1;
@@ -2844,23 +2859,23 @@ JSC3D.Scene.prototype.maxChildId = 1;
 	A face consists of 3 or more coplanary vertex that should be descript in counter-clockwise order.<br />
 	A texture mapping includes a valid texture object with a sequence of texture coordinats specified per vertex.<br />
 */
-JSC3D.Mesh = function() {
-	this.name = '';
+JSC3D.Mesh = function(name, visible, material, texture, isDoubleSided, isEnvironmentCast, coordBuffer, indexBuffer, texCoordBuffer, texCoordIndexBuffer) {
+	this.name = name || '';
 	this.metadata = '';
-	this.visible = true;
+	this.visible = visible || true;
 	this.aabb = null;
-	this.vertexBuffer = null;
-	this.indexBuffer = null;
+	this.vertexBuffer = coordBuffer || null;
+	this.indexBuffer = indexBuffer || null;
 	this.vertexNormalBuffer = null;
 	this.faceNormalBuffer = null;
-	this.material = null;
-	this.texture = null;
+	this.material = material || null;
+	this.texture = texture || null;
 	this.faceCount = 0;
-	this.isDoubleSided = false;
-	this.isEnvironmentCast = false;
+	this.isDoubleSided = isDoubleSided || false;
+	this.isEnvironmentCast = isEnvironmentCast || false;
 	this.internalId = 0;
-	this.texCoordBuffer = null;
-	this.texCoordIndexBuffer = null;
+	this.texCoordBuffer = texCoordBuffer || null;
+	this.texCoordIndexBuffer = texCoordIndexBuffer || null;
 	this.transformedVertexBuffer = null;
 	this.transformedVertexNormalZBuffer = null;
 	this.transformedFaceNormalZBuffer = null;
@@ -3141,12 +3156,12 @@ JSC3D.Mesh.prototype.transformedVertexNormalBuffer = null;
 
 	This class implements material which describes the feel and look of a mesh.
 */
-JSC3D.Material = function() {
-	this.name = '';
-	this.ambientColor = 0;
-	this.diffuseColor = 0x7f7f7f;
-	this.transparency = 0;
-	this.simulateSpecular = false;
+JSC3D.Material = function(name, ambientColor, diffuseColor, transparency, simulateSpecular) {
+	this.name = name || '';
+	this.ambientColor = ambientColor || 0;
+	this.diffuseColor = diffuseColor || 0x7f7f7f;
+	this.transparency = transparency || 0;
+	this.simulateSpecular = simulateSpecular || false;
 	this.palette = null;
 };
 
@@ -3235,8 +3250,8 @@ JSC3D.Material.prototype.palette = null;
 
 	This class implements texture which describes the surface details for a mesh.
 */
-JSC3D.Texture = function() {
-	this.name = '';
+JSC3D.Texture = function(name, onready) {
+	this.name = name || '';
 	this.width = 0;
 	this.height = 0;
 	this.data = null;
@@ -3244,7 +3259,7 @@ JSC3D.Texture = function() {
 	this.mipentries = null;
 	this.hasTransparency = false;
 	this.srcUrl = '';
-	this.onready = null;
+	this.onready = (onready && typeof(onready) == 'function') ? onready : null;
 };
 
 /**
@@ -3706,11 +3721,11 @@ JSC3D.LoaderSelector = {
 
 	This class implements a scene loader from a wavefront obj file. 
 */
-JSC3D.ObjLoader = function() {
-	this.onload = null;
-	this.onerror = null;
-	this.onprogress = null;
-	this.onresource = null;
+JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
+	this.onload = (onload && typeof(onload) == 'function') ? onload : null;
+	this.onerror = (onerror && typeof(onerror) == 'function') ? onerror : null;
+	this.onprogress = (onprogress && typeof(onprogress) == 'function') ? onprogress : null;
+	this.onresource = (onresource && typeof(onresource) == 'function') ? onresource : null;
 	this.requestCount = 0;
 };
 
@@ -4114,11 +4129,11 @@ JSC3D.LoaderSelector.registerLoader('obj', JSC3D.ObjLoader);
 
 	This class implements a scene loader from an STL file. Both binary and ASCII STL files are supported.
 */
-JSC3D.StlLoader = function() {
-	this.onload = null;
-	this.onerror = null;
-	this.onprogress = null;
-	this.onresource = null;
+JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
+	this.onload = (onload && typeof(onload) == 'function') ? onload : null;
+	this.onerror = (onerror && typeof(onerror) == 'function') ? onerror : null;
+	this.onprogress = (onprogress && typeof(onprogress) == 'function') ? onprogress : null;
+	this.onresource = (onresource && typeof(onresource) == 'function') ? onresource : null;
 	this.decimalPrecision = 3;
 };
 
