@@ -2862,7 +2862,7 @@ JSC3D.Scene.prototype.maxChildId = 1;
 JSC3D.Mesh = function(name, visible, material, texture, isDoubleSided, isEnvironmentCast, coordBuffer, indexBuffer, texCoordBuffer, texCoordIndexBuffer) {
 	this.name = name || '';
 	this.metadata = '';
-	this.visible = visible || true;
+	this.visible = (visible != undefined) ? visible : true;
 	this.aabb = null;
 	this.vertexBuffer = coordBuffer || null;
 	this.indexBuffer = indexBuffer || null;
@@ -2949,7 +2949,7 @@ JSC3D.Mesh.prototype.hasTexture = function() {
 	return ( (this.texCoordBuffer != null) && (this.texCoordBuffer.length >= 2) && 
 			 (this.texCoordIndexBuffer != null) && (this.texCoordIndexBuffer.length >= 3) && 
 			 (this.texCoordIndexBuffer.length >= this.indexBuffer.length) && 
-			 (this.texture != null) && this.texture.hasData())
+			 (this.texture != null) && this.texture.hasData() );
 };
 
 /**
@@ -4278,7 +4278,7 @@ JSC3D.StlLoader.prototype.parseStlAscii = function(scene, data) {
 		faceRegExp.global = false;
 
 		// read faces
-		for (var r = faceRegExp.exec(data); r != null;r = faceRegExp.exec(data)) {
+		for (var r = faceRegExp.exec(data); r != null; r = faceRegExp.exec(data)) {
 			mesh.faceNormalBuffer.push(parseFloat(r[1]), parseFloat(r[2]), parseFloat(r[3]));
 
 			for (var i = 0; i < 3; i++) {
@@ -4391,7 +4391,7 @@ JSC3D.StlLoader.prototype.parseStlBinary = function(scene, data) {
 		// mark the end of the indices of a face
 		mesh.indexBuffer.push(-1);
 
-		// skip 2-bytes's 'attribute byte count' field, since we do not deal with any additional attribs
+		// skip 2-bytes' 'attribute byte count' field, since we do not deal with any additional attribs
 		cur += ATTRIB_BYTE_COUNT_BYTES;
 		
 	}
@@ -4451,7 +4451,7 @@ JSC3D.StlLoader.prototype.readFloatLittleEndian = function(data, start) {
 			e = 1 - eBias;
 			break;
 		case eMax:	// NaN or +/-Infinity
-			return m ? NaN:((s ? -1 : 1) * Infinity);
+			return m ? NaN : ((s ? -1 : 1) * Infinity);
 		default:	// normalized number
 			m = m + Math.pow(2, mLen);
 			e = e - eBias;
