@@ -3293,6 +3293,8 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 		self.hasTransparency = false;
 		self.srcUrl = '';
 		self.createFromImage(this, useMipmap);
+		if(JSC3D.console)
+			JSC3D.console.logInfo('Finished loading texture image file "' + this.src + '".');
 	};
 
 	img.onerror = function() {
@@ -3303,6 +3305,8 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 		self.height = 0;
 		self.hasTransparency = false;
 		self.srcUrl = '';
+		if(JSC3D.console)
+			JSC3D.console.logWarning('Failed to load texture image file "' + this.src + '". This texture will be discarded.');
 	};
 
 	img.src = imageUrl;
@@ -3755,6 +3759,8 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading obj file ...', 1);
+					if(JSC3D.console)
+						JSC3D.console.logInfo('Finished loading obj file "' + urlName + '".');
 					var scene = new JSC3D.Scene;
 					var mtllibs = self.parseObj(scene, this.responseText);
 					if(mtllibs.length > 0) {
@@ -3765,9 +3771,13 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 						self.onload(scene);
 				}
 			}
-			else if(self.onerror) {
-				self.requestCount--;
-				self.onerror('Failed to load obj file \'' + urlName + '\'.');
+			else {
+				if(JSC3D.console)
+					JSC3D.console.logError('Failed to load obj file "' + urlName + '".');
+				if(self.onerror) {
+					self.requestCount--;
+					self.onerror('Failed to load obj file "' + urlName + '".');
+				}
 			}
 		}
 	};
@@ -3798,6 +3808,8 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 			if(this.status == 200 || this.status == 0) {
 				if(self.onprogress)
 					self.onprogress('Loading mtl file ...', 1);
+				if(JSC3D.console)
+					JSC3D.console.logInfo('Finished loading mtl file "' + urlName + '".');
 				var mtls = self.parseMtl(this.responseText);
 				var textures = {};
 				var meshes = scene.getChildren();
@@ -3822,6 +3834,8 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 			}
 			else {
 				//TODO: when failed to load an mtl file ...
+				if(JSC3D.console)
+					JSC3D.console.logWarning('Failed to load mtl file "' + urlName + '". A default material will be applied.');
 			}
 			if(--self.requestCount == 0)
 				self.onload(scene);
@@ -4140,6 +4154,8 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
 			if(this.status == 200 || this.status == 0) {
+				if(JSC3D.console)
+					JSC3D.console.logInfo('Finished loading stl file "' + urlName + '".');
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading stl file ...', 1);
@@ -4148,8 +4164,11 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 					self.onload(scene);
 				}
 			}
-			else if(self.onerror) {
-				self.onerror('Failed to load stl file \'' + urlName + '\'.');
+			else {
+				if(JSC3D.console)
+					JSC3D.console.logError('Failed to load stl file "' + urlName + '".');
+				if(self.onerror)
+					self.onerror('Failed to load stl file "' + urlName + '".');
 			}
 		}
 	};
