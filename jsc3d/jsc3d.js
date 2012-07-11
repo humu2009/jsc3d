@@ -54,6 +54,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			ModelColor:			parameters.ModelColor || '#caa618', 
 			BackgroundColor1:	parameters.BackgroundColor1 || '#ffffff', 
 			BackgroundColor2:	parameters.BackgroundColor2 || '#383840', 
+			BackgroundImageUrl:	parameters.BackgroundImageUrl || '', 
 			RenderMode:			parameters.RenderMode || 'flat', 
 			Definition:			parameters.Definition || 'standard', 
 			MipMapping:			parameters.MipMapping || 'off', 
@@ -68,6 +69,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			ModelColor: '#caa618', 
 			BackgroundColor1: '#ffffff', 
 			BackgroundColor2: '#383840', 
+			BackgroundImageUrl: '', 
 			RenderMode: 'flat', 
 			Definition: 'standard', 
 			MipMapping: 'off', 
@@ -101,6 +103,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.modelColor = 0xcaa618;
 	this.bkgColor1 = 0xffffff;
 	this.bkgColor2 = 0x383840;
+	this.bkgImageUrl = '';
+	this.bkgImage = null;
 	this.renderMode = 'flat';
 	this.definition = 'standard';
 	this.isMipMappingOn = false;
@@ -128,17 +132,18 @@ JSC3D.Viewer = function(canvas, parameters) {
 /**
 	Set the initial value for a parameter to parameterize the viewer.<br />
 	Available parameters are:<br />
-	'<b>SceneUrl</b>':         url string that describes where to load the scene, default: '';<br />
-	'<b>InitRotationX</b>':    initial rotation angle around x-axis for the whole scene, default: 0;<br />
-	'<b>InitRotationY</b>':    initial rotation angle around y-axis for the whole scene, default: 0;<br />
-	'<b>InitRotationZ</b>':    initial rotation angle around z-axis for the whole scene, default: 0;<br />
-	'<b>ModelColor</b>':       fallback color for all meshes, default: '#caa618';<br />
-	'<b>BackgroundColor1</b>': color at the top of the background, default: '#ffffff';<br />
-	'<b>BackgroundColor2</b>': color at the bottom of the background, default: '#383840';<br />
-	'<b>RenderMode</b>':       render mode, default: 'flat';<br />
-	'<b>Definition</b>':       quality level of rendering, default: 'standard';<br />
-	'<b>MipMapping</b>':       turn on/off mip-mapping, default: 'off';<br />
-	'<b>SphereMapUrl</b>':     url string that describes where to load the image used for sphere mapping, default: ''.<br />
+	'<b>SceneUrl</b>':				url string that describes where to load the scene, default to '';<br />
+	'<b>InitRotationX</b>':			initial rotation angle around x-axis for the whole scene, default to 0;<br />
+	'<b>InitRotationY</b>':			initial rotation angle around y-axis for the whole scene, default to 0;<br />
+	'<b>InitRotationZ</b>':			initial rotation angle around z-axis for the whole scene, default to 0;<br />
+	'<b>ModelColor</b>':			fallback color for all meshes, default to '#caa618';<br />
+	'<b>BackgroundColor1</b>':		color at the top of the background, default to '#ffffff';<br />
+	'<b>BackgroundColor2</b>':		color at the bottom of the background, default to '#383840';<br />
+	'<b>BackgroundImageUrl</b>':	url string that describes where to load the image used for background, default to '';<br />
+	'<b>RenderMode</b>':			render mode, default to 'flat';<br />
+	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
+	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
+	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to ''.<br />
 	@param {string} name name of the parameter to set.
 	@param value new value for the parameter.
 */
@@ -157,6 +162,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.modelColor = parseInt('0x' + this.params['ModelColor'].substring(1));
 	this.bkgColor1 = parseInt('0x' + this.params['BackgroundColor1'].substring(1));
 	this.bkgColor2 = parseInt('0x' + this.params['BackgroundColor2'].substring(1));
+	this.bkgImageUrl = this.params['BackgroundImageUrl'];
 	this.renderMode = this.params['RenderMode'].toLowerCase();
 	this.definition = this.params['Definition'].toLowerCase();
 	this.isMipMappingOn = this.params['MipMapping'].toLowerCase() == 'on';
@@ -216,6 +222,9 @@ JSC3D.Viewer.prototype.init = function() {
 	// set a timer to wake up update routine per 30 milliseconds
 	var self = this;
 	setInterval(function(){self.doUpdate();}, 30);
+
+	// load background image if any
+	this.setBackgroudImageFromUrl(this.bkgImageUrl);
 
 	// load scene if any
 	this.loadScene();
@@ -326,17 +335,41 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 };
 
 /**
+	Specify the url for the background image.
+	@param {string} backgroundImageUrl url string for the background image.
+*/
+JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
+	this.params['BackgroundImageUrl'] = backgroundImageUrl;
+	this.bkgImageUrl = backgroundImageUrl;
+
+	if(backgroundImageUrl == '') {
+		this.bkgImage = null;
+		return;
+	}
+
+	var self = this;
+	var img = new Image;
+
+	img.onload = function() {
+		self.bkgImage = this;
+		self.generateBackground();
+	};
+
+	img.src = backgroundImageUrl;
+};
+
+/**
 	Specify a new image from the given url which will be used for applying sphere mapping.
 	@param {string} sphereMapUrl url string that describes where to load the image.
 */
 JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
+	this.params['SphereMapUrl'] = sphereMapUrl;
+	this.sphereMapUrl = sphereMapUrl;
+
 	if(sphereMapUrl == '') {
 		this.sphereMap = null;
 		return;
 	}
-
-	this.params['SphereMapUrl'] = sphereMapUrl;
-	this.sphereMapUrl = sphereMapUrl;
 
 	var self = this;
 	var newSphereMap = new JSC3D.Texture;
@@ -714,6 +747,19 @@ JSC3D.Viewer.prototype.reportError = function(message) {
 	@private
 */
 JSC3D.Viewer.prototype.generateBackground = function() {
+	if(this.bkgImage) {
+		this.fillBackgroundWithImage();
+	}
+	else {
+		this.fillGradientBackground();
+	}
+};
+
+/**
+	Do fill the background color buffer with gradient colors.
+	@private
+*/
+JSC3D.Viewer.prototype.fillGradientBackground = function() {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
 	var pixels = this.bkgColorBuffer;
@@ -734,6 +780,55 @@ JSC3D.Viewer.prototype.generateBackground = function() {
 		for(var j=0; j<w; j++) {
 			pixels[pix++] = r << 16 | g << 8 | b;
 		}
+	}
+};
+
+/**
+	Do fill the background color buffer with a loaded image.
+	@private
+*/
+JSC3D.Viewer.prototype.fillBackgroundWithImage = function() {
+	var w = this.frameWidth;
+	var h = this.frameHeight;	
+	if(this.bkgImage.width <= 0 || this.bkgImage.height <= 0)
+		return;
+
+	var isCanvasClean = false;
+	var canvas = JSC3D.Texture.cv;
+	if(!canvas) {
+		try {
+			canvas = document.createElement('canvas');
+			JSC3D.Texture.cv = canvas;
+			isCanvasClean = true;
+		}
+		catch(e) {
+			return;
+		}
+	}
+
+	if(canvas.width != w || canvas.height != h) {
+		canvas.width = w;
+		canvas.height = h;
+		isCanvasClean = true;
+	}
+
+	var data = null;
+	try {
+		var ctx = canvas.getContext('2d');
+		if(!isCanvasClean)
+			ctx.clearRect(0, 0, w, h);
+		ctx.drawImage(this.bkgImage, 0, 0, w, h);
+		var imgData = ctx.getImageData(0, 0, w, h);
+		data = imgData.data;
+	}
+	catch(e) {
+		return;
+	}
+
+	var pixels = this.bkgColorBuffer;
+	var size = w * h;
+	for(var i=0, j=0; i<size; i++, j+=4) {
+		pixels[i] = data[j] << 16 | data[j+1] << 8 | data[j+2];
 	}
 };
 
