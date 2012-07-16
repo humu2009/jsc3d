@@ -36,7 +36,7 @@ JSC3D.console = function() {
 	var _container = null;
 	var _isActive = false;
 
-	var icons = {
+	var _icons = {
 		info:	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAj0lEQVQ4jc2SMRKEIAxFUzokZ7Ky8hjW3kQ+VpQWHs/IHdxqZ2eJIp1mJlV4j5BA9LpQuD6B1xTk+EvwqnB9GQ4yGjBLDTJe35wd/taM5KyTBF5qBQm8WMFN61fyoqCm9iKBeonVW/ASjWCbuKsd4DZxZwRERAo33H4kuOEU/j2laXfwnIM7eFbftEX4kfgAqhIisuNA6JsAAAAASUVORK5CYII=', 
 		warn:	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVQ4jWNgGNTgTQ9XwJsergCyNL/u5Vn/po/n/5s+nv+ve3nWk6T5VR+3B0wzDL/q4/Yg2fb7DQwC9xsYBEhyBbLtMDGSXIHsd2QXEOWK1908Duh+R8evu3kccBqArpiQOEHb0b2A1xWEnE7QFa/7uM8Sq/l1H/dZvIE5tAAANzDIfYoSrJQAAAAASUVORK5CYII=', 
 		error:	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAo0lEQVQ4jc2RPQ6DMAyFPSLsMzExcQqUmZsQh4mRgeNhcod2Ka1LfppOYMlDJL/vPTsAtyvhuvOMq3f0+GrGVbju8mJHQyA8tTga0s4/xG9ILIlnXNSAAQA43i8Do9ZZQoByUKnMAUvNRAE6ReBeDsD+A8D+L4AWalAWIJbm0iOKpTkAbCO2pd+4jdgGgNSxcseNQ2zV7IzTWbgzTmKrJiu+pJ5VHxECVZ0hewAAAABJRU5ErkJggg=='
@@ -56,9 +56,9 @@ JSC3D.console = function() {
 		_container.style.whiteSpace = 'pre-wrap';
 		_container.style.fontFamily = 'sans-serif'; 
 		_container.style.fontSize = 'small';
-        _container.style.color = '#00ff00';
-        _container.style.backgroundColor = 'black';
-        _container.style.clear = 'both';
+		_container.style.color = '#00ff00';
+		_container.style.backgroundColor = 'black';
+		_container.style.clear = 'both';
 
 		parent.appendChild(_container);
 
@@ -94,14 +94,14 @@ JSC3D.console = function() {
 			
 			switch(type) {
 			case 'info':
-				newLine.innerHTML = '<img src=' + icons.info + ' style="float:left;">'  + msg;
+				newLine.innerHTML = '<img src=' + _icons.info + ' style="float:left;">'  + msg;
 				break;
 			case 'warn':
-				newLine.innerHTML = '<img src=' + icons.warn + ' style="float:left;">' + msg;
+				newLine.innerHTML = '<img src=' + _icons.warn + ' style="float:left;">' + msg;
 				break;
 			case 'error':
 				newLine.style.color = '#ff0000';
-				newLine.innerHTML = '<img src=' + icons.error + ' style="float:left;">' + msg;
+				newLine.innerHTML = '<img src=' + _icons.error + ' style="float:left;">' + msg;
 				break;
 			default:
 				break;		
