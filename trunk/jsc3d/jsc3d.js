@@ -221,7 +221,7 @@ JSC3D.Viewer.prototype.init = function() {
 
 	// set a timer to wake up update routine per 30 milliseconds
 	var self = this;
-	setInterval(function(){self.doUpdate();}, 30);
+	setInterval( function(){self.doUpdate();}, 30 );
 
 	// load background image if any
 	this.setBackgroudImageFromUrl(this.bkgImageUrl);
@@ -1242,7 +1242,7 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
 
-	// skip this mesh if it is fully transparent
+	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
 		return;
 
@@ -1418,7 +1418,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
 
-	// skip this mesh if it is fully transparent
+	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
 		return;
 
@@ -1919,7 +1919,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
 
-	// skip this mesh if it is fully transparent
+	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
 		return;
 
@@ -2217,7 +2217,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
 
-	// skip this mesh if it is fully transparent
+	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
 		return;
 
@@ -2555,7 +2555,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
 
-	// skip this mesh if it is fully transparent
+	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
 		return;
 
@@ -3765,6 +3765,240 @@ JSC3D.Math3D = {
 
 
 /**
+	@class BinaryStream
+	The helper class to read data from a binary stream.
+*/
+JSC3D.BinaryStream = function(data, isBigEndian) {
+	if(isBigEndian)
+		throw 'JSC3D.BinaryStream constructor failed: Big endian is not supported yet!';
+
+	this.data = data;
+	this.offset = 0;
+};
+
+/**
+	Get size (in bytes) of the stream.
+	@returns {Number} size of the stream.
+*/
+JSC3D.BinaryStream.prototype.size = function() {
+	return this.data.length;
+};
+
+/**
+	Get the current position indicator of the stream.
+	@returns {Number} current position in stream.
+*/
+JSC3D.BinaryStream.prototype.tell = function() {
+	return this.offset;
+};
+
+/**
+	Set the position indicator of the stream to a new position.
+	@param {Number} position the new position.
+	@returns {Boolean} true if succeeded; false if the given position is out of range.
+*/
+JSC3D.BinaryStream.prototype.seek = function(position) {
+	if(position < 0 || position >= this.data.length)
+		return false;
+
+	this.offset = position;
+
+	return true;
+};
+
+/**
+	Reset the position indicator to the beginning of the stream.
+*/
+JSC3D.BinaryStream.prototype.reset = function() {
+	this.offset = 0;
+};
+
+/**
+	Advance the position indicator to skip a given number of bytes.
+	@param {Number} bytesToSkip the number of bytes to skip.
+*/
+JSC3D.BinaryStream.prototype.skip = function(bytesToSkip) {
+	if(this.offset + bytesToSkip > this.data.length)
+		this.offset = this.data.length;
+	else
+		this.offset += bytesToSkip;
+};
+
+/**
+	Get count of the remaining bytes in the stream.
+	@returns {Number} the number of bytes from current position to the end of the stream.
+*/
+JSC3D.BinaryStream.prototype.available = function() {
+	return this.data.length - this.offset;
+};
+
+/**
+	See if the position indicator is already at the end of the stream.
+	@returns {Boolean} true if the position indicator is at the end of the stream; false if not.
+*/
+JSC3D.BinaryStream.prototype.eof = function() {
+	return !(this.offset < this.data.length);
+};
+
+/**
+	Read an 8-bits' unsigned int number.
+	@returns {Number} an 8-bits' unsigned int number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readUInt8 = function() {
+	return this.decodeInt(1, false);
+};
+
+/**
+	Read an 8-bits' signed int number.
+	@returns {Number} an 8-bits' signed int number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readInt8 = function() {
+	return this.decodeInt(1, true);
+};
+
+/**
+	Read a 16-bits' unsigned int number.
+	@returns {Number} a 16-bits' unsigned int number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readUInt16 = function() {
+	return this.decodeInt(2, false);
+};
+
+/**
+	Read a 16-bits' signed int number.
+	@returns {Number} a 16-bits' signed int number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readInt16 = function() {
+	return this.decodeInt(2, true);
+};
+
+/**
+	Read a 32-bits' unsigned int number.
+	@returns {Number} a 32-bits' unsigned int number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readUInt32 = function() {
+	return this.decodeInt(4, false);
+};
+
+/**
+	Read a 32-bits' signed int number.
+	@returns {Number} a 32-bits' signed int number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readInt32 = function() {
+	return this.decodeInt(4, true);
+};
+
+/**
+	Read a 32-bits' (IEEE 754) floating point number.
+	@returns {Number} a 32-bits' floating point number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readFloat32 = function() {
+	return this.decodeFloat(4, 23);
+};
+
+/**
+	Read a 64-bits' (IEEE 754) floating point number.
+	@returns {Number} a 64-bits' floating point number, or NaN if any error occured.
+*/
+JSC3D.BinaryStream.prototype.readFloat64 = function() {
+	return this.decodeFloat(8, 52);
+};
+
+/**
+	Read a piece of the stream into a given buffer.
+	@param {Array} buffer the buffer to receive the result.
+	@param {Number} bytesToRead length of the piece to be read, in bytes.
+	@returns {Number} the total number of bytes that are successfully read.
+*/
+JSC3D.BinaryStream.prototype.readBytes = function(buffer, bytesToRead) {
+	var bytesRead = bytesToRead;
+	if(this.offset + bytesToRead > this.data.length)
+		bytesRead = this.data.length - this.offset;
+
+	for(var i=0; i<bytesRead; i++) {
+		buffer[i] = this.data[this.offset++].charCodeAt(0) & 0xff;
+	}
+
+	return bytesRead;
+};
+
+/**
+	@private
+*/
+JSC3D.BinaryStream.prototype.decodeInt = function(bytes, isSigned) {
+	if(this.offset + bytes > this.data.length) {
+		this.offset = this.data.length;
+		return NaN;
+	}
+
+	var rv = 0, f = 1;
+	for(var i=0; i<bytes; i++) {
+		rv += ((this.data[this.offset++].charCodeAt(0) & 0xff) * f);
+		f *= 256;
+	}
+
+	if( isSigned && (rv & Math.pow(2, bytes * 8 - 1)) )
+		rv -= Math.pow(2, bytes * 8);
+
+	return rv;
+};
+
+/**
+	@private
+*/
+JSC3D.BinaryStream.prototype.decodeFloat = function(bytes, significandBits) {
+	if(this.offset + bytes > this.data.length) {
+		this.offset = this.data.length;
+		return NaN;
+	}
+
+	var mLen = significandBits;
+	var eLen = bytes * 8 - mLen - 1;
+	var eMax = (1 << eLen) - 1;
+	var eBias = eMax >> 1;
+
+	var i = bytes - 1; 
+	var d = -1; 
+	var s = this.data[this.offset + i].charCodeAt(0) & 0xff; 
+	i += d; 
+	var bits = -7;
+	var e = s & ((1 << (-bits)) - 1);
+	s >>= -bits;
+	bits += eLen
+	while(bits > 0) {
+		e = e * 256 + (this.data[this.offset + i].charCodeAt(0) & 0xff);
+		i += d;
+		bits -= 8;
+	}
+
+	var m = e & ((1 << (-bits)) - 1);
+	e >>= -bits;
+	bits += mLen;
+	while(bits > 0) {
+		m = m * 256 + (this.data[this.offset + i].charCodeAt(0) & 0xff);
+		i += d;
+		bits -= 8;
+	}
+
+	this.offset += bytes;
+
+	switch(e) {
+		case 0:		// 0 or denormalized number
+			e = 1 - eBias;
+			break;
+		case eMax:	// NaN or +/-Infinity
+			return m ? NaN : ((s ? -1 : 1) * Infinity);
+		default:	// normalized number
+			m += Math.pow(2, mLen);
+			e -= eBias;
+			break;
+	}
+
+	return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+};
+
+
+/**
 	@class LoaderSelector
 */
 JSC3D.LoaderSelector = {
@@ -4291,15 +4525,13 @@ JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 	@private
 */
 JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
-	var UINT16_BYTES            = 2;
-	var UINT32_BYTES            = 4;
-	var FLOAT_BYTES             = 4;
-	var HEADER_BYTES            = 80;
-	var FACE_COUNT_BYTES        = UINT32_BYTES;
-	var FACE_NORMAL_BYTES       = FLOAT_BYTES * 3;
 	var FACE_VERTICES           = 3;
-	var VERTEX_BYTES            = FLOAT_BYTES * 3;
-	var ATTRIB_BYTE_COUNT_BYTES = UINT16_BYTES;
+
+	var HEADER_BYTES            = 80;
+	var FACE_COUNT_BYTES        = 4;
+	var FACE_NORMAL_BYTES       = 12;
+	var VERTEX_BYTES            = 12;
+	var ATTRIB_BYTE_COUNT_BYTES = 2;
 
 	var mesh = new JSC3D.Mesh;
 	mesh.vertexBuffer = [];
@@ -4307,23 +4539,20 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	mesh.faceNormalBuffer = [];
 
 	var isBinary = false;
+	var reader = new JSC3D.BinaryStream(data);
 
-	// detect whether it is an ASCII STL file or a binary STL file by checking a snippet of file contents.
-	if(data.length >= HEADER_BYTES + FACE_COUNT_BYTES) {
-		var startOfSnippet = HEADER_BYTES + FACE_COUNT_BYTES;
-		var endOfSnippet   = startOfSnippet + Math.min(256, data.length - startOfSnippet);
-		for(var i=startOfSnippet; i<endOfSnippet; i++) {
-			if((data[i].charCodeAt(0) & 0xff) > 0x7f) {
-				isBinary = true;
-				break;
-			}
+	// detect whether this is an ASCII STL file or a binary STL file by checking a snippet of file contents.
+	reader.skip(HEADER_BYTES + FACE_COUNT_BYTES);
+	for(var i=0; i<256 && !reader.eof(); i++) {
+		if(reader.readUInt8() > 0x7f) {
+			isBinary = true;
+			break;
 		}
 	}
 	
 	if(!isBinary) {
 		/*
 			this should be an ASCII STL file.
-
 			code contributed by Triffid Hunter
 		*/
 
@@ -4348,10 +4577,10 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 			faceRegExp.global = false;
 
 			// read faces
-			for(var r = faceRegExp.exec(data); r != null; r = faceRegExp.exec(data)) {
+			for(var r=faceRegExp.exec(data); r!=null; r=faceRegExp.exec(data)) {
 				mesh.faceNormalBuffer.push(parseFloat(r[1]), parseFloat(r[2]), parseFloat(r[3]));
 
-				for(var i = 0; i < 3; i++) {
+				for(var i=0; i<FACE_VERTICES; i++) {
 					var x = parseFloat(r[4 + (i * 3)]);
 					var y = parseFloat(r[5 + (i * 3)]);
 					var z = parseFloat(r[6 + (i * 3)]);
@@ -4379,20 +4608,20 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 			this is a binary STL file
 		*/
 
-		var cur = 0;
+		reader.reset();
 	
-		// skip 80-byte's stl file header
-		cur += HEADER_BYTES;
+		// skip 80-byte's STL file header
+		reader.skip(HEADER_BYTES);
 	
 		// read face count
-		var numOfFaces = this.readUInt32LittleEndian(data, cur);
-		cur += UINT32_BYTES;
+		var numOfFaces = reader.readUInt32();
 	
+		// calculate the expected length of stream
 		var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
 							(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
 		
 		// file is not complete
-		if(data.length < expectedLen)
+		if(reader.size() < expectedLen)
 			return;
 	
 		mesh.faceCount = numOfFaces;
@@ -4401,23 +4630,17 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 		// read faces
 		for(var i=0; i<numOfFaces; i++) {
 			// read normal vector of a face
-			mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
-			cur += FLOAT_BYTES;
-			mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
-			cur += FLOAT_BYTES;
-			mesh.faceNormalBuffer.push(this.readFloatLittleEndian(data, cur));
-			cur += FLOAT_BYTES;
+			mesh.faceNormalBuffer.push(reader.readFloat32());
+			mesh.faceNormalBuffer.push(reader.readFloat32());
+			mesh.faceNormalBuffer.push(reader.readFloat32());
 	
 			// read all 3 vertices of a face
 			for(var j=0; j<FACE_VERTICES; j++) {
 				// read coords of a vertex
 				var x, y, z;
-				x = this.readFloatLittleEndian(data, cur);
-				cur += FLOAT_BYTES;
-				y = this.readFloatLittleEndian(data, cur);
-				cur += FLOAT_BYTES;
-				z = this.readFloatLittleEndian(data, cur);
-				cur += FLOAT_BYTES;
+				x = reader.readFloat32();
+				y = reader.readFloat32();
+				z = reader.readFloat32();
 	
 				// weld vertices by the given decimal precision
 				var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
@@ -4439,73 +4662,13 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 			mesh.indexBuffer.push(-1);
 	
 			// skip 2-bytes' 'attribute byte count' field, since we do not deal with any additional attribs
-			cur += ATTRIB_BYTE_COUNT_BYTES;			
+			reader.skip(ATTRIB_BYTE_COUNT_BYTES);
 		}
 	}
 	
 	// add mesh to scene
 	if(!mesh.isTrivial())
 		scene.addChild(mesh);
-};
-
-/**
-	@private
-*/
-JSC3D.StlLoader.prototype.readUInt32LittleEndian = function(data, start) {
-	var rv = 0, f = 1;
-	for(var i=0; i<4; i++) {
-		rv += ((data[start + i].charCodeAt(0) & 0xff) * f);
-		f *= 256;
-	}
-
-	return rv;
-};
-
-/**
-	@private
-*/
-JSC3D.StlLoader.prototype.readFloatLittleEndian = function(data, start) {
-	var mLen = 23;
-	var eLen = 8;		// 4 * 8 - 23 - 1
-	var eMax = 255;		// (1 << eLen) - 1;
-	var eBias = 127;	// eMax >> 1;
-
-	var i = 3; 
-	var d = -1; 
-	var s = data[start + i].charCodeAt(0) & 0xff; 
-	i += d; 
-	var bits = -7;
-	var e = s & ((1 << (-bits)) - 1);
-	s >>= -bits;
-	bits += eLen
-	while(bits > 0) {
-		e = e * 256 + (data[start + i].charCodeAt(0) & 0xff);
-		i += d;
-		bits -= 8;
-	}
-
-	var m = e & ((1 << (-bits)) - 1);
-	e >>= -bits;
-	bits += mLen;
-	while(bits > 0) {
-		 m = m * 256 + (data[start + i].charCodeAt(0) & 0xff);
-		 i += d;
-		 bits -= 8;
-	}
-
-	switch(e) {
-		case 0:		// 0 or denormalized number
-			e = 1 - eBias;
-			break;
-		case eMax:	// NaN or +/-Infinity
-			return m ? NaN : ((s ? -1 : 1) * Infinity);
-		default:	// normalized number
-			m = m + Math.pow(2, mLen);
-			e = e - eBias;
-			break;
-	}
-
-	return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
 };
 
 JSC3D.StlLoader.prototype.onload = null;
