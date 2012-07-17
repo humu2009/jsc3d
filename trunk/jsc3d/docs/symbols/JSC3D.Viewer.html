@@ -198,6 +198,8 @@ ul.inheritsList
 	
 	<li><a href="../symbols/JSC3D.AABB.html">JSC3D.AABB</a></li>
 	
+	<li><a href="../symbols/JSC3D.BinaryStream.html">JSC3D.BinaryStream</a></li>
+	
 	<li><a href="../symbols/JSC3D.LoaderSelector.html">JSC3D.LoaderSelector</a></li>
 	
 	<li><a href="../symbols/JSC3D.Material.html">JSC3D.Material</a></li>
@@ -271,7 +273,7 @@ ul.inheritsList
 						<td class="attributes">&nbsp;</td>
 						<td class="nameDescription" >
 							<div class="fixedFont">
-								<b><a href="../symbols/JSC3D.Viewer.html">JSC3D.Viewer</a></b>(canvas)
+								<b><a href="../symbols/JSC3D.Viewer.html">JSC3D.Viewer</a></b>(canvas, parameters)
 							</div>
 							<div class="description"></div>
 						</td>
@@ -381,6 +383,15 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/JSC3D.Viewer.html#setBackgroudImageFromUrl">setBackgroudImageFromUrl</a></b>(backgroundImageUrl)
+								</div>
+								<div class="description">Specify the url for the background image.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/JSC3D.Viewer.html#setDefinition">setDefinition</a></b>(definition)
 								</div>
 								<div class="description">Set quality level of rendering.</div>
@@ -440,7 +451,7 @@ ul.inheritsList
 				</div>
 				
 				<div class="fixedFont">
-						<b>JSC3D.Viewer</b>(canvas)
+						<b>JSC3D.Viewer</b>(canvas, parameters)
 				</div>
 				
 				<div class="description">
@@ -457,6 +468,12 @@ ul.inheritsList
 						
 							<dt>
 								 <b>canvas</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>parameters</b>
 								
 							</dt>
 								<dd></dd>
@@ -502,7 +519,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{boolean}</span> <b>enabled</b>
+									<span class="light fixedFont">{Boolean}</span> <b>enabled</b>
 									
 								</dt>
 								<dd>true to enable the default handler; false to disable them.</dd>
@@ -595,13 +612,13 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{float}</span> <b>clientX</b>
+									<span class="light fixedFont">{Number}</span> <b>clientX</b>
 									
 								</dt>
 								<dd>client x coordinate on the current page.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{float}</span> <b>clientY</b>
+									<span class="light fixedFont">{Number}</span> <b>clientY</b>
 									
 								</dt>
 								<dd>client y coordinate on the current page.</dd>
@@ -680,7 +697,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>sceneUrl</b>
+									<span class="light fixedFont">{String}</span> <b>sceneUrl</b>
 									
 								</dt>
 								<dd>url string that describes where to load the new scene.</dd>
@@ -716,7 +733,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>message</b>
+									<span class="light fixedFont">{String}</span> <b>message</b>
 									
 								</dt>
 								<dd>text information about this error.</dd>
@@ -752,13 +769,13 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>task</b>
+									<span class="light fixedFont">{String}</span> <b>task</b>
 									
 								</dt>
 								<dd>text information about current task.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{float}</span> <b>progress</b>
+									<span class="light fixedFont">{Number}</span> <b>progress</b>
 									
 								</dt>
 								<dd>progress of current task. this should be a number between 0 and 1.</dd>
@@ -794,22 +811,58 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{float}</span> <b>rotX</b>
+									<span class="light fixedFont">{Number}</span> <b>rotX</b>
 									
 								</dt>
 								<dd>rotation angle around x-axis in degrees.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{float}</span> <b>rotY</b>
+									<span class="light fixedFont">{Number}</span> <b>rotY</b>
 									
 								</dt>
 								<dd>rotation angle around y-axis in degrees.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{float}</span> <b>rotZ</b>
+									<span class="light fixedFont">{Number}</span> <b>rotZ</b>
 									
 								</dt>
 								<dd>rotation angle around z-axis in degrees.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setBackgroudImageFromUrl"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setBackgroudImageFromUrl</b>(backgroundImageUrl)
+					
+					</div>
+					<div class="description">
+						Specify the url for the background image.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>backgroundImageUrl</b>
+									
+								</dt>
+								<dd>url string for the background image.</dd>
 							
 							</dl>
 						
@@ -872,17 +925,18 @@ ul.inheritsList
 					<div class="description">
 						Set the initial value for a parameter to parameterize the viewer.<br />
 	Available parameters are:<br />
-	'<b>SceneUrl</b>':         url string that describes where to load the scene, default: '';<br />
-	'<b>InitRotationX</b>':    initial rotation angle around x-axis for the whole scene, default: 0;<br />
-	'<b>InitRotationY</b>':    initial rotation angle around y-axis for the whole scene, default: 0;<br />
-	'<b>InitRotationZ</b>':    initial rotation angle around z-axis for the whole scene, default: 0;<br />
-	'<b>ModelColor</b>':       fallback color for all meshes, default: '#caa618';<br />
-	'<b>BackgroundColor1</b>': color at the top of the background, default: '#ffffff';<br />
-	'<b>BackgroundColor2</b>': color at the bottom of the background, default: '#383840';<br />
-	'<b>RenderMode</b>':       render mode, default: 'flat';<br />
-	'<b>Definition</b>':       quality level of rendering, default: 'standard';<br />
-	'<b>MipMapping</b>':       turn on/off mip-mapping, default: 'off';<br />
-	'<b>SphereMapUrl</b>':     url string that describes where to load the image used for sphere mapping, default: ''.<br />
+	'<b>SceneUrl</b>':				url string that describes where to load the scene, default to '';<br />
+	'<b>InitRotationX</b>':			initial rotation angle around x-axis for the whole scene, default to 0;<br />
+	'<b>InitRotationY</b>':			initial rotation angle around y-axis for the whole scene, default to 0;<br />
+	'<b>InitRotationZ</b>':			initial rotation angle around z-axis for the whole scene, default to 0;<br />
+	'<b>ModelColor</b>':			fallback color for all meshes, default to '#caa618';<br />
+	'<b>BackgroundColor1</b>':		color at the top of the background, default to '#ffffff';<br />
+	'<b>BackgroundColor2</b>':		color at the bottom of the background, default to '#383840';<br />
+	'<b>BackgroundImageUrl</b>':	url string that describes where to load the image used for background, default to '';<br />
+	'<b>RenderMode</b>':			render mode, default to 'flat';<br />
+	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
+	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
+	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to ''.<br />
 						
 						
 					</div>
@@ -894,7 +948,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>name</b>
+									<span class="light fixedFont">{String}</span> <b>name</b>
 									
 								</dt>
 								<dd>name of the parameter to set.</dd>
@@ -944,7 +998,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>mode</b>
+									<span class="light fixedFont">{String}</span> <b>mode</b>
 									
 								</dt>
 								<dd>new render mode.</dd>
@@ -980,7 +1034,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>sphereMapUrl</b>
+									<span class="light fixedFont">{String}</span> <b>sphereMapUrl</b>
 									
 								</dt>
 								<dd>url string that describes where to load the image.</dd>
@@ -1016,7 +1070,7 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{boolean}</span> <b>repaintOnly</b>
+									<span class="light fixedFont">{Boolean}</span> <b>repaintOnly</b>
 									
 								</dt>
 								<dd>true to repaint last frame; false(default) to render a new frame.</dd>
@@ -1044,7 +1098,7 @@ ul.inheritsList
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.1.0 on Tue Aug 30 2011 11:39:05 GMT+0800 (CST)
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> 2.1.0 on Tue Jul 17 2012 08:52:47 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
