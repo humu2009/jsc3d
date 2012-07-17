@@ -127,11 +127,18 @@ JSC3D.console = function() {
 		}
 	}
 
+	function _clear() {
+		while(_container.lastChild) {
+			_container.removeChild(_container.lastChild);
+		}
+	}
+
 	return {
 		setup:		_setup, 
 		activate:	_activate, 
 		logInfo:	_logInfo, 
 		logWarning:	_logWarning, 
-		logError:	_logError
+		logError:	_logError, 
+		clear:		_clear
 	};
 } ();
