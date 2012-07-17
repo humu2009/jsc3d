@@ -144,7 +144,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
 	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
 	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to ''.<br />
-	@param {string} name name of the parameter to set.
+	@param {String} name name of the parameter to set.
 	@param value new value for the parameter.
 */
 JSC3D.Viewer.prototype.setParameter = function(name, value) {
@@ -235,7 +235,7 @@ JSC3D.Viewer.prototype.init = function() {
 
 /**
 	Ask viewer to render a new frame or just repaint last frame.
-	@param {boolean} repaintOnly true to repaint last frame; false(default) to render a new frame.
+	@param {Boolean} repaintOnly true to repaint last frame; false(default) to render a new frame.
 */
 JSC3D.Viewer.prototype.update = function(repaintOnly) {
 	if(this.isFailed) {
@@ -251,9 +251,9 @@ JSC3D.Viewer.prototype.update = function(repaintOnly) {
 
 /**
 	Set rotation angles of the whole scene around axis vectors.
-	@param {float} rotX rotation angle around x-axis in degrees.
-	@param {float} rotY rotation angle around y-axis in degrees.
-	@param {float} rotZ rotation angle around z-axis in degrees.
+	@param {Number} rotX rotation angle around x-axis in degrees.
+	@param {Number} rotY rotation angle around y-axis in degrees.
+	@param {Number} rotZ rotation angle around z-axis in degrees.
 */
 JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 	this.rotMatrix.rotateAboutXAxis(rotX);
@@ -271,7 +271,7 @@ JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 	'<b>texture</b>':       render meshes as solid textured objects, no lighting will be apllied;<br />
 	'<b>textureflat</b>':   render meshes as solid textured objects, lighting will be calculated per face;<br />
 	'<b>texturesmooth</b>': render meshes as solid textured objects, lighting will be calculated per vertex and interpolated.<br />
-	@param {string} mode new render mode.
+	@param {String} mode new render mode.
 */
 JSC3D.Viewer.prototype.setRenderMode = function(mode) {
 	this.params['RenderMode'] = mode;
@@ -284,7 +284,7 @@ JSC3D.Viewer.prototype.setRenderMode = function(mode) {
 	'<b>low</b>':      low-quality rendering will be applied, with highest performance;<br />
 	'<b>standard</b>': normal-quality rendering will be applied, with modest performace;<br />
 	'<b>high</b>':     high-quality rendering will be applied, with lowest performace.<br />
-	@params {string} definition new quality level.
+	@params {String} definition new quality level.
 */
 JSC3D.Viewer.prototype.setDefinition = function(definition) {
 	if(this.canvas.width <= 2 || this.canvas.height <= 2)
@@ -336,7 +336,7 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 
 /**
 	Specify the url for the background image.
-	@param {string} backgroundImageUrl url string for the background image.
+	@param {String} backgroundImageUrl url string for the background image.
 */
 JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
 	this.params['BackgroundImageUrl'] = backgroundImageUrl;
@@ -360,7 +360,7 @@ JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
 
 /**
 	Specify a new image from the given url which will be used for applying sphere mapping.
-	@param {string} sphereMapUrl url string that describes where to load the image.
+	@param {String} sphereMapUrl url string that describes where to load the image.
 */
 JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
 	this.params['SphereMapUrl'] = sphereMapUrl;
@@ -384,7 +384,7 @@ JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
 
 /**
 	Enable/Disable the default mouse and key event handling routines.
-	@param {boolean} enabled true to enable the default handler; false to disable them.
+	@param {Boolean} enabled true to enable the default handler; false to disable them.
 */
 JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 	this.isDefaultInputHandlerEnabled = enabled;
@@ -392,7 +392,7 @@ JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 
 /**
 	Load a new scene from the given url to replace the current scene.
-	@param {string} sceneUrl url string that describes where to load the new scene.
+	@param {String} sceneUrl url string that describes where to load the new scene.
 */
 JSC3D.Viewer.prototype.replaceSceneFromUrl = function(sceneUrl) {
 	this.params['SceneUrl'] = sceneUrl;
@@ -424,8 +424,8 @@ JSC3D.Viewer.prototype.getScene = function() {
 
 /**
 	Query information at a given position on the canvas.
-	@param {float} clientX client x coordinate on the current page.
-	@param {float} clientY client y coordinate on the current page.
+	@param {Number} clientX client x coordinate on the current page.
+	@param {Number} clientY client y coordinate on the current page.
 	@returns {JSC3D.PickInfo} a PickInfo object which hold the result.
 */
 JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
@@ -684,8 +684,8 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
 
 /**
 	Show progress and some informations about current time-cosuming task.
-	@param {string} task text information about current task.
-	@param {float} progress progress of current task. this should be a number between 0 and 1.
+	@param {String} task text information about current task.
+	@param {Number} progress progress of current task. this should be a number between 0 and 1.
 */
 JSC3D.Viewer.prototype.reportProgress = function(task, progress) {
 	if(!this.ctx)
@@ -718,7 +718,7 @@ JSC3D.Viewer.prototype.reportProgress = function(task, progress) {
 
 /**
 	Show informations about a fatal error.
-	@param {string} message text information about this error.
+	@param {String} message text information about this error.
 */
 JSC3D.Viewer.prototype.reportError = function(message) {
 	if(!this.ctx)
@@ -2885,7 +2885,7 @@ JSC3D.Scene.prototype.init = function() {
 
 /**
 	See if the scene is empty.
-	@returns {boolean} true if it contains no meshes; false if it has any.
+	@returns {Boolean} true if it contains no meshes; false if it has any.
 */
 JSC3D.Scene.prototype.isEmpty = function() {
 	return (this.children.length == 0);
@@ -3026,7 +3026,7 @@ JSC3D.Mesh.prototype.init = function() {
 
 /**
 	See if the mesh is a trivial mesh. A trivial mesh should be omited in any calculations and rendering.
-	@returns {boolean} true if it is trivial; false if not.
+	@returns {Boolean} true if it is trivial; false if not.
 */
 JSC3D.Mesh.prototype.isTrivial = function() {
 	return ( !this.vertexBuffer || this.vertexBuffer.length < 3 || 
@@ -3051,7 +3051,7 @@ JSC3D.Mesh.prototype.setTexture = function(texture) {
 
 /**
 	See if the mesh has valid texture mapping.
-	@returns {boolean} true if it has valid texture mapping; false if not.
+	@returns {Boolean} true if it has valid texture mapping; false if not.
 */
 JSC3D.Mesh.prototype.hasTexture = function() {
 	return ( (this.texCoordBuffer != null) && (this.texCoordBuffer.length >= 2) && 
@@ -3372,8 +3372,8 @@ JSC3D.Texture = function(name, onready) {
 
 /**
 	Load an image and extract texture data from it.
-	@param {string} imageUrl where to load the image.
-	@param {boolean} useMipmap set true to generate mip-maps; false(default) not to generate mip-maps.
+	@param {String} imageUrl where to load the image.
+	@param {Boolean} useMipmap set true to generate mip-maps; false(default) not to generate mip-maps.
 */
 JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 	var self = this;
@@ -3410,7 +3410,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 /**
 	Extract texture data from an exsisting image.
 	@param {Image} image image as datasource of the texture.
-	@param {boolean} useMipmap set true to generate mip-maps; false(default) not to generate mip-maps.
+	@param {Boolean} useMipmap set true to generate mip-maps; false(default) not to generate mip-maps.
 */
 JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 	if(image.width <=0 || image.height <=0)
@@ -3484,7 +3484,7 @@ JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 
 /**
 	See if this texture contains texel data.
-	@returns {boolean} true if it has texel data; false if not.
+	@returns {Boolean} true if it has texel data; false if not.
 */
 JSC3D.Texture.prototype.hasData = function() {
 	return (this.data != null);
@@ -3533,7 +3533,7 @@ JSC3D.Texture.prototype.generateMipmaps = function() {
 
 /**
 	See if this texture has mip-maps.
-	@returns {boolean} true if it has mip-maps; false if not.
+	@returns {Boolean} true if it has mip-maps; false if not.
 */
 JSC3D.Texture.prototype.hasMipmap = function() {
 	return (this.mipmaps != null);
@@ -3572,7 +3572,7 @@ JSC3D.AABB.prototype.center = function() {
 
 /**
 	Get the length of the diagonal of the AABB.
-	@returns {float} length of the diagonal.
+	@returns {Number} length of the diagonal.
 */
 JSC3D.AABB.prototype.lengthOfDiagonal = function() {
 	var xx = this.maxX - this.minX;
@@ -3604,9 +3604,9 @@ JSC3D.Matrix3x4.prototype.identity = function() {
 
 /**
 	Scale the matrix using scaling factors on each axial directions.
-	@param {float} sx scaling factors on x-axis.
-	@param {float} sy scaling factors on y-axis.
-	@param {float} sz scaling factors on z-axis.
+	@param {Number} sx scaling factors on x-axis.
+	@param {Number} sy scaling factors on y-axis.
+	@param {Number} sz scaling factors on z-axis.
 */
 JSC3D.Matrix3x4.prototype.scale = function(sx, sy, sz) {
 	this.m00 *= sx; this.m01 *= sx; this.m02 *= sx; this.m03 *= sx;
@@ -3616,9 +3616,9 @@ JSC3D.Matrix3x4.prototype.scale = function(sx, sy, sz) {
 
 /**
 	Translate the matrix using translations on each axial directions.
-	@param {float} tx translations on x-axis.
-	@param {float} ty translations on y-axis.
-	@param {float} tz translations on z-axis.
+	@param {Number} tx translations on x-axis.
+	@param {Number} ty translations on y-axis.
+	@param {Number} tz translations on z-axis.
 */
 JSC3D.Matrix3x4.prototype.translate = function(tx, ty, tz) {
 	this.m03 += tx;
@@ -3628,7 +3628,7 @@ JSC3D.Matrix3x4.prototype.translate = function(tx, ty, tz) {
 
 /**
 	Rotate the matrix an arbitrary angle about the x-axis.
-	@param {float} angle rotation angle in degrees.
+	@param {Number} angle rotation angle in degrees.
 */
 JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 	if(angle != 0) {
@@ -3652,7 +3652,7 @@ JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 
 /**
 	Rotate the matrix an arbitrary angle about the y-axis.
-	@param {float} angle rotation angle in degrees.
+	@param {Number} angle rotation angle in degrees.
 */
 JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 	if(angle != 0) {
@@ -3676,7 +3676,7 @@ JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 
 /**
 	Rotate the matrix an arbitrary angle about the z-axis.
-	@param {float} angle rotation angle in degrees.
+	@param {Number} angle rotation angle in degrees.
 */
 JSC3D.Matrix3x4.prototype.rotateAboutZAxis = function(angle) {
 	if(angle != 0) {
@@ -3766,7 +3766,7 @@ JSC3D.Math3D = {
 
 /**
 	@class BinaryStream
-	The helper class to read data from a binary stream.
+	The helper class to parse data from a binary stream.
 */
 JSC3D.BinaryStream = function(data, isBigEndian) {
 	if(isBigEndian)
@@ -3777,8 +3777,8 @@ JSC3D.BinaryStream = function(data, isBigEndian) {
 };
 
 /**
-	Get size (in bytes) of the stream.
-	@returns {Number} size of the stream.
+	Get the full length (in bytes) of the stream.
+	@returns {Number} the length of the stream.
 */
 JSC3D.BinaryStream.prototype.size = function() {
 	return this.data.length;
@@ -4005,7 +4005,7 @@ JSC3D.LoaderSelector = {
 
 	/**
 		Register a scene loader for a specific file format, using the file extesion name for lookup.
-		@param {string} fileExtName extension name for the specific file format.
+		@param {String} fileExtName extension name for the specific file format.
 		@param {Function} loaderCtor constructor of the loader class.
 	*/
 	registerLoader: function(fileExtName, loaderCtor) {
@@ -4016,8 +4016,8 @@ JSC3D.LoaderSelector = {
 
 	/**
 		Get the proper loader for a target file format using the file extension name.
-		@param {string} fileExtName file extension name for the specific format.
-		@returns {object} loader object for the specific format; null if not found.
+		@param {String} fileExtName file extension name for the specific format.
+		@returns {Object} loader object for the specific format; null if not found.
 	*/
 	getLoader: function(fileExtName) {
 		var loaderCtor = JSC3D.LoaderSelector.loaderTable[fileExtName.toLowerCase()];
@@ -4054,7 +4054,7 @@ JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
 
 /**
 	Load scene from a given obj file.
-	@param {string} urlName a string that specifies where to fetch the obj file.
+	@param {String} urlName a string that specifies where to fetch the obj file.
 */
 JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 	var urlPath = '';
@@ -4472,7 +4472,7 @@ JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
 
 /**
 	Load scene from a given STL file.
-	@param {string} urlName a string that specifies where to fetch the STL file.
+	@param {String} urlName a string that specifies where to fetch the STL file.
 */
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
@@ -4514,7 +4514,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 
 /**
 	Set decimal precision that defines the threshold to detect and weld vertices that coincide.
-	@param {number} precision the decimal preciison.
+	@param {Number} precision the decimal preciison.
 */
 JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 	this.decimalPrecision = precision;
@@ -4541,7 +4541,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	var isBinary = false;
 	var reader = new JSC3D.BinaryStream(data);
 
-	// detect whether this is an ASCII STL file or a binary STL file by checking a snippet of file contents.
+	// detect whether this is an ASCII STL stream or a binary STL stream by checking a snippet of contents.
 	reader.skip(HEADER_BYTES + FACE_COUNT_BYTES);
 	for(var i=0; i<256 && !reader.eof(); i++) {
 		if(reader.readUInt8() > 0x7f) {
@@ -4553,7 +4553,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	if(!isBinary) {
 		/*
 			this should be an ASCII STL file.
-			code contributed by Triffid Hunter
+			code contributed by Triffid Hunter.
 		*/
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
