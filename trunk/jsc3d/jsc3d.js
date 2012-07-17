@@ -4484,10 +4484,10 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 		if(this.readyState == 4) {
 			if(this.status == 200 || this.status == 0) {
 				if(JSC3D.console)
-					JSC3D.console.logInfo('Finished loading stl file "' + urlName + '".');
+					JSC3D.console.logInfo('Finished loading STL file "' + urlName + '".');
 				if(self.onload) {
 					if(self.onprogress)
-						self.onprogress('Loading stl file ...', 1);
+						self.onprogress('Loading STL file ...', 1);
 					var scene = new JSC3D.Scene;
 					self.parseStl(scene, this.responseText);
 					self.onload(scene);
@@ -4495,17 +4495,17 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 			}
 			else {
 				if(JSC3D.console)
-					JSC3D.console.logError('Failed to load stl file "' + urlName + '".');
+					JSC3D.console.logError('Failed to load STL file "' + urlName + '".');
 				if(self.onerror)
-					self.onerror('Failed to load stl file "' + urlName + '".');
+					self.onerror('Failed to load STL file "' + urlName + '".');
 			}
 		}
 	};
 
 	if(this.onprogress) {
-		this.onprogress('Loading stl file ...', 0);
+		this.onprogress('Loading STL file ...', 0);
 		xhr.onprogress = function(event) {
-			self.onprogress('Loading stl file ...', event.position / event.totalSize);
+			self.onprogress('Loading STL file ...', event.position / event.totalSize);
 		};
 	}
 
@@ -4549,6 +4549,9 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 			break;
 		}
 	}
+
+	if(JSC3D.console)
+		JSC3D.console.logInfo('This is recognised as ' + (isBinary ? 'a binary' : 'an ASCII') + ' STL file.');
 	
 	if(!isBinary) {
 		/*
@@ -4616,13 +4619,16 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 		// read face count
 		var numOfFaces = reader.readUInt32();
 	
-		// calculate the expected length of stream
+		// calculate the expected length of the stream
 		var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
 							(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
 		
 		// file is not complete
-		if(reader.size() < expectedLen)
+		if(reader.size() < expectedLen) {
+			if(JSC3D.console)
+				JSC3D.console.logError('Failed to parse contents of the file. It seems not complete.');
 			return;
+		}
 	
 		mesh.faceCount = numOfFaces;
 		var v2i = {};
