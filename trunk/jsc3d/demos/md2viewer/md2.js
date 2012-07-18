@@ -31,6 +31,8 @@ var JSC3D = JSC3D || {};
 
 /**
 	@class Md2Player
+
+	This class implements an MD2 animated mesh player. It can be used to load and play MD2 animations using the JSC3D.Viewer.
 */
 JSC3D.Md2Player = function(viewer) {
 	this.viewer = viewer;
@@ -38,6 +40,13 @@ JSC3D.Md2Player = function(viewer) {
 	this.animId = 0;
 };
 
+/**
+	Load an MD2 animated model from the given url. A second MD2 model can also be specified to be used as the attachment of the main model.
+	@param {String} mainModelUrl the url of the main MD2 model.
+	@param {String} mainSkinUrl the url of the texture file for the main model. If the model itself already specified a tuxture file, it will be overwritten by this.
+	@param {String} attachmentModelUrl the url of the attaching model.
+	@param {String} attachmentSkinUrl the url of the texture file for the attaching model. If the model already specified a tuxture file, it will be overwritten by this.
+*/
 JSC3D.Md2Player.prototype.replaceSceneFromUrls = function(mainModelUrl, mainSkinUrl, attachmentModelUrl, attachmentSkinUrl) {
 	this.pause();
 
@@ -52,6 +61,7 @@ JSC3D.Md2Player.prototype.replaceSceneFromUrls = function(mainModelUrl, mainSkin
 
 	var self = this;
 
+	// load the main MD2 model
 	if(mainModelUrl && mainModelUrl != '') {
 		var mainModelLoader = new JSC3D.Md2Loader;
 		mainModelLoader.onload = function(scene) {
@@ -71,6 +81,7 @@ JSC3D.Md2Player.prototype.replaceSceneFromUrls = function(mainModelUrl, mainSkin
 		mainModelLoader.loadFromUrl(mainModelUrl);
 	}
 
+	// load the attaching MD2 model
 	if(attachmentModelUrl && attachmentModelUrl != '') {
 		var attachmentModelLoader = new JSC3D.Md2Loader;
 		attachmentModelLoader.onload = function(scene) {
@@ -87,6 +98,7 @@ JSC3D.Md2Player.prototype.replaceSceneFromUrls = function(mainModelUrl, mainSkin
 		attachmentModelLoader.loadFromUrl(attachmentModelUrl);
 	}
 
+	// load the main skin
 	if(mainSkinUrl && mainSkinUrl != '') {
 		var tex = new JSC3D.Texture;
 		tex.onready = function() {
@@ -98,6 +110,7 @@ JSC3D.Md2Player.prototype.replaceSceneFromUrls = function(mainModelUrl, mainSkin
 		tex.createFromUrl(mainSkinUrl);
 	}
 
+	// load skin for the attaching model
 	if(attachmentSkinUrl && attachmentSkinUrl != '') {
 		var tex = new JSC3D.Texture;
 		tex.onready = function() {
@@ -110,6 +123,10 @@ JSC3D.Md2Player.prototype.replaceSceneFromUrls = function(mainModelUrl, mainSkin
 	}
 };
 
+/**
+	Start animation or continue the paused animation.
+	@param {Number} fps set this parameter to specify the animation speed.
+*/
 JSC3D.Md2Player.prototype.play = function(fps) {
 	if(this.timerId >= 0)
 		return;
@@ -147,10 +164,13 @@ JSC3D.Md2Player.prototype.play = function(fps) {
 
 	var scene = this.viewer.getScene();
 	if(scene && !scene.isEmpty()) {
-		this.timerId = setInterval(_animate, fps != undefined ? 1000/fps : 80);
+		this.timerId = setInterval(_animate, fps != undefined ? 1000/fps : 100);
 	}
 };
 
+/**
+	Pause the current animation.
+*/
 JSC3D.Md2Player.prototype.pause = function() {
 	if(this.timerId >= 0) {
 		clearInterval(this.timerId);
@@ -161,6 +181,8 @@ JSC3D.Md2Player.prototype.pause = function() {
 
 /**
 	@class Md2Loader
+
+	This class implements an MD2 file loader.
 */
 JSC3D.Md2Loader = function(onload, onerror, onprogress, onresource) {
 	this.onload = (onload && typeof(onload) == 'function') ? onload : null;
@@ -169,6 +191,10 @@ JSC3D.Md2Loader = function(onload, onerror, onprogress, onresource) {
 	this.onresource = (onresource && typeof(onresource) == 'function') ? onresource : null;
 };
 
+/**
+	Load MD2 animated model from a given MD2 file.
+	@param {String} urlName a string that specifies where to load the MD2 file.
+*/
 JSC3D.Md2Loader.prototype.loadFromUrl = function(urlName) {
 	var urlPath = '';
 	var fileName = urlName;
@@ -184,6 +210,9 @@ JSC3D.Md2Loader.prototype.loadFromUrl = function(urlName) {
 	this.loadMd2File(urlPath, fileName);
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.loadMd2File = function(urlPath, fileName) {
 	var urlName = urlPath + fileName;
 	var self = this;
@@ -207,16 +236,32 @@ JSC3D.Md2Loader.prototype.loadMd2File = function(urlPath, fileName) {
 				}
 			}
 			else {
+				if(JSC3D.console)
+					JSC3D.console.logError('Failed to load MD2 file "' + urlName + '".');
+				if(self.onerror) {
+					self.onerror('Failed to load MD2 file "' + urlName + '".');
+				}
 			}
 		}
 	};
 
+	if(this.onprogress) {
+		this.onprogress('Loading MD2 file ...', 0);
+		xhr.onprogress = function(event) {
+			self.onprogress('Loading MD2 file ...', event.position / event.totalSize);
+		};
+	}
+
 	xhr.send();
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.parseMd2 = function(scene, data) {
 	var reader = new JSC3D.BinaryStream(data);
 
+	// read the MD2 file header
 	var header = this.readHeader(reader);
 	if(!header)
 		return '';
@@ -224,22 +269,26 @@ JSC3D.Md2Loader.prototype.parseMd2 = function(scene, data) {
 	var mesh = new JSC3D.Mesh;
 	var skinFileName = '';
 
+	// read the skin file name. If there are more than 1 skin defined, only the first one will be used.
 	if(header.numSkins > 0 && header.numTexCoords > 0) {
 		reader.seek(header.offsetSkins);
 		skinFileName = this.readSkinFileName(reader);
 	}
 
+	// read texture coords of this mesh
 	if(header.numTexCoords > 0) {
 		reader.seek(header.offsetTexCoords);
 		mesh.texCoordBuffer = this.readTextureCoords(reader, header.numTexCoords, header.skinWidth, header.skinHeight);
 	}
 
+	// read vertex coord indices and texture coord indices of this mesh
 	reader.seek(header.offsetTriangles);
 	var triangles = this.readTriangles(reader, header.numTriangles, header.numTexCoords > 0);
 	mesh.indexBuffer = triangles.indexBuffer;
 	if(header.numTexCoords > 0)
 		mesh.texCoordIndexBuffer = triangles.texCoordIndexBuffer;
 
+	// read all animation frames
 	reader.seek(header.offsetFrames);
 	var frames = this.readFrames(reader, header.numFrames, header.numVertices);
 	mesh.vertexBuffer = frames[0].vertexBuffer.slice(0);
@@ -258,6 +307,9 @@ JSC3D.Md2Loader.prototype.parseMd2 = function(scene, data) {
 	return skinFileName;
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.readHeader = function(reader) {
 	var BYTES_PER_TRIANGLE	= 12;
 	var BYTES_PER_TEXCOORD	= 4;
@@ -330,11 +382,17 @@ JSC3D.Md2Loader.prototype.readHeader = function(reader) {
 	return header;
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.readSkinFileName = function(reader) {
 	var BYTES_PER_SKIN_NAME = 64;
 	return this.readString(reader, BYTES_PER_SKIN_NAME);
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.readTextureCoords = function(reader, numOfTexCoords, skinWidth, skinHeight) {
 	var texCoordBuffer = [];
 	for(var i=0; i<numOfTexCoords; i++) {
@@ -345,6 +403,9 @@ JSC3D.Md2Loader.prototype.readTextureCoords = function(reader, numOfTexCoords, s
 	return texCoordBuffer;
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.readTriangles = function(reader, numOfTrangles, hasTexCoords) {
 	var triangles = {};
 	triangles.indexBuffer = [];
@@ -367,6 +428,9 @@ JSC3D.Md2Loader.prototype.readTriangles = function(reader, numOfTrangles, hasTex
 	return triangles;
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.readFrames = function(reader, numOfFrames, numOfVertices) {
 	var BYTES_PER_FRAME_NAME = 16;
 
@@ -375,23 +439,31 @@ JSC3D.Md2Loader.prototype.readFrames = function(reader, numOfFrames, numOfVertic
 	for(var i=0; i<numOfFrames; i++) {
 		var frame = {};
 
+		// read the scalling
 		var sx = reader.readFloat32();
 		var sy = reader.readFloat32();
 		var sz = reader.readFloat32();
+		// read the translation
 		var tx = reader.readFloat32();
 		var ty = reader.readFloat32();
 		var tz = reader.readFloat32();
 
+		// read frame name
 		frame.name = this.readString(reader, BYTES_PER_FRAME_NAME);
 		frame.vertexBuffer = [];
 
+		// read vertices of this frame
 		for(var j=0; j<numOfVertices; j++) {
 			var x = reader.readUInt8();
 			var y = reader.readUInt8();
 			var z = reader.readUInt8();
+
 			frame.vertexBuffer.push(sx * x + tx);
+			// change to right-handed coordinate system by flipping z and y components
 			frame.vertexBuffer.push(sz * z + tz);
 			frame.vertexBuffer.push(sy * y + ty);
+
+			// skip 1-byte's 'vertex normal index' field.
 			reader.skip(1);
 		}
 
@@ -401,16 +473,22 @@ JSC3D.Md2Loader.prototype.readFrames = function(reader, numOfFrames, numOfVertic
 	return frames;
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.readString = function(reader, length) {
 	var charCodes = new Array(length);
 	reader.readBytes(charCodes, length);
-	var terminatorAt = charCodes.indexOf(0);
-	if(terminatorAt >= 0)
-		charCodes.splice(terminatorAt);
+	var termAt = charCodes.indexOf(0);
+	if(termAt >= 0)
+		charCodes.splice(termAt);
 
 	return String.fromCharCode.apply(null, charCodes);
 };
 
+/**
+	@private
+*/
 JSC3D.Md2Loader.prototype.setupTexture = function(mesh, textureUrlName) {
 	var self = this;
 	var texture = new JSC3D.Texture;

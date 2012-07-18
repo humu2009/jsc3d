@@ -12,9 +12,9 @@
 			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
 		</div>
 		<div style="float:right;">
-		<select id="model_list">
-		</select>
-		<button id="load" onclick="loadModel();">Load</button>
+			<select id="model_list">
+			</select>
+			<button id="load" onclick="loadModel();">Load</button>
 		</div>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
@@ -39,10 +39,13 @@
 		}
 	 }) ();
 
+	// setup the log console
 	JSC3D.console.setup('main_frame', '120px');
 
+	// the MD2 animation player instance
 	var md2_player = 
 		(function createPlayer() {
+			// construct the viewer instance
 			var jsc_viewer = new JSC3D.Viewer(document.getElementById('cv'));
 			jsc_viewer.setParameter('ModelColor', '#9F9F9F');
 			jsc_viewer.setParameter('InitRotationY', -60);
@@ -51,6 +54,20 @@
 			jsc_viewer.setParameter('RenderMode', 'texture');
 			jsc_viewer.init();
 			jsc_viewer.update();
+
+			
+			// freeze animations on left button pressed
+			//
+
+			jsc_viewer.onmousedown = function(x, y, button) {
+				if(button == 0)
+					md2_player.pause();
+			};
+
+			jsc_viewer.onmouseup = function(x, y, button) {
+				if(button == 0)
+					md2_player.play();
+			};
 
 			return new JSC3D.Md2Player(jsc_viewer);
 		}) ();
