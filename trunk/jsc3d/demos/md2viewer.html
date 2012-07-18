@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> JSC3D - MD2 Viewer Demo </TITLE>
+  <META NAME="Author" CONTENT="JSC3D">
+ </HEAD>
+
+ <BODY>
+	<div id="main_frame" style="width:490px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+		<canvas id="cv" style="border: 1px solid;" width="490" height="368" ></canvas>
+		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:10px; top:315px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
+			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
+		</div>
+		<div style="float:right;">
+		<select id="model_list">
+		</select>
+		<button id="load" onclick="loadModel();">Load</button>
+		</div>
+	</div>
+	<script type="text/javascript" src="../jsc3d.js"></script>
+	<script type="text/javascript" src="../jsc3d.console.js"></script>
+	<script type="text/javascript" src="md2viewer/md2.js"></script>
+	<script type="text/javascript">
+	var models = [
+		/* name,                main-model,                        main-skin,                         attachment-model,                         attachment-skin     */
+		[ 'Knight',            './md2viewer/models/knight.md2',   './md2viewer/models/knight.jpg',   './md2viewer/models/knight_weapon.md2',   './md2viewer/models/knight_weapon.jpg'   ], 
+		[ 'Sodier',            './md2viewer/models/soldier.md2',  './md2viewer/models/soldier.jpg',  './md2viewer/models/soldier_weapon.md2',  './md2viewer/models/soldier_weapon.jpg'  ], 
+		[ 'Robot',             './md2viewer/models/robot.md2',    './md2viewer/models/robot.jpg',     undefined,                                undefined                               ], 
+		[ 'Playgirl',          './md2viewer/models/playgirl.md2', './md2viewer/models/playgirl.jpg', './md2viewer/models/playgirl_weapon.md2', './md2viewer/models/playgirl_weapon.jpg' ], 
+		[ 'more ...',           undefined,                         undefined,                         undefined,                                undefined                               ]
+	];
+
+	(function fillOptions() {
+		var list = document.getElementById('model_list');
+		for(var i=0; i<models.length; i++) {
+			var option = document.createElement('option');
+			option.text = models[i][0];
+			list.add(option, null);
+		}
+	 }) ();
+
+	JSC3D.console.setup('main_frame', '120px');
+
+	var md2_player = 
+		(function createPlayer() {
+			var jsc_viewer = new JSC3D.Viewer(document.getElementById('cv'));
+			jsc_viewer.setParameter('ModelColor', '#9F9F9F');
+			jsc_viewer.setParameter('InitRotationY', -60);
+			jsc_viewer.setParameter('BackgroundColor1', '#FFFFFF');
+			jsc_viewer.setParameter('BackgroundColor2', '#383840');
+			jsc_viewer.setParameter('RenderMode', 'texture');
+			jsc_viewer.init();
+			jsc_viewer.update();
+
+			return new JSC3D.Md2Player(jsc_viewer);
+		}) ();
+
+	function loadModel() {
+		if(models.length > 0) {
+			var selectedIndex = document.getElementById('model_list').selectedIndex;
+			if(selectedIndex < models.length - 1) {
+				var selectedModel = models[selectedIndex];
+				md2_player.replaceSceneFromUrls(selectedModel[1], selectedModel[2], selectedModel[3], selectedModel[4]);
+			}
+		}
+	}
+
+	loadModel();
+  </script>
+ </BODY>
+</HTML>
