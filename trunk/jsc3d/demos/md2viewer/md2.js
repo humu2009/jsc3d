@@ -151,12 +151,13 @@ JSC3D.Md2Player.prototype.play = function(fps) {
 				var model = models[i];
 				if(model.metadata && model.metadata.md2) {
 					var frame = model.metadata.md2.frames[self.animId];
-					self.animId = (self.animId + 1) % min_frame_count;
 					model.vertexBuffer = frame.vertexBuffer.slice(0);
 					model.calcFaceNormals();
 					model.normalizeFaceNormals();
 				}
 			}
+
+			self.animId = (self.animId + 1) % min_frame_count;
 
 			self.viewer.update();
 		}
