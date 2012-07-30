@@ -29,7 +29,7 @@ var JSC3D = JSC3D || {};
 
 
 /**
-	The console to display debugging informations. 
+	The console instance where to display debugging informations. 
 	Based upon code originally provided by X3DOM project, under the MIT license.
 */
 JSC3D.console = function() {
@@ -128,8 +128,10 @@ JSC3D.console = function() {
 	}
 
 	function _clear() {
-		while(_container.lastChild) {
-			_container.removeChild(_container.lastChild);
+		if(_isActive && _container != null) {
+			while(_container.lastChild) {
+				_container.removeChild(_container.lastChild);
+			}
 		}
 	}
 
