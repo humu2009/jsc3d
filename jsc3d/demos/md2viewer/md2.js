@@ -357,7 +357,7 @@ JSC3D.Md2Loader.prototype.readHeader = function(reader) {
 
 	if(header.version != 8) {
 		if(JSC3D.console)
-			JSC3D.console.logWarning('This file version "' + header.version + '" is not supported. Trying to parse it any way ...');
+			JSC3D.console.logWarning('This file version "' + header.version + '" is not expected. Trying to parse it anyway ...');
 	}
 
 	if(header.numFrames == 0) {
