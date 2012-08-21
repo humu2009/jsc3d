@@ -250,10 +250,10 @@ JSC3D.Viewer.prototype.update = function(repaintOnly) {
 };
 
 /**
-	Set rotation angles of the whole scene around axis vectors.
-	@param {Number} rotX rotation angle around x-axis in degrees.
-	@param {Number} rotY rotation angle around y-axis in degrees.
-	@param {Number} rotZ rotation angle around z-axis in degrees.
+	Rotate the scene with given angles around Cardinal axes.
+	@param {Number} rotX rotation angle around X-axis in degrees.
+	@param {Number} rotY rotation angle around Y-axis in degrees.
+	@param {Number} rotZ rotation angle around Z-axis in degrees.
 */
 JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 	this.rotMatrix.rotateAboutXAxis(rotX);
@@ -569,7 +569,7 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 			this.zoomFactor *= this.mouseY <= e.clientY ? 1.11 : 0.9;
 		}
 		else {
-			var rotX = (this.mouseY - e.clientY) * 360 / this.canvas.width;
+			var rotX = (e.clientY - this.mouseY) * 360 / this.canvas.width;
 			var rotY = (e.clientX - this.mouseX) * 360 / this.canvas.height;
 			this.rotMatrix.rotateAboutXAxis(rotX);
 			this.rotMatrix.rotateAboutYAxis(rotY);
@@ -3636,14 +3636,14 @@ JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 		var cosA = Math.cos(angle);
 		var sinA = Math.sin(angle);
 
-		var m10 = cosA * this.m10 + sinA * this.m20;
-		var m11 = cosA * this.m11 + sinA * this.m21;
-		var m12 = cosA * this.m12 + sinA * this.m22;
-		var m13 = cosA * this.m13 + sinA * this.m23;
-		var m20 = cosA * this.m20 - sinA * this.m10;
-		var m21 = cosA * this.m21 - sinA * this.m11;
-		var m22 = cosA * this.m22 - sinA * this.m12;
-		var m23 = cosA * this.m23 - sinA * this.m13;
+		var m10 = cosA * this.m10 - sinA * this.m20;
+		var m11 = cosA * this.m11 - sinA * this.m21;
+		var m12 = cosA * this.m12 - sinA * this.m22;
+		var m13 = cosA * this.m13 - sinA * this.m23;
+		var m20 = cosA * this.m20 + sinA * this.m10;
+		var m21 = cosA * this.m21 + sinA * this.m11;
+		var m22 = cosA * this.m22 + sinA * this.m12;
+		var m23 = cosA * this.m23 + sinA * this.m13;
 
 		this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
 		this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
@@ -3660,7 +3660,7 @@ JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 		var cosA = Math.cos(angle);
 		var sinA = Math.sin(angle);
 
-		var m00 = cosA * this.m00 + sinA * this.m20; 
+		var m00 = cosA * this.m00 + sinA * this.m20;
 		var m01 = cosA * this.m01 + sinA * this.m21;
 		var m02 = cosA * this.m02 + sinA * this.m22;
 		var m03 = cosA * this.m03 + sinA * this.m23;
