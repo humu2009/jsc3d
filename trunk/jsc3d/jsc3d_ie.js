@@ -498,7 +498,7 @@ JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 				Math.pow(0.9, ~~(1 + (this.mouseY - e.clientY) * 8 / this.canvas.height));
 		}
 		else {
-			var rotX = (this.mouseY - e.clientY) * 180 / this.canvas.width;
+			var rotX = (e.clientY - this.mouseY) * 180 / this.canvas.width;
 			var rotY = (e.clientX - this.mouseX) * 180 / this.canvas.height;
 			this.rotMatrix.rotateAboutXAxis(rotX);
 			this.rotMatrix.rotateAboutYAxis(rotY);
@@ -532,7 +532,7 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 			this.zoomFactor *= this.mouseY <= e.clientY ? 1.11 : 0.9;
 		}
 		else {
-			var rotX = (this.mouseY - e.clientY) * 360 / this.canvas.width;
+			var rotX = (e.clientY - this.mouseY) * 360 / this.canvas.width;
 			var rotY = (e.clientX - this.mouseX) * 360 / this.canvas.height;
 			this.rotMatrix.rotateAboutXAxis(rotX);
 			this.rotMatrix.rotateAboutYAxis(rotY);
