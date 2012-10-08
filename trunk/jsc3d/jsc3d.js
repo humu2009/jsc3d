@@ -426,7 +426,7 @@ JSC3D.Viewer.prototype.getScene = function() {
 	Query information at a given position on the canvas.
 	@param {Number} clientX client x coordinate on the current page.
 	@param {Number} clientY client y coordinate on the current page.
-	@returns {JSC3D.PickInfo} a PickInfo object which hold the result.
+	@returns {JSC3D.PickInfo} a PickInfo object which holds the result.
 */
 JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 	var pickInfo = new JSC3D.PickInfo;
@@ -2188,7 +2188,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 };
 
 /**
-	Render the given mesh as textured object. Lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	Render the given mesh as textured object. Lighting will be calculated per vertex and then interpolated between and inside scanlines.
 	@private
 */
 JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
@@ -2529,7 +2529,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 };
 
 /**
-	Render the given mesh as solid object with sphere mapping. Lighting will be calculated per vertex and then inerpolated between and inside scanlines.
+	Render the given mesh as solid object with sphere mapping. Lighting will be calculated per vertex and then interpolated between and inside scanlines.
 	@private
 */
 JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
@@ -4314,7 +4314,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 			}
 		}
 
-		// split vertex texture coords into the mesh, the indices for tex coords are re-calculated as well
+		// split vertex texture coords into the mesh, the indices for texture coords are re-calculated as well
 		if(tempTexCoordBuffer.length >= 2 && mesh.texCoordIndexBuffer != null && mesh.texCoordIndexBuffer.length > 0) {
 			for(var i=0; i<tiBuffer.length; i++)
 				tiBuffer[i] = -1;
