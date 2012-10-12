@@ -1,5 +1,5 @@
 /**
-	@preserve Copyright (c) 2011 Humu humu2009@gmail.com
+	@preserve Copyright (c) 2012 Humu humu2009@gmail.com
 	jsc3d is freely distributable under the terms of the MIT license.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
 
 /**
 	@namespace JSC3D
-*/
+ */
 var JSC3D = JSC3D || {};
 
 
@@ -43,7 +43,7 @@ var JSC3D = JSC3D || {};
 	2. Use replaceSceneFromUrl() method, passing in a valid url to load/replace scene at runtime.<br />
 	3. Use replaceScene() method, passing in a manually constructed scene object to replace the current one 
 	   at runtime.<br />
-*/
+ */
 JSC3D.Viewer = function(canvas, parameters) {
 	if(parameters)
 		this.params = {
@@ -118,15 +118,25 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.onmousemove = null;
 	this.beforeupdate = null;
 	this.afterupdate = null;
+	this.mouseUsage = 'default';
 	this.isDefaultInputHandlerEnabled = true;
 
-	// setup input handlers
+	// setup input handlers.
+	// compatibility for touch devices is taken into account
+	var isTouchDevice = (document.createTouch != undefined);	// detect if it is running on a touch device
 	var self = this;
-	this.canvas.addEventListener('mousedown', function(e){self.mouseDownHandler(e);}, false);
-	this.canvas.addEventListener('mouseup', function(e){self.mouseUpHandler(e);}, false);
-	this.canvas.addEventListener('mousemove', function(e){self.mouseMoveHandler(e);}, false);
-	document.addEventListener('keydown', function(e){self.keyDownHandler(e);}, false);
-	document.addEventListener('keyup', function(e){self.keyUpHandler(e);}, false);
+	if(!isTouchDevice) {
+		this.canvas.addEventListener('mousedown', function(e){self.mouseDownHandler(e);}, false);
+		this.canvas.addEventListener('mouseup', function(e){self.mouseUpHandler(e);}, false);
+		this.canvas.addEventListener('mousemove', function(e){self.mouseMoveHandler(e);}, false);
+		document.addEventListener('keydown', function(e){self.keyDownHandler(e);}, false);
+		document.addEventListener('keyup', function(e){self.keyUpHandler(e);}, false);
+	}
+	else {
+		this.canvas.addEventListener('touchstart', function(e){self.touchStartHandler(e);}, false);
+		this.canvas.addEventListener('touchend', function(e){self.touchEndHandler(e);}, false);
+		this.canvas.addEventListener('touchmove', function(e){self.touchMoveHandler(e);}, false);
+	}
 };
 
 /**
@@ -146,14 +156,14 @@ JSC3D.Viewer = function(canvas, parameters) {
 	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to ''.<br />
 	@param {String} name name of the parameter to set.
 	@param value new value for the parameter.
-*/
+ */
 JSC3D.Viewer.prototype.setParameter = function(name, value) {
 	this.params[name] = value;
 };
 
 /**
 	Initialize viewer for rendering and interactions.
-*/
+ */
 JSC3D.Viewer.prototype.init = function() {
 	this.sceneUrl = this.params['SceneUrl'];
 	this.initRotX = parseFloat(this.params['InitRotationX']);
@@ -236,7 +246,7 @@ JSC3D.Viewer.prototype.init = function() {
 /**
 	Ask viewer to render a new frame or just repaint last frame.
 	@param {Boolean} repaintOnly true to repaint last frame; false(default) to render a new frame.
-*/
+ */
 JSC3D.Viewer.prototype.update = function(repaintOnly) {
 	if(this.isFailed) {
 		this.reportError(this.errorMsg);
@@ -254,7 +264,7 @@ JSC3D.Viewer.prototype.update = function(repaintOnly) {
 	@param {Number} rotX rotation angle around X-axis in degrees.
 	@param {Number} rotY rotation angle around Y-axis in degrees.
 	@param {Number} rotZ rotation angle around Z-axis in degrees.
-*/
+ */
 JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 	this.rotMatrix.rotateAboutXAxis(rotX);
 	this.rotMatrix.rotateAboutYAxis(rotY);
@@ -272,7 +282,7 @@ JSC3D.Viewer.prototype.rotate = function(rotX, rotY, rotZ) {
 	'<b>textureflat</b>':   render meshes as solid textured objects, lighting will be calculated per face;<br />
 	'<b>texturesmooth</b>': render meshes as solid textured objects, lighting will be calculated per vertex and interpolated.<br />
 	@param {String} mode new render mode.
-*/
+ */
 JSC3D.Viewer.prototype.setRenderMode = function(mode) {
 	this.params['RenderMode'] = mode;
 	this.renderMode = mode;
@@ -285,7 +295,7 @@ JSC3D.Viewer.prototype.setRenderMode = function(mode) {
 	'<b>standard</b>': normal-quality rendering will be applied, with modest performace;<br />
 	'<b>high</b>':     high-quality rendering will be applied, with lowest performace.<br />
 	@params {String} definition new quality level.
-*/
+ */
 JSC3D.Viewer.prototype.setDefinition = function(definition) {
 	if(this.canvas.width <= 2 || this.canvas.height <= 2)
 		definition = 'standard';
@@ -337,7 +347,7 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 /**
 	Specify the url for the background image.
 	@param {String} backgroundImageUrl url string for the background image.
-*/
+ */
 JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
 	this.params['BackgroundImageUrl'] = backgroundImageUrl;
 	this.bkgImageUrl = backgroundImageUrl;
@@ -361,7 +371,7 @@ JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
 /**
 	Specify a new image from the given url which will be used for applying sphere mapping.
 	@param {String} sphereMapUrl url string that describes where to load the image.
-*/
+ */
 JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
 	this.params['SphereMapUrl'] = sphereMapUrl;
 	this.sphereMapUrl = sphereMapUrl;
@@ -385,15 +395,30 @@ JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
 /**
 	Enable/Disable the default mouse and key event handling routines.
 	@param {Boolean} enabled true to enable the default handler; false to disable them.
-*/
+ */
 JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 	this.isDefaultInputHandlerEnabled = enabled;
 };
 
 /**
+	Set control of mouse pointer.
+	Available options are:<br />
+	'<b>default</b>':	default mouse control will be used;<br />
+	'<b>free</b>':		this tells the {JSC3D.Viewer} a user-defined mouse control will be adopted. 
+						This is often used together with viewer.enableDefaultInputHandler(false) 
+						and viewer.onmousedown, viewer.onmouseup and/or viewer.onmousemove overridden.<br />
+	'<b>rotate</b>':	mouse will be used to rotate the scene;<br />
+	'<b>zoom</b>':		mouse will be used to do zooming.<br />
+	@param {String} usage control of mouse pointer to be set.
+ */
+JSC3D.Viewer.prototype.setMouseUsage = function(usage) {
+	this.mouseUsage = usage;
+};
+
+/**
 	Load a new scene from the given url to replace the current scene.
 	@param {String} sceneUrl url string that describes where to load the new scene.
-*/
+ */
 JSC3D.Viewer.prototype.replaceSceneFromUrl = function(sceneUrl) {
 	this.params['SceneUrl'] = sceneUrl;
 	this.sceneUrl = sceneUrl;
@@ -404,7 +429,7 @@ JSC3D.Viewer.prototype.replaceSceneFromUrl = function(sceneUrl) {
 /**
 	Replace the current scene with a given scene.
 	@param {JSC3D.Scene} scene the given scene.
-*/
+ */
 JSC3D.Viewer.prototype.replaceScene = function(scene) {
 	this.params['SceneUrl'] = '';
 	this.sceneUrl = '';
@@ -417,7 +442,7 @@ JSC3D.Viewer.prototype.replaceScene = function(scene) {
 /**
 	Get the current scene.
 	@returns {JSC3D.Scene} the current scene.
-*/
+ */
 JSC3D.Viewer.prototype.getScene = function() {
 	return this.scene;
 };
@@ -427,7 +452,7 @@ JSC3D.Viewer.prototype.getScene = function() {
 	@param {Number} clientX client x coordinate on the current page.
 	@param {Number} clientY client y coordinate on the current page.
 	@returns {JSC3D.PickInfo} a PickInfo object which holds the result.
-*/
+ */
 JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 	var pickInfo = new JSC3D.PickInfo;
 
@@ -477,7 +502,7 @@ JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 /**
 	Render a new frame or repaint last frame.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.doUpdate = function() {
 	if(this.needUpdate || this.needRepaint) {
 		if(this.beforeupdate != null && (typeof this.beforeupdate) == 'function')
@@ -507,7 +532,7 @@ JSC3D.Viewer.prototype.doUpdate = function() {
 /**
 	Paint onto canvas.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.paint = function() {
 	if(!this.canvasData)
 		return;
@@ -516,14 +541,16 @@ JSC3D.Viewer.prototype.paint = function() {
 };
 
 /**
-	The mouse-down event handling routine.
+	The mouseDown event handling routine.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.mouseDownHandler = function(e) {
 	if(this.onmousedown) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmousedown(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
 	}
+
+	e.preventDefault();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -534,14 +561,16 @@ JSC3D.Viewer.prototype.mouseDownHandler = function(e) {
 };
 
 /**
-	The mouse-up event handling routine.
+	The mouseUp event handling routine.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 	if(this.onmouseup) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmouseup(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
 	}
+
+	e.preventDefault();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -550,14 +579,16 @@ JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 };
 
 /**
-	The mouse-move event handling routine.
+	The mouseMove event handling routine.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 	if(this.onmousemove) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmousemove(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
 	}
+
+	e.preventDefault();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -565,10 +596,10 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 	var isDragging = this.buttonStates[0] == true;
 	var isShiftDown = this.keyStates[16] == true;
 	if(isDragging) {
-		if(isShiftDown) {
+		if((isShiftDown && this.mouseUsage == 'default') || this.mouseUsage == 'zoom') {
 			this.zoomFactor *= this.mouseY <= e.clientY ? 1.11 : 0.9;
 		}
-		else {
+		else if(this.mouseUsage == 'default' || this.mouseUsage == 'rotate') {
 			var rotX = (e.clientY - this.mouseY) * 360 / this.canvas.width;
 			var rotY = (e.clientX - this.mouseX) * 360 / this.canvas.height;
 			this.rotMatrix.rotateAboutXAxis(rotX);
@@ -581,9 +612,87 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 };
 
 /**
-	The key-down event handling routine.
+	The touchStart event handling routine. This is for compatibility for touch devices.
 	@private
-*/
+ */
+JSC3D.Viewer.prototype.touchStartHandler = function(e) {
+	if(e.touches.length > 0) {
+		var clientX = e.touches[0].clientX;
+		var clientY = e.touches[0].clientY;
+
+		if(this.onmousedown) {
+			var info = this.pick(clientX, clientY);
+			this.onmousedown(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		}
+
+		e.preventDefault();
+
+		if(!this.isDefaultInputHandlerEnabled)
+			return;
+
+		this.buttonStates[0] = true;
+		this.mouseX = clientX;
+		this.mouseY = clientY;
+	}
+};
+
+/**
+	The touchEnd event handling routine. This is for compatibility for touch devices.
+	@private
+ */
+JSC3D.Viewer.prototype.touchEndHandler = function(e) {
+	if(this.onmouseup) {
+		var info = this.pick(this.mouseX, this.mouseY);
+		this.onmouseup(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+	}
+
+	e.preventDefault();
+
+	if(!this.isDefaultInputHandlerEnabled)
+		return;
+
+	this.buttonStates[0] = false;
+};
+
+/**
+	The touchMove event handling routine. This is for compatibility for touch devices.
+	@private
+ */
+JSC3D.Viewer.prototype.touchMoveHandler = function(e) {
+	if(e.touches.length > 0) {
+		var clientX = e.touches[0].clientX;
+		var clientY = e.touches[0].clientY;
+
+		if(this.onmousemove) {
+			var info = this.pick(clientX, clientY);
+			this.onmousemove(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		}
+
+		e.preventDefault();
+
+		if(!this.isDefaultInputHandlerEnabled)
+			return;
+
+		if(this.mouseUsage == 'zoom') {
+			this.zoomFactor *= (this.mouseY <= clientY) ? 1.11 : 0.9;
+		}
+		else if(this.mouseUsage == 'default' || this.mouseUsage == 'rotate') {
+			var rotX = (clientY - this.mouseY) * 360 / this.canvas.width;
+			var rotY = (clientX - this.mouseX) * 360 / this.canvas.height;
+			this.rotMatrix.rotateAboutXAxis(rotX);
+			this.rotMatrix.rotateAboutYAxis(rotY);
+		}
+		this.mouseX = clientX;
+		this.mouseY = clientY;
+
+		this.update();
+	}
+};
+
+/**
+	The keyDown event handling routine.
+	@private
+ */
 JSC3D.Viewer.prototype.keyDownHandler = function(e) {
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -592,9 +701,9 @@ JSC3D.Viewer.prototype.keyDownHandler = function(e) {
 };
 
 /**
-	The key-up event handling routine.
+	The keyUp event handling routine.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.keyUpHandler = function(e) {
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -605,7 +714,7 @@ JSC3D.Viewer.prototype.keyUpHandler = function(e) {
 /**
 	Internally load a scene.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.loadScene = function() {
 	this.scene = null;
 	this.isLoaded = false;
@@ -659,7 +768,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 /**
 	Prepare for rendering of a new scene.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.setupScene = function(scene) {
 	scene.init();
 	if(!scene.isEmpty()) {
@@ -686,7 +795,7 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
 	Show progress and some informations about current time-cosuming task.
 	@param {String} task text information about current task.
 	@param {Number} progress progress of current task. this should be a number between 0 and 1.
-*/
+ */
 JSC3D.Viewer.prototype.reportProgress = function(task, progress) {
 	if(!this.ctx)
 		return;
@@ -719,7 +828,7 @@ JSC3D.Viewer.prototype.reportProgress = function(task, progress) {
 /**
 	Show informations about a fatal error.
 	@param {String} message text information about this error.
-*/
+ */
 JSC3D.Viewer.prototype.reportError = function(message) {
 	if(!this.ctx)
 		return;
@@ -745,7 +854,7 @@ JSC3D.Viewer.prototype.reportError = function(message) {
 /**
 	Fill the background color buffer.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.generateBackground = function() {
 	if(this.bkgImage) {
 		this.fillBackgroundWithImage();
@@ -758,7 +867,7 @@ JSC3D.Viewer.prototype.generateBackground = function() {
 /**
 	Do fill the background color buffer with gradient colors.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.fillGradientBackground = function() {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -786,7 +895,7 @@ JSC3D.Viewer.prototype.fillGradientBackground = function() {
 /**
 	Do fill the background color buffer with a loaded image.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.fillBackgroundWithImage = function() {
 	var w = this.frameWidth;
 	var h = this.frameHeight;	
@@ -835,7 +944,7 @@ JSC3D.Viewer.prototype.fillBackgroundWithImage = function() {
 /**
 	Draw background onto canvas.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.drawBackground = function() {
 	if(!this.canvasData)
 		return;
@@ -849,7 +958,7 @@ JSC3D.Viewer.prototype.drawBackground = function() {
 /**
 	Begin to render a new frame.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.beginScene = function() {
 	var cbuf = this.colorBuffer;
 	var zbuf = this.zBuffer;
@@ -868,7 +977,7 @@ JSC3D.Viewer.prototype.beginScene = function() {
 /**
 	End for rendering of a frame.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.endScene = function() {
 	var data = this.canvasData.data;
 	var width = this.canvas.width;
@@ -930,7 +1039,7 @@ JSC3D.Viewer.prototype.endScene = function() {
 /**
 	Render a new frame.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.render = function() {
 	if(this.scene.isEmpty())
 		return;
@@ -999,7 +1108,7 @@ JSC3D.Viewer.prototype.render = function() {
 	Sort meshes inside the scene into a render list. The sorting criterion is a mixture of trnasparency and depth.
 	This routine is necessary to ensure a correct rendering order.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.sortScene = function(mat) {
 	var renderList = [];
 
@@ -1042,7 +1151,7 @@ JSC3D.Viewer.prototype.sortScene = function(mat) {
 /**
 	Render the given mesh as points.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -1106,7 +1215,7 @@ JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 /**
 	Render the given mesh as wireframe.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -1224,7 +1333,7 @@ JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
 /**
 	Render the given mesh as solid object, using flat shading.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -1398,7 +1507,7 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 /**
 	Render the given mesh as solid object, using smooth shading.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -1617,7 +1726,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 /**
 	Render the given mesh as textured object, with no lightings.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -1894,7 +2003,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 /**
 	Render the given mesh as textured object. Lighting will be calculated per face.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -2190,7 +2299,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 /**
 	Render the given mesh as textured object. Lighting will be calculated per vertex and then interpolated between and inside scanlines.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -2531,7 +2640,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 /**
 	Render the given mesh as solid object with sphere mapping. Lighting will be calculated per vertex and then interpolated between and inside scanlines.
 	@private
-*/
+ */
 JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var w = this.frameWidth;
 	var h = this.frameHeight;
@@ -2838,6 +2947,7 @@ JSC3D.Viewer.prototype.onmouseup = null;
 JSC3D.Viewer.prototype.onmousemove = null;
 JSC3D.Viewer.prototype.beforeupdate = null;
 JSC3D.Viewer.prototype.afterupdate = null;
+JSC3D.Viewer.prototype.mouseUsage = 'default';
 JSC3D.Viewer.prototype.isDefaultInputHandlerEnabled = false;
 
 
@@ -2846,7 +2956,7 @@ JSC3D.Viewer.prototype.isDefaultInputHandlerEnabled = false;
 
 	PickInfo is used as the return value of JSC3D.Viewer's pick() method, holding picking values at a given position
 	on the canvas.
-*/
+ */
 JSC3D.PickInfo = function() {
 	this.canvasX = 0;
 	this.canvasY = 0;
@@ -2859,7 +2969,7 @@ JSC3D.PickInfo = function() {
 	@class Scene
 
 	This class implements scene that contains a group of meshes that forms the world. 
-*/
+ */
 JSC3D.Scene = function(name) {
 	this.name = name || '';
 	this.aabb = null;
@@ -2869,7 +2979,7 @@ JSC3D.Scene = function(name) {
 
 /**
 	Initialize the scene.
-*/
+ */
 JSC3D.Scene.prototype.init = function() {
 	if(this.isEmpty())
 		return;
@@ -2886,7 +2996,7 @@ JSC3D.Scene.prototype.init = function() {
 /**
 	See if the scene is empty.
 	@returns {Boolean} true if it contains no meshes; false if it has any.
-*/
+ */
 JSC3D.Scene.prototype.isEmpty = function() {
 	return (this.children.length == 0);
 };
@@ -2894,7 +3004,7 @@ JSC3D.Scene.prototype.isEmpty = function() {
 /**
 	Add a mesh to the scene.
 	@param {JSC3D.Mesh} mesh the mesh to be added.
-*/
+ */
 JSC3D.Scene.prototype.addChild = function(mesh) {
 	mesh.internalId = this.maxChildId++;
 	this.children.push(mesh);
@@ -2903,7 +3013,7 @@ JSC3D.Scene.prototype.addChild = function(mesh) {
 /**
 	Remove a mesh from the scene.
 	@param {JSC3D.Mesh} mesh the mesh to be added.
-*/
+ */
 JSC3D.Scene.prototype.removeChild = function(mesh) {
 	for(var i=0; i<this.children.length; i++) {
 		if(this.children[i] == mesh) {
@@ -2916,7 +3026,7 @@ JSC3D.Scene.prototype.removeChild = function(mesh) {
 /**
 	Get all meshes in the scene.
 	@returns {Array} meshes as an array.
-*/
+ */
 JSC3D.Scene.prototype.getChildren = function() {
 	return this.children;
 };
@@ -2924,7 +3034,7 @@ JSC3D.Scene.prototype.getChildren = function() {
 /**
 	Calculate AABB of the scene.
 	@private
-*/
+ */
 JSC3D.Scene.prototype.calcAABB = function() {
 	this.aabb.minX = this.aabb.minY = this.aabb.minZ = Number.MAX_VALUE;
 	this.aabb.maxX = this.aabb.maxY = this.aabb.maxZ = -Number.MAX_VALUE;
@@ -2966,7 +3076,7 @@ JSC3D.Scene.prototype.maxChildId = 1;
 	A mesh basically consists of a sequence of faces, and optioanlly a material, a texture mapping and other attributes and metadata.<br />
 	A face consists of 3 or more coplanary vertex that should be descript in counter-clockwise order.<br />
 	A texture mapping includes a valid texture object with a sequence of texture coordinats specified per vertex.<br />
-*/
+ */
 JSC3D.Mesh = function(name, visible, material, texture, isDoubleSided, isEnvironmentCast, coordBuffer, indexBuffer, texCoordBuffer, texCoordIndexBuffer) {
 	this.name = name || '';
 	this.metadata = '';
@@ -2992,7 +3102,7 @@ JSC3D.Mesh = function(name, visible, material, texture, isDoubleSided, isEnviron
 
 /**
 	Initialize the mesh.
-*/
+ */
 JSC3D.Mesh.prototype.init = function() {
 	if(this.isTrivial()) {
 		return;
@@ -3027,7 +3137,7 @@ JSC3D.Mesh.prototype.init = function() {
 /**
 	See if the mesh is a trivial mesh. A trivial mesh should be omited in any calculations and rendering.
 	@returns {Boolean} true if it is trivial; false if not.
-*/
+ */
 JSC3D.Mesh.prototype.isTrivial = function() {
 	return ( !this.vertexBuffer || this.vertexBuffer.length < 3 || 
 			 !this.indexBuffer || this.indexBuffer.length < 3 );
@@ -3036,7 +3146,7 @@ JSC3D.Mesh.prototype.isTrivial = function() {
 /**
 	Set material for the mesh.
 	@param {JSC3D.Material} material the material object.
-*/
+ */
 JSC3D.Mesh.prototype.setMaterial = function(material) {
 	this.material = material;
 };
@@ -3044,7 +3154,7 @@ JSC3D.Mesh.prototype.setMaterial = function(material) {
 /**
 	Set texture for the mesh.
 	@param {JSC3D.Texture} texture the texture object.
-*/
+ */
 JSC3D.Mesh.prototype.setTexture = function(texture) {
 	this.texture = texture;
 };
@@ -3052,7 +3162,7 @@ JSC3D.Mesh.prototype.setTexture = function(texture) {
 /**
 	See if the mesh has valid texture mapping.
 	@returns {Boolean} true if it has valid texture mapping; false if not.
-*/
+ */
 JSC3D.Mesh.prototype.hasTexture = function() {
 	return ( (this.texCoordBuffer != null) && (this.texCoordBuffer.length >= 2) && 
 			 (this.texCoordIndexBuffer != null) && (this.texCoordIndexBuffer.length >= 3) && 
@@ -3063,7 +3173,7 @@ JSC3D.Mesh.prototype.hasTexture = function() {
 /**
 	Calculate count of faces.
 	@private
-*/
+ */
 JSC3D.Mesh.prototype.calcFaceCount = function() {
 	this.faceCount = 0;
 
@@ -3080,7 +3190,7 @@ JSC3D.Mesh.prototype.calcFaceCount = function() {
 /**
 	Calculate AABB of the mesh.
 	@private
-*/
+ */
 JSC3D.Mesh.prototype.calcAABB = function() {
 	var minX = minY = minZ = Number.MAX_VALUE;
 	var maxX = maxY = maxZ = -Number.MAX_VALUE;
@@ -3116,7 +3226,7 @@ JSC3D.Mesh.prototype.calcAABB = function() {
 /**
 	Calculate per face normals. The reault remain un-normalized for later vertex normal calculations.
 	@private
-*/
+ */
 JSC3D.Mesh.prototype.calcFaceNormals = function() {
 	var vbuf = this.vertexBuffer;
 	var ibuf = this.indexBuffer;
@@ -3161,7 +3271,7 @@ JSC3D.Mesh.prototype.calcFaceNormals = function() {
 /**
 	Calculate per vertex normals.
 	@private
-*/
+ */
 JSC3D.Mesh.prototype.calcVertexNormals = function() {
 	if(!this.faceNormalBuffer) {
 		this.faceNormalBuffer = new Array(this.faceCount * 3);
@@ -3212,7 +3322,7 @@ JSC3D.Mesh.prototype.calcVertexNormals = function() {
 /**
 	Normalize face normals.
 	@private
-*/
+ */
 JSC3D.Mesh.prototype.normalizeFaceNormals = function() {
 	var nbuf = this.faceNormalBuffer;
 
@@ -3263,7 +3373,7 @@ JSC3D.Mesh.prototype.transformedVertexNormalBuffer = null;
 	@class Material
 
 	This class implements material which describes the feel and look of a mesh.
-*/
+ */
 JSC3D.Material = function(name, ambientColor, diffuseColor, transparency, simulateSpecular) {
 	this.name = name || '';
 	this.ambientColor = ambientColor || 0;
@@ -3276,7 +3386,7 @@ JSC3D.Material = function(name, ambientColor, diffuseColor, transparency, simula
 /**
 	Get the palette of the material used for shadings.
 	@return {Array} palette of the material as an array.
-*/
+ */
 JSC3D.Material.prototype.getPalette = function() {
 	if(!this.palette) {
 		this.palette = new Array(256);
@@ -3288,7 +3398,7 @@ JSC3D.Material.prototype.getPalette = function() {
 
 /**
 	@private
-*/
+ */
 JSC3D.Material.prototype.generatePalette = function() {
 	var ambientR = (this.ambientColor & 0xff0000) >> 16;
 	var ambientG = (this.ambientColor & 0xff00) >> 8;
@@ -3357,7 +3467,7 @@ JSC3D.Material.prototype.palette = null;
 	@class Texture
 
 	This class implements texture which describes the surface details for a mesh.
-*/
+ */
 JSC3D.Texture = function(name, onready) {
 	this.name = name || '';
 	this.width = 0;
@@ -3374,7 +3484,7 @@ JSC3D.Texture = function(name, onready) {
 	Load an image and extract texture data from it.
 	@param {String} imageUrl where to load the image.
 	@param {Boolean} useMipmap set true to generate mip-maps; false(default) not to generate mip-maps.
-*/
+ */
 JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 	var self = this;
 	var img = new Image;
@@ -3411,7 +3521,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 	Extract texture data from an exsisting image.
 	@param {Image} image image as datasource of the texture.
 	@param {Boolean} useMipmap set true to generate mip-maps; false(default) not to generate mip-maps.
-*/
+ */
 JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 	if(image.width <=0 || image.height <=0)
 		return;
@@ -3485,14 +3595,14 @@ JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 /**
 	See if this texture contains texel data.
 	@returns {Boolean} true if it has texel data; false if not.
-*/
+ */
 JSC3D.Texture.prototype.hasData = function() {
 	return (this.data != null);
 };
 
 /**
 	Generate mip-map pyramid for the texture.
-*/
+ */
 JSC3D.Texture.prototype.generateMipmaps = function() {
 	if(this.width <= 1 || this.data == null || this.mipmaps != null)
 		return;
@@ -3534,7 +3644,7 @@ JSC3D.Texture.prototype.generateMipmaps = function() {
 /**
 	See if this texture has mip-maps.
 	@returns {Boolean} true if it has mip-maps; false if not.
-*/
+ */
 JSC3D.Texture.prototype.hasMipmap = function() {
 	return (this.mipmaps != null);
 };
@@ -3555,7 +3665,7 @@ JSC3D.Texture.cv = null;
 	@class AABB
 
 	This class implements the Axis-Aligned Bounding Box to measure spacial enclosure.
-*/
+ */
 JSC3D.AABB = function() {
 	this.minX = this.maxX = 0;
 	this.minY = this.maxY = 0;
@@ -3565,7 +3675,7 @@ JSC3D.AABB = function() {
 /**
 	Get the center coordinates of the AABB.
 	@returns {Array} center coordinates as an array.
-*/
+ */
 JSC3D.AABB.prototype.center = function() {
 	return [(this.minX + this.maxX) / 2, (this.minY + this.maxY) / 2, (this.minZ + this.maxZ) / 2];
 };
@@ -3573,7 +3683,7 @@ JSC3D.AABB.prototype.center = function() {
 /**
 	Get the length of the diagonal of the AABB.
 	@returns {Number} length of the diagonal.
-*/
+ */
 JSC3D.AABB.prototype.lengthOfDiagonal = function() {
 	var xx = this.maxX - this.minX;
 	var yy = this.maxY - this.minY;
@@ -3586,7 +3696,7 @@ JSC3D.AABB.prototype.lengthOfDiagonal = function() {
 	@class Matrix3x4
 
 	This class implements 3x4 matrix and mass operations for 3D transformations.
-*/
+ */
 JSC3D.Matrix3x4 = function() {
 	this.m00 = 1; this.m01 = 0; this.m02 = 0; this.m03 = 0;
 	this.m10 = 0; this.m11 = 1; this.m12 = 0; this.m13 = 0;
@@ -3595,7 +3705,7 @@ JSC3D.Matrix3x4 = function() {
 
 /**
 	Make the matrix an identical matrix.
-*/
+ */
 JSC3D.Matrix3x4.prototype.identity = function() {
 	this.m00 = 1; this.m01 = 0; this.m02 = 0; this.m03 = 0;
 	this.m10 = 0; this.m11 = 1; this.m12 = 0; this.m13 = 0;
@@ -3607,7 +3717,7 @@ JSC3D.Matrix3x4.prototype.identity = function() {
 	@param {Number} sx scaling factors on x-axis.
 	@param {Number} sy scaling factors on y-axis.
 	@param {Number} sz scaling factors on z-axis.
-*/
+ */
 JSC3D.Matrix3x4.prototype.scale = function(sx, sy, sz) {
 	this.m00 *= sx; this.m01 *= sx; this.m02 *= sx; this.m03 *= sx;
 	this.m10 *= sy; this.m11 *= sy; this.m12 *= sy; this.m13 *= sy;
@@ -3619,7 +3729,7 @@ JSC3D.Matrix3x4.prototype.scale = function(sx, sy, sz) {
 	@param {Number} tx translations on x-axis.
 	@param {Number} ty translations on y-axis.
 	@param {Number} tz translations on z-axis.
-*/
+ */
 JSC3D.Matrix3x4.prototype.translate = function(tx, ty, tz) {
 	this.m03 += tx;
 	this.m13 += ty;
@@ -3629,7 +3739,7 @@ JSC3D.Matrix3x4.prototype.translate = function(tx, ty, tz) {
 /**
 	Rotate the matrix an arbitrary angle about the x-axis.
 	@param {Number} angle rotation angle in degrees.
-*/
+ */
 JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 	if(angle != 0) {
 		angle *= Math.PI / 180;
@@ -3653,7 +3763,7 @@ JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 /**
 	Rotate the matrix an arbitrary angle about the y-axis.
 	@param {Number} angle rotation angle in degrees.
-*/
+ */
 JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 	if(angle != 0) {
 		angle *= Math.PI / 180;
@@ -3677,7 +3787,7 @@ JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 /**
 	Rotate the matrix an arbitrary angle about the z-axis.
 	@param {Number} angle rotation angle in degrees.
-*/
+ */
 JSC3D.Matrix3x4.prototype.rotateAboutZAxis = function(angle) {
 	if(angle != 0) {
 		angle *= Math.PI / 180;
@@ -3701,7 +3811,7 @@ JSC3D.Matrix3x4.prototype.rotateAboutZAxis = function(angle) {
 /**
 	Multiply the matrix by another matrix.
 	@param {JSC3D.Matrix3x4} mult another matrix to be multiplied on this.
-*/
+ */
 JSC3D.Matrix3x4.prototype.multiply = function(mult) {
 	var m00 = mult.m00 * this.m00 + mult.m01 * this.m10 + mult.m02 * this.m20;
 	var m01 = mult.m00 * this.m01 + mult.m01 * this.m11 + mult.m02 * this.m21;
@@ -3726,7 +3836,7 @@ JSC3D.Matrix3x4.prototype.multiply = function(mult) {
 	@class Math3D
 
 	This class provides some utility methods for 3D mathematics.
-*/
+ */
 JSC3D.Math3D = {
 
 	/**
@@ -3734,7 +3844,7 @@ JSC3D.Math3D = {
 		@param {JSC3D.Matrix3x4} mat the transformation matrix.
 		@param {Array} vecs a batch of vectors to be transform.
 		@param {Array} xfvecs holds the transformed vetors.
-	*/
+	 */
 	transformVectors: function(mat, vecs, xfvecs) {
 		for(var i=0; i<vecs.length; i+=3) {
 			var x = vecs[i];
@@ -3751,7 +3861,7 @@ JSC3D.Math3D = {
 		@param {JSC3D.Matrix3x4} mat the transformation matrix.
 		@param {Array} vecs a batch of vectors to be transform.
 		@param {Array} xfveczs holds the transformed z components of the input vectors.
-	*/
+	 */
 	transformVectorZs: function(mat, vecs, xfveczs) {
 		var num = vecs.length / 3;
 		var i = 0, j = 0
@@ -3767,7 +3877,7 @@ JSC3D.Math3D = {
 /**
 	@class BinaryStream
 	The helper class to parse data from a binary stream.
-*/
+ */
 JSC3D.BinaryStream = function(data, isBigEndian) {
 	if(isBigEndian)
 		throw 'JSC3D.BinaryStream constructor failed: Big endian is not supported yet!';
@@ -3779,7 +3889,7 @@ JSC3D.BinaryStream = function(data, isBigEndian) {
 /**
 	Get the full length (in bytes) of the stream.
 	@returns {Number} the length of the stream.
-*/
+ */
 JSC3D.BinaryStream.prototype.size = function() {
 	return this.data.length;
 };
@@ -3787,7 +3897,7 @@ JSC3D.BinaryStream.prototype.size = function() {
 /**
 	Get the current position indicator of the stream.
 	@returns {Number} current position in stream.
-*/
+ */
 JSC3D.BinaryStream.prototype.tell = function() {
 	return this.offset;
 };
@@ -3796,7 +3906,7 @@ JSC3D.BinaryStream.prototype.tell = function() {
 	Set the position indicator of the stream to a new position.
 	@param {Number} position the new position.
 	@returns {Boolean} true if succeeded; false if the given position is out of range.
-*/
+ */
 JSC3D.BinaryStream.prototype.seek = function(position) {
 	if(position < 0 || position >= this.data.length)
 		return false;
@@ -3808,7 +3918,7 @@ JSC3D.BinaryStream.prototype.seek = function(position) {
 
 /**
 	Reset the position indicator to the beginning of the stream.
-*/
+ */
 JSC3D.BinaryStream.prototype.reset = function() {
 	this.offset = 0;
 };
@@ -3816,7 +3926,7 @@ JSC3D.BinaryStream.prototype.reset = function() {
 /**
 	Advance the position indicator to skip a given number of bytes.
 	@param {Number} bytesToSkip the number of bytes to skip.
-*/
+ */
 JSC3D.BinaryStream.prototype.skip = function(bytesToSkip) {
 	if(this.offset + bytesToSkip > this.data.length)
 		this.offset = this.data.length;
@@ -3827,7 +3937,7 @@ JSC3D.BinaryStream.prototype.skip = function(bytesToSkip) {
 /**
 	Get count of the remaining bytes in the stream.
 	@returns {Number} the number of bytes from current position to the end of the stream.
-*/
+ */
 JSC3D.BinaryStream.prototype.available = function() {
 	return this.data.length - this.offset;
 };
@@ -3835,7 +3945,7 @@ JSC3D.BinaryStream.prototype.available = function() {
 /**
 	See if the position indicator is already at the end of the stream.
 	@returns {Boolean} true if the position indicator is at the end of the stream; false if not.
-*/
+ */
 JSC3D.BinaryStream.prototype.eof = function() {
 	return !(this.offset < this.data.length);
 };
@@ -3843,7 +3953,7 @@ JSC3D.BinaryStream.prototype.eof = function() {
 /**
 	Read an 8-bits' unsigned int number.
 	@returns {Number} an 8-bits' unsigned int number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readUInt8 = function() {
 	return this.decodeInt(1, false);
 };
@@ -3851,7 +3961,7 @@ JSC3D.BinaryStream.prototype.readUInt8 = function() {
 /**
 	Read an 8-bits' signed int number.
 	@returns {Number} an 8-bits' signed int number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readInt8 = function() {
 	return this.decodeInt(1, true);
 };
@@ -3859,7 +3969,7 @@ JSC3D.BinaryStream.prototype.readInt8 = function() {
 /**
 	Read a 16-bits' unsigned int number.
 	@returns {Number} a 16-bits' unsigned int number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readUInt16 = function() {
 	return this.decodeInt(2, false);
 };
@@ -3867,7 +3977,7 @@ JSC3D.BinaryStream.prototype.readUInt16 = function() {
 /**
 	Read a 16-bits' signed int number.
 	@returns {Number} a 16-bits' signed int number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readInt16 = function() {
 	return this.decodeInt(2, true);
 };
@@ -3875,7 +3985,7 @@ JSC3D.BinaryStream.prototype.readInt16 = function() {
 /**
 	Read a 32-bits' unsigned int number.
 	@returns {Number} a 32-bits' unsigned int number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readUInt32 = function() {
 	return this.decodeInt(4, false);
 };
@@ -3883,7 +3993,7 @@ JSC3D.BinaryStream.prototype.readUInt32 = function() {
 /**
 	Read a 32-bits' signed int number.
 	@returns {Number} a 32-bits' signed int number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readInt32 = function() {
 	return this.decodeInt(4, true);
 };
@@ -3891,7 +4001,7 @@ JSC3D.BinaryStream.prototype.readInt32 = function() {
 /**
 	Read a 32-bits' (IEEE 754) floating point number.
 	@returns {Number} a 32-bits' floating point number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readFloat32 = function() {
 	return this.decodeFloat(4, 23);
 };
@@ -3899,7 +4009,7 @@ JSC3D.BinaryStream.prototype.readFloat32 = function() {
 /**
 	Read a 64-bits' (IEEE 754) floating point number.
 	@returns {Number} a 64-bits' floating point number, or NaN if any error occured.
-*/
+ */
 JSC3D.BinaryStream.prototype.readFloat64 = function() {
 	return this.decodeFloat(8, 52);
 };
@@ -3909,7 +4019,7 @@ JSC3D.BinaryStream.prototype.readFloat64 = function() {
 	@param {Array} buffer the buffer to receive the result.
 	@param {Number} bytesToRead length of the piece to be read, in bytes.
 	@returns {Number} the total number of bytes that are successfully read.
-*/
+ */
 JSC3D.BinaryStream.prototype.readBytes = function(buffer, bytesToRead) {
 	var bytesRead = bytesToRead;
 	if(this.offset + bytesToRead > this.data.length)
@@ -3924,7 +4034,7 @@ JSC3D.BinaryStream.prototype.readBytes = function(buffer, bytesToRead) {
 
 /**
 	@private
-*/
+ */
 JSC3D.BinaryStream.prototype.decodeInt = function(bytes, isSigned) {
 	if(this.offset + bytes > this.data.length) {
 		this.offset = this.data.length;
@@ -3945,7 +4055,7 @@ JSC3D.BinaryStream.prototype.decodeInt = function(bytes, isSigned) {
 
 /**
 	@private
-*/
+ */
 JSC3D.BinaryStream.prototype.decodeFloat = function(bytes, significandBits) {
 	if(this.offset + bytes > this.data.length) {
 		this.offset = this.data.length;
@@ -4000,14 +4110,14 @@ JSC3D.BinaryStream.prototype.decodeFloat = function(bytes, significandBits) {
 
 /**
 	@class LoaderSelector
-*/
+ */
 JSC3D.LoaderSelector = {
 
 	/**
 		Register a scene loader for a specific file format, using the file extesion name for lookup.
 		@param {String} fileExtName extension name for the specific file format.
 		@param {Function} loaderCtor constructor of the loader class.
-	*/
+	 */
 	registerLoader: function(fileExtName, loaderCtor) {
 		if((typeof loaderCtor) == 'function') {
 			JSC3D.LoaderSelector.loaderTable[fileExtName] = loaderCtor;
@@ -4018,7 +4128,7 @@ JSC3D.LoaderSelector = {
 		Get the proper loader for a target file format using the file extension name.
 		@param {String} fileExtName file extension name for the specific format.
 		@returns {Object} loader object for the specific format; null if not found.
-	*/
+	 */
 	getLoader: function(fileExtName) {
 		var loaderCtor = JSC3D.LoaderSelector.loaderTable[fileExtName.toLowerCase()];
 		if(!loaderCtor)
@@ -4043,7 +4153,7 @@ JSC3D.LoaderSelector = {
 	@class ObjLoader
 
 	This class implements a scene loader from a wavefront obj file. 
-*/
+ */
 JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
 	this.onload = (onload && typeof(onload) == 'function') ? onload : null;
 	this.onerror = (onerror && typeof(onerror) == 'function') ? onerror : null;
@@ -4055,7 +4165,7 @@ JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
 /**
 	Load scene from a given obj file.
 	@param {String} urlName a string that specifies where to fetch the obj file.
-*/
+ */
 JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 	var urlPath = '';
 	var fileName = urlName;
@@ -4075,7 +4185,7 @@ JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 /**
 	Load scene from the obj file using the given url path and file name.
 	@private
-*/
+ */
 JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 	var urlName = urlPath + fileName;
 	var self = this;
@@ -4125,7 +4235,7 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 /**
 	Load materials and textures from an mtl file and set them to corresponding meshes.
 	@private
-*/
+ */
 JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 	var urlName = urlPath + fileName;
 	var self = this;
@@ -4185,7 +4295,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 /**
 	Parse contents of the obj file, generating the scene and returning all required mtllibs. 
 	@private
-*/
+ */
 JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 	var meshes = {};
 	var mtllibs = [];
@@ -4350,7 +4460,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 /**
 	Parse contents of an mtl file, returning all materials and textures defined in it.
 	@private
-*/
+ */
 JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 	var mtls = {};
 	var curMtlName = '';
@@ -4433,7 +4543,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 /**
 	Asynchronously load a texture from a given url and set it to corresponding meshes when done.
 	@private
-*/
+ */
 JSC3D.ObjLoader.prototype.setupTexture = function(meshList, textureUrlName) {
 	var self = this;
 	var texture = new JSC3D.Texture;
@@ -4461,7 +4571,7 @@ JSC3D.LoaderSelector.registerLoader('obj', JSC3D.ObjLoader);
 	@class StlLoader
 
 	This class implements a scene loader from an STL file. Both binary and ASCII STL files are supported.
-*/
+ */
 JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
 	this.onload = (onload && typeof(onload) == 'function') ? onload : null;
 	this.onerror = (onerror && typeof(onerror) == 'function') ? onerror : null;
@@ -4473,7 +4583,7 @@ JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
 /**
 	Load scene from a given STL file.
 	@param {String} urlName a string that specifies where to fetch the STL file.
-*/
+ */
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
 	var xhr = new XMLHttpRequest;
@@ -4515,7 +4625,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 /**
 	Set decimal precision that defines the threshold to detect and weld vertices that coincide.
 	@param {Number} precision the decimal preciison.
-*/
+ */
 JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 	this.decimalPrecision = precision;
 };
@@ -4523,7 +4633,7 @@ JSC3D.StlLoader.prototype.setDecimalPrecision = function(precision) {
 /**
 	Parse contents of an STL file and generate the scene.
 	@private
-*/
+ */
 JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	var FACE_VERTICES           = 3;
 
