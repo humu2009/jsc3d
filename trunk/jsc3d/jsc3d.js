@@ -404,7 +404,7 @@ JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 	Set control of mouse pointer.
 	Available options are:<br />
 	'<b>default</b>':	default mouse control will be used;<br />
-	'<b>free</b>':		this tells the {JSC3D.Viewer} a user-defined mouse control will be adopted. 
+	'<b>free</b>':		this tells {JSC3D.Viewer} a user-defined mouse control will be adopted. 
 						This is often used together with viewer.enableDefaultInputHandler(false) 
 						and viewer.onmousedown, viewer.onmouseup and/or viewer.onmousemove overridden.<br />
 	'<b>rotate</b>':	mouse will be used to rotate the scene;<br />
@@ -4316,7 +4316,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 	meshes['nomtl'] = defaultMesh;
 	curMesh = defaultMesh;
 
-	var lines = data.split("\n");
+	var lines = data.split(/\r?\n/);
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
 		var tokens = line.split(/[ \t]+/);
@@ -4465,7 +4465,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 	var mtls = {};
 	var curMtlName = '';
 
-	var lines = data.split("\n");
+	var lines = data.split(/\r?\n/);
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
 		var tokens = line.split(/[ \t]+/);
