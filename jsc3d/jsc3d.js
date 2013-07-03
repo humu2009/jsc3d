@@ -4316,7 +4316,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 	meshes['nomtl'] = defaultMesh;
 	curMesh = defaultMesh;
 
-	var lines = data.split(/\r?\n/);
+	var lines = data.split(/[ \t]*\r?\n[ \t]*/);
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
 		var tokens = line.split(/[ \t]+/);
@@ -4465,7 +4465,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 	var mtls = {};
 	var curMtlName = '';
 
-	var lines = data.split(/\r?\n/);
+	var lines = data.split(/[ \t]*\r?\n[ \t]*/);
 	for(var i=0; i<lines.length; i++) {
 		var line = lines[i];
 		var tokens = line.split(/[ \t]+/);
