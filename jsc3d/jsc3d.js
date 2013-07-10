@@ -3874,6 +3874,33 @@ JSC3D.Math3D = {
 };
 
 
+JSC3D.Platform = (function() {
+	var agents = [
+		['firefox', /Firefox[\/\s](\d+(?:.\d+)*)/], 
+		['chrome',  /Chrome[\/\s](\d+(?:.\d+)*)/ ], 
+		['opera',   /Opera[\/\s](\d+(?:.\d+)*)/], 
+		['safari',  /Safari[\/\s](\d+(?:.\d+)*)/], 
+		['webkit',  /AppleWebKit[\/\s](\d+(?:.\d+)*)/], 
+		['ie',      /MSIE[\/\s](\d+(?:.\d+)*)/]
+	];
+
+	var matches;
+	for(var i=0; i<agents.length; i++) {
+		if((matches = agents[i][1].exec(window.navigator.userAgent))) {
+			return {
+				browser: agents[i][0], 
+				version: matches[1]
+			};
+		}
+	}
+
+	return {
+		browser: 'other', 
+		version: '0.0.0'
+	};
+}) ();
+
+
 /**
 	@class BinaryStream
 	The helper class to parse data from a binary stream.
@@ -4588,7 +4615,10 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
-	xhr.overrideMimeType('text/plain; charset=x-user-defined');
+	if(JSC3D.Platform.browser == 'ie' && JSC3D.Platform.version >= '10')
+		xhr.responseType = 'blob';	// use blob method to deal with STL files for IE >= 10
+	else
+		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
@@ -4598,9 +4628,21 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading STL file ...', 1);
-					var scene = new JSC3D.Scene;
-					self.parseStl(scene, this.responseText);
-					self.onload(scene);
+					if(JSC3D.Platform.browser == 'ie' && JSC3D.Platform.version >= '10') {
+						// asynchronously decode blob to binary string
+						var blobReader = new FileReader;
+						blobReader.onload = function(event) {
+							var scene = new JSC3D.Scene;
+							self.parseStl(scene, event.target.result);
+							self.onload(scene);
+						};
+						blobReader.readAsText(this.response, 'x-user-defined');
+					}
+					else {
+						var scene = new JSC3D.Scene;
+						self.parseStl(scene, this.responseText);
+						self.onload(scene);
+					}
 				}
 			}
 			else {
@@ -4665,8 +4707,8 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	
 	if(!isBinary) {
 		/*
-			this should be an ASCII STL file.
-			code contributed by Triffid Hunter.
+			This should be an ASCII STL file.
+			Code contributed by Triffid Hunter.
 		*/
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
@@ -4718,7 +4760,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	}
 	else {
 		/*
-			this is a binary STL file
+			This is a binary STL file.
 		*/
 
 		reader.reset();
