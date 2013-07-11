@@ -1,5 +1,5 @@
 /**
-	@preserve Copyright (c) 2012 Humu humu2009@gmail.com
+	@preserve Copyright (c) 2013 Humu humu2009@gmail.com
 	jsc3d is freely distributable under the terms of the MIT license.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -123,9 +123,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 
 	// setup input handlers.
 	// compatibility for touch devices is taken into account
-	var isTouchDevice = (document.createTouch != undefined);	// detect if it is running on a touch device
 	var self = this;
-	if(!isTouchDevice) {
+	if(!JSC3D.PlatformInfo.isTouchDevice) {
 		this.canvas.addEventListener('mousedown', function(e){self.mouseDownHandler(e);}, false);
 		this.canvas.addEventListener('mouseup', function(e){self.mouseUpHandler(e);}, false);
 		this.canvas.addEventListener('mousemove', function(e){self.mouseMoveHandler(e);}, false);
@@ -3874,7 +3873,13 @@ JSC3D.Math3D = {
 };
 
 
-JSC3D.Platform = (function() {
+JSC3D.PlatformInfo = (function() {
+	var info = {
+		browser:		'other', 
+		version:		'0.0.0', 
+		isTouchDevice:	(document.createTouch != undefined)	// detect if it is running on a touch device
+	};
+
 	var agents = [
 		['firefox', /Firefox[\/\s](\d+(?:.\d+)*)/], 
 		['chrome',  /Chrome[\/\s](\d+(?:.\d+)*)/ ], 
@@ -3887,17 +3892,13 @@ JSC3D.Platform = (function() {
 	var matches;
 	for(var i=0; i<agents.length; i++) {
 		if((matches = agents[i][1].exec(window.navigator.userAgent))) {
-			return {
-				browser: agents[i][0], 
-				version: matches[1]
-			};
+			info.browser = agents[i][0];
+			info.version = matches[1];
+			break;
 		}
 	}
 
-	return {
-		browser: 'other', 
-		version: '0.0.0'
-	};
+	return info;
 }) ();
 
 
@@ -4615,7 +4616,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
-	if(JSC3D.Platform.browser == 'ie' && JSC3D.Platform.version >= '10')
+	if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10')
 		xhr.responseType = 'blob';	// use blob method to deal with STL files for IE >= 10
 	else
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
@@ -4628,7 +4629,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading STL file ...', 1);
-					if(JSC3D.Platform.browser == 'ie' && JSC3D.Platform.version >= '10') {
+					if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10') {
 						// asynchronously decode blob to binary string
 						var blobReader = new FileReader;
 						blobReader.onload = function(event) {
