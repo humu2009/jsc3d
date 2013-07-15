@@ -97,6 +97,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.initRotY = 0;
 	this.initRotZ = 0;
 	this.zoomFactor = 1;
+	this.panning = [0, 0];
 	this.rotMatrix = new JSC3D.Matrix3x4;
 	this.transformMatrix = new JSC3D.Matrix3x4;
 	this.sceneUrl = '';
@@ -206,6 +207,7 @@ JSC3D.Viewer.prototype.init = function() {
 	}
 
 	this.zoomFactor = 1;
+	this.panning = [0, 0];
 	this.rotMatrix.identity();
 	this.transformMatrix.identity();
 	this.isLoaded = false;
@@ -228,9 +230,12 @@ JSC3D.Viewer.prototype.init = function() {
 	this.defaultMaterial.simulateSpecular = true;
 	this.drawBackground();
 
-	// set a timer to wake up update routine per 30 milliseconds
+	// wake up update routine per 30 milliseconds
 	var self = this;
-	setInterval( function(){self.doUpdate();}, 30 );
+	(function tick() {
+		self.doUpdate();
+		setTimeout(tick, 30);
+	}) ();
 
 	// load background image if any
 	this.setBackgroudImageFromUrl(this.bkgImageUrl);
@@ -338,9 +343,12 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 
 	this.generateBackground();
 
-	// zoom factor should be adjusted, 
-	// otherwise there would be an abrupt zoom-in or zoom-out on next frame
-	this.zoomFactor *= this.frameWidth / oldFrameWidth;
+	var ratio = this.frameWidth / oldFrameWidth;
+	// zoom factor should be adjusted, otherwise there would be an abrupt zoom-in or zoom-out on next frame
+	this.zoomFactor *= ratio;
+	// likewise, panning should also be adjusted to avoid abrupt jump on next frame
+	this.panning[0] *= ratio;
+	this.panning[1] *= ratio;
 };
 
 /**
@@ -408,6 +416,7 @@ JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 						and viewer.onmousedown, viewer.onmouseup and/or viewer.onmousemove overridden.<br />
 	'<b>rotate</b>':	mouse will be used to rotate the scene;<br />
 	'<b>zoom</b>':		mouse will be used to do zooming.<br />
+	'<b>pan</b>':		mouse will be used to do panning.<br />
 	@param {String} usage control of mouse pointer to be set.
  */
 JSC3D.Viewer.prototype.setMouseUsage = function(usage) {
@@ -593,10 +602,16 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 		return;
 
 	var isDragging = this.buttonStates[0] == true;
-	var isShiftDown = this.keyStates[16] == true;
+	var isShiftDown = this.keyStates[0x10] == true;
+	var isCtrlDown = this.keyStates[0x11] == true;
 	if(isDragging) {
 		if((isShiftDown && this.mouseUsage == 'default') || this.mouseUsage == 'zoom') {
 			this.zoomFactor *= this.mouseY <= e.clientY ? 1.11 : 0.9;
+		}
+		else if((isCtrlDown && this.mouseUsage == 'default') || this.mouseUsage == 'pan') {
+			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
+			this.panning[0] += ratio * (e.clientX - this.mouseX);
+			this.panning[1] += ratio * (e.clientY - this.mouseY);
 		}
 		else if(this.mouseUsage == 'default' || this.mouseUsage == 'rotate') {
 			var rotX = (e.clientY - this.mouseY) * 360 / this.canvas.width;
@@ -674,6 +689,11 @@ JSC3D.Viewer.prototype.touchMoveHandler = function(e) {
 
 		if(this.mouseUsage == 'zoom') {
 			this.zoomFactor *= (this.mouseY <= clientY) ? 1.11 : 0.9;
+		}
+		else if(this.mouseUsage == 'pan') {
+			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
+			this.panning[0] += ratio * (clientX - this.mouseX);
+			this.panning[1] += ratio * (clientY - this.mouseY);
 		}
 		else if(this.mouseUsage == 'default' || this.mouseUsage == 'rotate') {
 			var rotX = (clientY - this.mouseY) * 360 / this.canvas.width;
@@ -775,6 +795,7 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
 		var w = this.frameWidth;
 		var h = this.frameHeight;
 		this.zoomFactor = (d == 0) ? 1 : (w < h ? w : h) / d;
+		this.panning = [0, 0];
 	}
 
 	this.rotMatrix.identity();
@@ -1050,7 +1071,7 @@ JSC3D.Viewer.prototype.render = function() {
 	this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
 	this.transformMatrix.multiply(this.rotMatrix);
 	this.transformMatrix.scale(this.zoomFactor, -this.zoomFactor, this.zoomFactor);
-	this.transformMatrix.translate(this.frameWidth/2, this.frameHeight/2, 0);
+	this.transformMatrix.translate(this.frameWidth/2+this.panning[0], this.frameHeight/2+this.panning[1], 0);
 
 	// sort, transform and render the scene
 	var renderList = this.sortScene(this.transformMatrix);
@@ -1105,7 +1126,7 @@ JSC3D.Viewer.prototype.render = function() {
 
 /**
 	Sort meshes inside the scene into a render list. The sorting criterion is a mixture of trnasparency and depth.
-	This routine is necessary to ensure a correct rendering order.
+	This routine is necessary to ensure a correct rendering order. It also helps to reduce fill rate.
 	@private
  */
 JSC3D.Viewer.prototype.sortScene = function(mat) {
@@ -2927,6 +2948,7 @@ JSC3D.Viewer.prototype.initRotX = 0;
 JSC3D.Viewer.prototype.initRotY = 0;
 JSC3D.Viewer.prototype.initRotZ = 0;
 JSC3D.Viewer.prototype.zoomFactor = 1;
+JSC3D.Viewer.prototype.panning = [0, 0];
 JSC3D.Viewer.prototype.rotMatrix = null;
 JSC3D.Viewer.prototype.transformMatrix = null;
 JSC3D.Viewer.prototype.sceneUrl = '';
