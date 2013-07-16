@@ -4636,9 +4636,10 @@ JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
  */
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
+	var isIE10Compatible = (JSC3D.PlatformInfo.browser == 'ie' && parseInt(JSC3D.PlatformInfo.version) >= 10);
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
-	if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10')
+	if(isIE10Compatible)
 		xhr.responseType = 'blob';	// use blob method to deal with STL files for IE >= 10
 	else
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
@@ -4651,7 +4652,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading STL file ...', 1);
-					if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10') {
+					if(isIE10Compatible) {
 						// asynchronously decode blob to binary string
 						var blobReader = new FileReader;
 						blobReader.onload = function(event) {
