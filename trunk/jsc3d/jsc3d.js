@@ -606,7 +606,7 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 	var isCtrlDown = this.keyStates[0x11] == true;
 	if(isDragging) {
 		if((isShiftDown && this.mouseUsage == 'default') || this.mouseUsage == 'zoom') {
-			this.zoomFactor *= this.mouseY <= e.clientY ? 1.11 : 0.9;
+			this.zoomFactor *= this.mouseY <= e.clientY ? 1.04 : 0.96;
 		}
 		else if((isCtrlDown && this.mouseUsage == 'default') || this.mouseUsage == 'pan') {
 			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
@@ -688,7 +688,7 @@ JSC3D.Viewer.prototype.touchMoveHandler = function(e) {
 			return;
 
 		if(this.mouseUsage == 'zoom') {
-			this.zoomFactor *= (this.mouseY <= clientY) ? 1.11 : 0.9;
+			this.zoomFactor *= (this.mouseY <= clientY) ? 1.04 : 0.96;
 		}
 		else if(this.mouseUsage == 'pan') {
 			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
@@ -4849,8 +4849,17 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	}
 	
 	// add mesh to scene
-	if(!mesh.isTrivial())
+	if(!mesh.isTrivial()) {
+		// Some tools export STLs with empty face normals (all equal to 0). In this case we simply ...
+		// ... set the face normal buffer to null so that they will be calculated in mesh's init stage. 
+		if( Math.abs(mesh.faceNormalBuffer[0]) < 1e-6 && 
+			Math.abs(mesh.faceNormalBuffer[1]) < 1e-6 && 
+			Math.abs(mesh.faceNormalBuffer[2]) < 1e-6 ) {
+			mesh.faceNormalBuffer = null;
+		}
+
 		scene.addChild(mesh);
+	}
 };
 
 JSC3D.StlLoader.prototype.onload = null;
