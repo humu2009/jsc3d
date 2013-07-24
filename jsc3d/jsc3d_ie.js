@@ -2827,7 +2827,7 @@ JSC3D.Scene.prototype.removeChild = function(mesh) {
 	@returns {Array} meshes as an array.
  */
 JSC3D.Scene.prototype.getChildren = function() {
-	return this.children;
+	return this.children.slice(0);
 };
 
 /**
