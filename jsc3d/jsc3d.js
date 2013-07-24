@@ -3049,7 +3049,7 @@ JSC3D.Scene.prototype.removeChild = function(mesh) {
 	@returns {Array} meshes as an array.
  */
 JSC3D.Scene.prototype.getChildren = function() {
-	return this.children;
+	return this.children.slice(0);
 };
 
 /**
@@ -3945,7 +3945,7 @@ JSC3D.BinaryStream.prototype.size = function() {
 };
 
 /**
-	Get the current position indicator of the stream.
+	Get current position of the indicator.
 	@returns {Number} current position in stream.
  */
 JSC3D.BinaryStream.prototype.tell = function() {
