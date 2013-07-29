@@ -1,5 +1,5 @@
 /**
-	@preserve Copyright (c) 2012 Humu humu2009@gmail.com
+	@preserve Copyright (c) 2013 Humu humu2009@gmail.com
 	jsc3d is freely distributable under the terms of the MIT license.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -401,6 +401,18 @@ JSC3D.Viewer.prototype.replaceScene = function(scene) {
 	this.isLoaded = true;
 	this.errorMsg = '';
 	this.setupScene(scene);
+};
+
+/**
+	Reset the current scene to its initial state.
+ */
+JSC3D.Viewer.prototype.resetScene = function() {
+	var d = (!this.scene || this.scene.isEmpty()) ? 0 : this.scene.aabb.lengthOfDiagonal();
+	this.zoomFactor = (d == 0) ? 1 : (this.frameWidth < this.frameHeight ? this.frameWidth : this.frameHeight) / d;
+	this.rotMatrix.identity();
+	this.rotMatrix.rotateAboutXAxis(this.initRotX);
+	this.rotMatrix.rotateAboutYAxis(this.initRotY);
+	this.rotMatrix.rotateAboutZAxis(this.initRotZ);
 };
 
 /**
@@ -2828,6 +2840,20 @@ JSC3D.Scene.prototype.removeChild = function(mesh) {
  */
 JSC3D.Scene.prototype.getChildren = function() {
 	return this.children.slice(0);
+};
+
+/**
+	Traverse meshes in the scene, calling a given function on each of them.
+	@param {Function} operator a function that will be called on each mesh.
+ */
+JSC3D.Scene.prototype.forEachChild = function(operator) {
+	if((typeof operator) != 'function')
+		return;
+
+	for(var i=0; i<this.children.length; i++) {
+		if(operator.call(null, this.children[i]))
+			break;
+	}
 };
 
 /**

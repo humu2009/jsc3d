@@ -32,7 +32,7 @@ var JSC3D = JSC3D || {};
 	The console instance where to display debugging informations. 
 	Based upon code originally provided by X3DOM project, under the MIT license.
 */
-JSC3D.console = function() {
+JSC3D.console = (function() {
 	var _container = null;
 	var _isActive = false;
 
@@ -143,4 +143,4 @@ JSC3D.console = function() {
 		logError:	_logError, 
 		clear:		_clear
 	};
-} ();
+}) ();
