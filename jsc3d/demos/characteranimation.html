@@ -6,14 +6,15 @@
  </HEAD>
 
  <BODY>
-	<div style="width:480px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+	<div id="mainframe" style="width:480px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
 		<canvas id="cv" style="border: 1px solid;" width="480" height="360" ></canvas>
 		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:6px; top:312px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
 			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
 		</div>
-		<p style="font-family:Arial,sans-serif;">This demo is based on the <a href="http://code.google.com/p/cal3djs/">Cal3DJS</a> 3d character animation library.<p>
+		<p style="font-family:Arial,sans-serif;">This demo is based on the <a href="http://code.google.com/p/cal3djs/">cal3d.js</a> 3d character animation library.<p>
 	</div>
 	<script type="text/javascript" src="characteranimation/cal3d.all.min.js"></script>
+	<script type="text/javascript" src="characteranimation/stats.min.js"></script>
 	<script type="text/javascript" src="../jsc3d.js"></script>
 
 	<script type="text/javascript">
@@ -182,7 +183,25 @@
 					adjustMotion();
 					randomWave();
 				}
-			}, 60 /* 16 fps expected */ );
+			}, 60 /* 16~17 fps expected */ );
+		};
+
+		/**
+			show statistics panel
+		 **/
+		var stats = new Stats;
+		stats.setMode(0);
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.left = '5px';
+		stats.domElement.style.top = '5px';
+		document.getElementById('mainframe').appendChild(stats.domElement);
+
+		// collect statistics
+		viewer.beforeupdate = function() {
+			stats.begin();
+		};
+		viewer.afterupdate = function() {
+			stats.end();
 		};
   </script>
  </BODY>
