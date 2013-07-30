@@ -394,14 +394,14 @@ JSC3D.Viewer.prototype.setSphereMapFromUrl = function(sphereMapUrl) {
 	}
 
 	var self = this;
-	var newSphereMap = new JSC3D.Texture;
+	var newMap = new JSC3D.Texture;
 
-	newSphereMap.onready = function() {
-		self.sphereMap = newSphereMap;
+	newMap.onready = function() {
+		self.sphereMap = newMap;
 		self.update();
 	};
 
-	newSphereMap.createFromUrl(this.sphereMapUrl);
+	newMap.createFromUrl(this.sphereMapUrl);
 };
 
 /**
@@ -1226,7 +1226,7 @@ JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 //		if(mesh.isDoubleSided)
 //			xformedNz = xformedNz > 0 ? xformedNz : -xformedNz;
 //		if(xformedNz > 0) {
-			var x = ~~(vbuf[j]     + 0.5);
+			var x = ~~(vbuf[j    ] + 0.5);
 			var y = ~~(vbuf[j + 1] + 0.5);
 			var z = vbuf[j + 2];
 			if(x >=0 && x < xbound && y >=0 && y < ybound) {
@@ -1302,10 +1302,10 @@ JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
 
 			var isClosed = false;
 			while(!isClosed) {
-				var x0 = ~~(vbuf[v0]     + 0.5);
+				var x0 = ~~(vbuf[v0    ] + 0.5);
 				var y0 = ~~(vbuf[v0 + 1] + 0.5);
 				var z0 = vbuf[v0 + 2];
-				var x1 = ~~(vbuf[v1]     + 0.5);
+				var x1 = ~~(vbuf[v1    ] + 0.5);
 				var y1 = ~~(vbuf[v1 + 1] + 0.5);
 				var z1 = vbuf[v1 + 2];
 
@@ -1431,13 +1431,13 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 			do {
 				v2 = ibuf[j++] * 3;
 
-				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Xs[0] = ~~(vbuf[v0    ] + 0.5);
 				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
 				Zs[0] = vbuf[v0 + 2];
-				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Xs[1] = ~~(vbuf[v1    ] + 0.5);
 				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
 				Zs[1] = vbuf[v1 + 2];
-				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Xs[2] = ~~(vbuf[v2    ] + 0.5);
 				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
 				Zs[2] = vbuf[v2 + 2];
 
@@ -1626,13 +1626,13 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 				ni2 = vnibuf[j];
 				j++;
 
-				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Xs[0] = ~~(vbuf[v0    ] + 0.5);
 				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
 				Zs[0] = vbuf[v0 + 2];
-				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Xs[1] = ~~(vbuf[v1    ] + 0.5);
 				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
 				Zs[1] = vbuf[v1 + 2];
-				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Xs[2] = ~~(vbuf[v2    ] + 0.5);
 				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
 				Zs[2] = vbuf[v2 + 2];
 
@@ -1843,18 +1843,18 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 
 				tdim = texture.width;
 
-				Xs[0] = vbuf[v0];
+				Xs[0] = vbuf[v0    ];
 				Ys[0] = vbuf[v0 + 1];
-				Xs[1] = vbuf[v1];
+				Xs[1] = vbuf[v1    ];
 				Ys[1] = vbuf[v1 + 1];
-				Xs[2] = vbuf[v2];
+				Xs[2] = vbuf[v2    ];
 				Ys[2] = vbuf[v2 + 1];
 
-				THs[0] = tbuf[t0] * tdim;
+				THs[0] = tbuf[t0    ] * tdim;
 				TVs[0] = tbuf[t0 + 1] * tdim;
-				THs[1] = tbuf[t1] * tdim;
+				THs[1] = tbuf[t1    ] * tdim;
 				TVs[1] = tbuf[t1 + 1] * tdim;
-				THs[2] = tbuf[t2] * tdim;
+				THs[2] = tbuf[t2    ] * tdim;
 				TVs[2] = tbuf[t2 + 1] * tdim;
 
 				var faceArea = (Xs[1] - Xs[0]) * (Ys[2] - Ys[0]) - (Ys[1] - Ys[0]) * (Xs[2] - Xs[0]);
@@ -1889,21 +1889,21 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 				t2 = tibuf[j] * 2;
 				j++;
 
-				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Xs[0] = ~~(vbuf[v0    ] + 0.5);
 				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
 				Zs[0] = vbuf[v0 + 2];
-				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Xs[1] = ~~(vbuf[v1    ] + 0.5);
 				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
 				Zs[1] = vbuf[v1 + 2];
-				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Xs[2] = ~~(vbuf[v2    ] + 0.5);
 				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
 				Zs[2] = vbuf[v2 + 2];
 
-				THs[0] = tbuf[t0] * tdim;
+				THs[0] = tbuf[t0    ] * tdim;
 				TVs[0] = tbuf[t0 + 1] * tdim;
-				THs[1] = tbuf[t1] * tdim;
+				THs[1] = tbuf[t1    ] * tdim;
 				TVs[1] = tbuf[t1 + 1] * tdim;
-				THs[2] = tbuf[t2] * tdim;
+				THs[2] = tbuf[t2    ] * tdim;
 				TVs[2] = tbuf[t2 + 1] * tdim;
 
 				var high = Ys[0] < Ys[1] ? 0 : 1;
@@ -2127,18 +2127,18 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 
 				tdim = texture.width;
 
-				Xs[0] = vbuf[v0];
+				Xs[0] = vbuf[v0    ];
 				Ys[0] = vbuf[v0 + 1];
-				Xs[1] = vbuf[v1];
+				Xs[1] = vbuf[v1    ];
 				Ys[1] = vbuf[v1 + 1];
-				Xs[2] = vbuf[v2];
+				Xs[2] = vbuf[v2    ];
 				Ys[2] = vbuf[v2 + 1];
 
-				THs[0] = tbuf[t0] * tdim;
+				THs[0] = tbuf[t0    ] * tdim;
 				TVs[0] = tbuf[t0 + 1] * tdim;
-				THs[1] = tbuf[t1] * tdim;
+				THs[1] = tbuf[t1    ] * tdim;
 				TVs[1] = tbuf[t1 + 1] * tdim;
-				THs[2] = tbuf[t2] * tdim;
+				THs[2] = tbuf[t2    ] * tdim;
 				TVs[2] = tbuf[t2 + 1] * tdim;
 
 				var faceArea = (Xs[1] - Xs[0]) * (Ys[2] - Ys[0]) - (Ys[1] - Ys[0]) * (Xs[2] - Xs[0]);
@@ -2173,21 +2173,21 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 				t2 = tibuf[j] * 2;
 				j++;
 
-				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Xs[0] = ~~(vbuf[v0    ] + 0.5);
 				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
 				Zs[0] = vbuf[v0 + 2];
-				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Xs[1] = ~~(vbuf[v1    ] + 0.5);
 				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
 				Zs[1] = vbuf[v1 + 2];
-				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Xs[2] = ~~(vbuf[v2    ] + 0.5);
 				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
 				Zs[2] = vbuf[v2 + 2];
 
-				THs[0] = tbuf[t0] * tdim;
+				THs[0] = tbuf[t0    ] * tdim;
 				TVs[0] = tbuf[t0 + 1] * tdim;
-				THs[1] = tbuf[t1] * tdim;
+				THs[1] = tbuf[t1    ] * tdim;
 				TVs[1] = tbuf[t1 + 1] * tdim;
-				THs[2] = tbuf[t2] * tdim;
+				THs[2] = tbuf[t2    ] * tdim;
 				TVs[2] = tbuf[t2 + 1] * tdim;
 
 				var high = Ys[0] < Ys[1] ? 0 : 1;
@@ -2439,18 +2439,18 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 
 				tdim = texture.width;
 
-				Xs[0] = vbuf[v0];
+				Xs[0] = vbuf[v0    ];
 				Ys[0] = vbuf[v0 + 1];
-				Xs[1] = vbuf[v1];
+				Xs[1] = vbuf[v1    ];
 				Ys[1] = vbuf[v1 + 1];
-				Xs[2] = vbuf[v2];
+				Xs[2] = vbuf[v2    ];
 				Ys[2] = vbuf[v2 + 1];
 
-				THs[0] = tbuf[t0] * tdim;
+				THs[0] = tbuf[t0    ] * tdim;
 				TVs[0] = tbuf[t0 + 1] * tdim;
-				THs[1] = tbuf[t1] * tdim;
+				THs[1] = tbuf[t1    ] * tdim;
 				TVs[1] = tbuf[t1 + 1] * tdim;
-				THs[2] = tbuf[t2] * tdim;
+				THs[2] = tbuf[t2    ] * tdim;
 				TVs[2] = tbuf[t2 + 1] * tdim;
 
 				var faceArea = (Xs[1] - Xs[0]) * (Ys[2] - Ys[0]) - (Ys[1] - Ys[0]) * (Xs[2] - Xs[0]);
@@ -2487,21 +2487,21 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 				ni2 = vnibuf[j];
 				j++;
 
-				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Xs[0] = ~~(vbuf[v0    ] + 0.5);
 				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
 				Zs[0] = vbuf[v0 + 2];
-				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Xs[1] = ~~(vbuf[v1    ] + 0.5);
 				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
 				Zs[1] = vbuf[v1 + 2];
-				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Xs[2] = ~~(vbuf[v2    ] + 0.5);
 				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
 				Zs[2] = vbuf[v2 + 2];
 
-				THs[0] = tbuf[t0] * tdim;
+				THs[0] = tbuf[t0    ] * tdim;
 				TVs[0] = tbuf[t0 + 1] * tdim;
-				THs[1] = tbuf[t1] * tdim;
+				THs[1] = tbuf[t1    ] * tdim;
 				TVs[1] = tbuf[t1 + 1] * tdim;
-				THs[2] = tbuf[t2] * tdim;
+				THs[2] = tbuf[t2    ] * tdim;
 				TVs[2] = tbuf[t2 + 1] * tdim;
 
 				Ns[0] = vnbuf[ni0];
@@ -2776,13 +2776,13 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 				vn2 = vnibuf[j] * 3;
 				j++
 
-				Xs[0] = ~~(vbuf[v0]     + 0.5);
+				Xs[0] = ~~(vbuf[v0    ] + 0.5);
 				Ys[0] = ~~(vbuf[v0 + 1] + 0.5);
 				Zs[0] = vbuf[v0 + 2];
-				Xs[1] = ~~(vbuf[v1]     + 0.5);
+				Xs[1] = ~~(vbuf[v1    ] + 0.5);
 				Ys[1] = ~~(vbuf[v1 + 1] + 0.5);
 				Zs[1] = vbuf[v1 + 2];
-				Xs[2] = ~~(vbuf[v2]     + 0.5);
+				Xs[2] = ~~(vbuf[v2    ] + 0.5);
 				Ys[2] = ~~(vbuf[v2 + 1] + 0.5);
 				Zs[2] = vbuf[v2 + 2];
 
@@ -3290,7 +3290,7 @@ JSC3D.Mesh.prototype.calcAABB = function() {
 
 	var vbuf = this.vertexBuffer;
 	for(var i=0; i<vbuf.length; i+=3) {
-		var x = vbuf[i];
+		var x = vbuf[i    ];
 		var y = vbuf[i + 1];
 		var z = vbuf[i + 2];
 
@@ -3327,17 +3327,17 @@ JSC3D.Mesh.prototype.calcFaceNormals = function() {
 	var i = 0, j = 0;
 	while(i < ibuf.length) {
 		var index = ibuf[i++] * 3;
-		var x0 = vbuf[index];
+		var x0 = vbuf[index    ];
 		var y0 = vbuf[index + 1];
 		var z0 = vbuf[index + 2];
 
 		index = ibuf[i++] * 3;
-		var x1 = vbuf[index];
+		var x1 = vbuf[index    ];
 		var y1 = vbuf[index + 1];
 		var z1 = vbuf[index + 2];
 
 		index = ibuf[i++] * 3;
-		var x2 = vbuf[index];
+		var x2 = vbuf[index    ];
 		var y2 = vbuf[index + 1];
 		var z2 = vbuf[index + 2];
 
@@ -4020,7 +4020,7 @@ JSC3D.Math3D = {
 	 */
 	transformVectors: function(mat, vecs, xfvecs) {
 		for(var i=0; i<vecs.length; i+=3) {
-			var x = vecs[i];
+			var x = vecs[i    ];
 			var y = vecs[i + 1];
 			var z = vecs[i + 2];
 			xfvecs[i]     = mat.m00 * x + mat.m01 * y + mat.m02 * z + mat.m03;
@@ -4637,7 +4637,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 				if(oldVI != -1) {
 					if(viBuffer[oldVI] == -1) {
 						var v = oldVI * 3;
-						mesh.vertexBuffer.push(tempVertexBuffer[v]);
+						mesh.vertexBuffer.push(tempVertexBuffer[v    ]);
 						mesh.vertexBuffer.push(tempVertexBuffer[v + 1]);
 						mesh.vertexBuffer.push(tempVertexBuffer[v + 2]);
 						mesh.indexBuffer[i] = newVI;
@@ -4663,7 +4663,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 				if(oldTI != -1) {
 					if(tiBuffer[oldTI] == -1) {
 						var t = oldTI * 2;
-						mesh.texCoordBuffer.push(tempTexCoordBuffer[t]);
+						mesh.texCoordBuffer.push(tempTexCoordBuffer[t    ]);
 						mesh.texCoordBuffer.push(tempTexCoordBuffer[t + 1]);
 						mesh.texCoordIndexBuffer[i] = newTI;
 						tiBuffer[oldTI] = newTI;
