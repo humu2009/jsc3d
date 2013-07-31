@@ -217,9 +217,13 @@ JSC3D.Md2Loader.prototype.loadFromUrl = function(urlName) {
 JSC3D.Md2Loader.prototype.loadMd2File = function(urlPath, fileName) {
 	var urlName = urlPath + fileName;
 	var self = this;
+	var isMSIE = JSC3D.PlatformInfo.browser == 'ie';
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
-	xhr.overrideMimeType('text/plain; charset=x-user-defined');
+	if(isMSIE)
+		xhr.setRequestHeader("Accept-Charset", "x-user-defined");
+	else
+		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
@@ -230,7 +234,15 @@ JSC3D.Md2Loader.prototype.loadMd2File = function(urlPath, fileName) {
 					if(JSC3D.console)
 						JSC3D.console.logInfo('Finished loading MD2 file "' + urlName + '".');
 					var scene = new JSC3D.Scene;
-					var textureFileName = self.parseMd2(scene, this.responseText);
+					var textureFileName = self.parseMd2( scene, 
+														 !isMSIE ?	this.responseText : 
+																	(function(arr) {
+																		var str = '';
+																		for(var i=0; i<arr.length-65536; i+=65536)
+																			str += String.fromCharCode.apply(null, arr.slice(i, i+65536));
+																		return str + String.fromCharCode.apply(null, arr.slice(i));
+																	}) ((new VBArray(this.responseBody)).toArray())
+					);
 					if(textureFileName != '' && !scene.isEmpty())
 						self.setupTexture(scene.getChildren()[0], urlPath + textureFileName);
 					self.onload(scene);
