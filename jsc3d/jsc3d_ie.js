@@ -4244,23 +4244,10 @@ JSC3D.StlLoader.prototype.loadBinaryFromUrl = function(urlName) {
 					if(self.onprogress)
 						self.onprogress('Loading binary stl file ...', 1);
 					var scene = new JSC3D.Scene;
-					// Hack !!!!!! 
-					// As javascript cannot access contents of the XHR's responseBody property which hold the raw binary data returned by the request, 
-					// we need to generate and execute a vbscript function to extract those data to a javascript array before we can parse them.
-					var data_convert_function = 
-						'Function BinaryToArray(Binary)\n' + 
-						'  Dim length\n' + 
-						'  length = LenB(Binary)\n' + 
-						'  ReDim byteArray(length)\n' + 
-						'  Dim i\n' + 
-						'  For i = 1 To length\n' + 
-						'    byteArray(i-1) = AscB(MidB(Binary, i, 1))\n' + 
-						'  Next\n' + 
-						'  BinaryToArray = byteArray\n' + 
-						'End Function';
+					// As javascript cannot access contents of the XHR's responseBody property which hold the raw binary data 
+					// returned by the request, we need to extract those data to a javascript array before we can parse them.
 					try {
-						execScript(data_convert_function, 'vbscript');
-						self.parseStlBinary(scene, BinaryToArray(this.responseBody).toArray());
+						self.parseStlBinary(scene, (new VBArray(this.responseBody)).toArray());
 					} catch(e) {}
 					self.onload(scene);
 				}
