@@ -3451,7 +3451,7 @@ JSC3D.Mesh.prototype.calcCreasedVertexNormals = function() {
 	}
 
 	var fnbuf = this.faceNormalBuffer;
-	// generate normalized face normals which will be used for calculating dot products of adjacent faces
+	// generate normalized face normals which will be used for dot product calculation
 	var nfnbuf = new Array(fnbuf.length);
 	JSC3D.Math3D.normalizeVectors(fnbuf, nfnbuf);
 
@@ -4813,11 +4813,14 @@ JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
  */
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
-	var isIE10Compatible = (JSC3D.PlatformInfo.browser == 'ie' && parseInt(JSC3D.PlatformInfo.version) >= 10);
+	var isIE = JSC3D.PlatformInfo.browser == 'ie';
+	var isIE10Compatible = (isIE && parseInt(JSC3D.PlatformInfo.version) >= 10);
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
 	if(isIE10Compatible)
 		xhr.responseType = 'blob';	// use blob method to deal with STL files for IE >= 10
+	else if(isIE)
+		xhr.setRequestHeader("Accept-Charset", "x-user-defined");
 	else
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 
@@ -4838,6 +4841,26 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 							self.onload(scene);
 						};
 						blobReader.readAsText(this.response, 'x-user-defined');
+					}
+					else if(isIE) {
+						// decode data from XHR's responseBody into a binary string, since it cannot be accessed directly from javascript
+						// this would work on IE6~IE9
+						var scene = new JSC3D.Scene;
+						try {
+							self.parseStl(	scene, 
+											// I had expected this could be done by a single line: 
+											//     String.fromCharCode.apply(null, (new VBArray(this.responseBody)).toArray());
+											// But it tends to result in an 'out of stack space' exception on larger files.
+											// So we just cut the array to smaller pieces and convert and merge.
+											(function(arr) {
+												var str = '';
+												for(var i=0; i<arr.length-65536; i+=65536)
+													str += String.fromCharCode.apply(null, arr.slice(i, i+65536));
+												return str + String.fromCharCode.apply(null, arr.slice(i));
+											}) ((new VBArray(this.responseBody)).toArray()) 
+							);
+						} catch(e) {}
+						self.onload(scene);
 					}
 					else {
 						var scene = new JSC3D.Scene;
