@@ -3451,7 +3451,7 @@ JSC3D.Mesh.prototype.calcCreasedVertexNormals = function() {
 	}
 
 	var fnbuf = this.faceNormalBuffer;
-	// generate normalized face normals which will be used for dot product calculation
+	// generate normalized face normals which will be used for calculating dot product
 	var nfnbuf = new Array(fnbuf.length);
 	JSC3D.Math3D.normalizeVectors(fnbuf, nfnbuf);
 
@@ -3493,8 +3493,8 @@ JSC3D.Mesh.prototype.calcCreasedVertexNormals = function() {
 					var fnx1 = nfnbuf[f1    ];
 					var fny1 = nfnbuf[f1 + 1];
 					var fnz1 = nfnbuf[f1 + 2];
-					// if the angle between normals of the adjacent faces is less than the crease-angle, 
-					// the normal of the other face will be accumulated to the vertex of the current face
+					// if the angle between normals of the adjacent faces is less than the crease-angle, the 
+					// normal of the other face will be accumulated to the vertex normal of the current face
 					if(fnx0 * fnx1 + fny0 * fny1 + fnz0 * fnz1 > threshold) {
 						vnbuf[n    ] += fnbuf[f1    ];
 						vnbuf[n + 1] += fnbuf[f1 + 1];
@@ -4814,7 +4814,8 @@ JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
 JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
 	var isIE = JSC3D.PlatformInfo.browser == 'ie';
-	var isIE10Compatible = (isIE && parseInt(JSC3D.PlatformInfo.version) >= 10);
+	//TODO: current blob implementation seems do not work correctly on IE10. Repair it or turn to an arraybuffer implementation.
+	var isIE10Compatible = false;//(isIE && parseInt(JSC3D.PlatformInfo.version) >= 10);
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
 	if(isIE10Compatible)
@@ -4843,7 +4844,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 						blobReader.readAsText(this.response, 'x-user-defined');
 					}
 					else if(isIE) {
-						// decode data from XHR's responseBody into a binary string, since it cannot be accessed directly from javascript
+						// decode data from XHR's responseBody into a binary string, since it cannot be accessed directly from javascript.
 						// this would work on IE6~IE9
 						var scene = new JSC3D.Scene;
 						try {
@@ -4851,7 +4852,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 											// I had expected this could be done by a single line: 
 											//     String.fromCharCode.apply(null, (new VBArray(this.responseBody)).toArray());
 											// But it tends to result in an 'out of stack space' exception on larger files.
-											// So we just cut the array to smaller pieces and convert and merge.
+											// So we just cut the array to smaller pieces and convert and merge again.
 											(function(arr) {
 												var str = '';
 												for(var i=0; i<arr.length-65536; i+=65536)
