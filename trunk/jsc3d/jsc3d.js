@@ -120,6 +120,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.onmousedown = null;
 	this.onmouseup = null;
 	this.onmousemove = null;
+	this.onmousewheel = null;
 	this.beforeupdate = null;
 	this.afterupdate = null;
 	this.mouseUsage = 'default';
@@ -132,6 +133,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 		this.canvas.addEventListener('mousedown', function(e){self.mouseDownHandler(e);}, false);
 		this.canvas.addEventListener('mouseup', function(e){self.mouseUpHandler(e);}, false);
 		this.canvas.addEventListener('mousemove', function(e){self.mouseMoveHandler(e);}, false);
+		this.canvas.addEventListener(JSC3D.PlatformInfo.browser == 'firefox' ? 'DOMMouseScroll' : 'mousewheel', 
+									 function(e){self.mouseWheelHandler(e);}, false);
 		document.addEventListener('keydown', function(e){self.keyDownHandler(e);}, false);
 		document.addEventListener('keyup', function(e){self.keyUpHandler(e);}, false);
 	}
@@ -577,6 +580,7 @@ JSC3D.Viewer.prototype.mouseDownHandler = function(e) {
 	}
 
 	e.preventDefault();
+	e.stopPropagation();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -597,6 +601,7 @@ JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 	}
 
 	e.preventDefault();
+	e.stopPropagation();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -615,6 +620,7 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 	}
 
 	e.preventDefault();
+	e.stopPropagation();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -643,6 +649,22 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 	}
 };
 
+JSC3D.Viewer.prototype.mouseWheelHandler = function(e) {
+	if(this.onmousewheel) {
+		var info = this.pick(e.clientX, e.clientY);
+		this.onmousewheel(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
+	}
+
+	e.preventDefault();
+	e.stopPropagation();
+
+	if(!this.isDefaultInputHandlerEnabled)
+		return;
+
+	this.zoomFactor *= (JSC3D.PlatformInfo.browser == 'firefox' ? -e.detail : e.wheelDelta) < 0 ? 1.1 : 0.91;
+	this.update();
+};
+
 /**
 	The touchStart event handling routine. This is for compatibility for touch devices.
 	@private
@@ -658,6 +680,7 @@ JSC3D.Viewer.prototype.touchStartHandler = function(e) {
 		}
 
 		e.preventDefault();
+		e.stopPropagation();
 
 		if(!this.isDefaultInputHandlerEnabled)
 			return;
@@ -679,6 +702,7 @@ JSC3D.Viewer.prototype.touchEndHandler = function(e) {
 	}
 
 	e.preventDefault();
+	e.stopPropagation();
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
@@ -701,6 +725,7 @@ JSC3D.Viewer.prototype.touchMoveHandler = function(e) {
 		}
 
 		e.preventDefault();
+		e.stopPropagation();
 
 		if(!this.isDefaultInputHandlerEnabled)
 			return;
@@ -3018,6 +3043,7 @@ JSC3D.Viewer.prototype.mouseY = 0;
 JSC3D.Viewer.prototype.onmousedown = null;
 JSC3D.Viewer.prototype.onmouseup = null;
 JSC3D.Viewer.prototype.onmousemove = null;
+JSC3D.Viewer.prototype.onmousewheel = null;
 JSC3D.Viewer.prototype.beforeupdate = null;
 JSC3D.Viewer.prototype.afterupdate = null;
 JSC3D.Viewer.prototype.mouseUsage = 'default';
