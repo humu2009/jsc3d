@@ -574,6 +574,9 @@ JSC3D.Viewer.prototype.paint = function() {
 	@private
  */
 JSC3D.Viewer.prototype.mouseDownHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(this.onmousedown) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmousedown(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
@@ -595,6 +598,9 @@ JSC3D.Viewer.prototype.mouseDownHandler = function(e) {
 	@private
  */
 JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(this.onmouseup) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmouseup(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
@@ -614,6 +620,9 @@ JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 	@private
  */
 JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(this.onmousemove) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmousemove(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
@@ -650,6 +659,9 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 };
 
 JSC3D.Viewer.prototype.mouseWheelHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(this.onmousewheel) {
 		var info = this.pick(e.clientX, e.clientY);
 		this.onmousewheel(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
@@ -670,6 +682,9 @@ JSC3D.Viewer.prototype.mouseWheelHandler = function(e) {
 	@private
  */
 JSC3D.Viewer.prototype.touchStartHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(e.touches.length > 0) {
 		var clientX = e.touches[0].clientX;
 		var clientY = e.touches[0].clientY;
@@ -696,6 +711,9 @@ JSC3D.Viewer.prototype.touchStartHandler = function(e) {
 	@private
  */
 JSC3D.Viewer.prototype.touchEndHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(this.onmouseup) {
 		var info = this.pick(this.mouseX, this.mouseY);
 		this.onmouseup(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
@@ -715,6 +733,9 @@ JSC3D.Viewer.prototype.touchEndHandler = function(e) {
 	@private
  */
 JSC3D.Viewer.prototype.touchMoveHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
 	if(e.touches.length > 0) {
 		var clientX = e.touches[0].clientX;
 		var clientY = e.touches[0].clientY;
