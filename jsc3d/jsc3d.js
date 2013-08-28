@@ -853,7 +853,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	@private
  */
 JSC3D.Viewer.prototype.setupScene = function(scene) {
-	// crease-angle should be applied on meshes before their initialization
+	// crease-angle should be applied onto each mesh before their initialization
 	if(this.creaseAngle >= 0) {
 		var cAngle = this.creaseAngle;
 		scene.forEachChild(function(mesh) {
@@ -1443,6 +1443,7 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var isOpaque = material.transparency == 0;
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
+	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
@@ -1620,6 +1621,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var isOpaque = material.transparency == 0;
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
+	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
@@ -1849,6 +1851,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+	var fixForMacSafari = 1 * null;
 
 	if(!nbuf || nbuf.length < numOfFaces) {
 		mesh.transformedFaceNormalZBuffer = new Array(numOfFaces);
@@ -2129,6 +2132,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
@@ -2428,6 +2432,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
@@ -2772,6 +2777,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var isOpaque = material.transparency == 0;
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
+	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
 	if(material.transparency == 1)
