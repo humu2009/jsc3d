@@ -1443,6 +1443,12 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var isOpaque = material.transparency == 0;
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
+
+	/*
+		This single line removes some weird error related to floating point calculation on Safari and Mac computers.
+		See http://code.google.com/p/jsc3d/issues/detail?id=8.
+		Contributed by Vasile Dirla.
+	 */
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -1621,6 +1627,8 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var isOpaque = material.transparency == 0;
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
+
+	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -1851,6 +1859,8 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+
+	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	var fixForMacSafari = 1 * null;
 
 	if(!nbuf || nbuf.length < numOfFaces) {
@@ -2132,6 +2142,8 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+
+	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -2432,6 +2444,8 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+
+	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -2777,6 +2791,8 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var isOpaque = material.transparency == 0;
 	var trans = material.transparency * 255;
 	var opaci = 255 - trans;
+
+	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -4986,8 +5002,8 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	if(!isBinary) {
 		/*
 			This should be an ASCII STL file.
-			Code contributed by Triffid Hunter.
-		*/
+			Contributed by Triffid Hunter.
+		 */
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
 								'outer\\s+loop\\s+' + 
@@ -5039,7 +5055,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	else {
 		/*
 			This is a binary STL file.
-		*/
+		 */
 
 		reader.reset();
 	
