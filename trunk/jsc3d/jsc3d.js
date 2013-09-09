@@ -845,7 +845,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	loader.onload = function(scene) {
 		self.abortUnfinishedLoadingFn = null;
 		self.setupScene(scene);
-		if(self.onloadingcomplete && (typeof onloadingcomplete) == 'function')
+		if(self.onloadingcomplete && (typeof self.onloadingcomplete) == 'function')
 			self.onloadingcomplete();
 	};
 
@@ -856,7 +856,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 		self.errorMsg = errorMsg;
 		self.abortUnfinishedLoadingFn = null;
 		self.update();
-		if(self.onloadingerror && (typeof onloadingerror) == 'function')
+		if(self.onloadingerror && (typeof self.onloadingerror) == 'function')
 			self.onloadingerror(errorMsg);
 	};
 
@@ -876,7 +876,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	this.abortUnfinishedLoadingFn = function() {
 		loader.abort();
 		self.abortUnfinishedLoadingFn = null;
-		if(self.onloadingaborted && (typeof onloadingaborted) == 'function')
+		if(self.onloadingaborted && (typeof self.onloadingaborted) == 'function')
 			self.onloadingaborted();
 	};
 
