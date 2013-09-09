@@ -59,7 +59,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 			Definition:			parameters.Definition || 'standard', 
 			MipMapping:			parameters.MipMapping || 'off', 
 			CreaseAngle:		parameters.parameters || -180, 
-			SphereMapUrl:		parameters.SphereMapUrl || ''
+			SphereMapUrl:		parameters.SphereMapUrl || '', 
+			ProgressBar:		parameters.ProgressBar || 'on'
 		};
 	else
 		this.params = {
@@ -75,7 +76,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 			Definition: 'standard', 
 			MipMapping: 'off', 
 			CreaseAngle: -180, 
-			SphereMapUrl: ''
+			SphereMapUrl: '', 
+			ProgressBar: 'on'
 		};
 
 	this.canvas = canvas;
@@ -92,6 +94,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.sphereMap = null;
 	this.isLoaded = false;
 	this.isFailed = false;
+	this.abortUnfinishedLoadingFn = null;
 	this.errorMsg = '';
 	this.needUpdate = false;
 	this.needRepaint = false;
@@ -113,10 +116,16 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.isMipMappingOn = false;
 	this.creaseAngle = -180;
 	this.sphereMapUrl = '';
+	this.showProgressBar = true;
 	this.buttonStates = {};
 	this.keyStates = {};
 	this.mouseX = 0;
 	this.mouseY = 0;
+	this.onloadingstarted = null;
+	this.onloadingcomplete = null;
+	this.onloadingprogress = null;
+	this.onloadingaborted = null;
+	this.onloadingerror = null;
 	this.onmousedown = null;
 	this.onmouseup = null;
 	this.onmousemove = null;
@@ -160,7 +169,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 	'<b>RenderMode</b>':			render mode, default to 'flat';<br />
 	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
 	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
-	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to ''.<br />
+	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to '';<br />
+	'<b>ProgressBar</b>':			turn on/off the progress bar when loading, default to 'on'. By turning off the default progress bar, a user defined loading indicator can be used instead.<br />
 	@param {String} name name of the parameter to set.
 	@param value new value for the parameter.
  */
@@ -185,6 +195,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.creaseAngle = parseFloat(this.params['CreaseAngle']);
 	this.isMipMappingOn = this.params['MipMapping'].toLowerCase() == 'on';
 	this.sphereMapUrl = this.params['SphereMapUrl'];
+	this.showProgressBar = this.params['ProgressBar'] == 'on';
 
 	try {
 		this.ctx = this.canvas.getContext('2d');
@@ -799,6 +810,10 @@ JSC3D.Viewer.prototype.keyUpHandler = function(e) {
 	@private
  */
 JSC3D.Viewer.prototype.loadScene = function() {
+	// terminate current loading if it is not finished yet
+	if(this.abortUnfinishedLoadingFn)
+		this.abortUnfinishedLoadingFn();
+
 	this.scene = null;
 	this.isLoaded = false;
 
@@ -811,18 +826,27 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	
 	var fileName = this.sceneUrl.substring(lastSlashAt + 1);
 	var lastDotAt = fileName.lastIndexOf('.');
-	if(lastDotAt == -1)
+	if(lastDotAt == -1) {
+		if(JSC3D.console)
+			JSC3D.console.logError('Cannot get file format for the lack of file extension.');
 		return false;
+	}
 
 	var fileExtName = fileName.substring(lastDotAt + 1);
 	var loader = JSC3D.LoaderSelector.getLoader(fileExtName);
-	if(!loader)
+	if(!loader) {
+		if(JSC3D.console)
+			JSC3D.console.logError('Unknown file format: "' + fileExtName + '".');
 		return false;
+	}
 
 	var self = this;
 
 	loader.onload = function(scene) {
+		self.abortUnfinishedLoadingFn = null;
 		self.setupScene(scene);
+		if(self.onloadingcomplete && (typeof onloadingcomplete) == 'function')
+			self.onloadingcomplete();
 	};
 
 	loader.onerror = function(errorMsg) {
@@ -830,11 +854,17 @@ JSC3D.Viewer.prototype.loadScene = function() {
 		self.isLoaded = false;
 		self.isFailed = true;
 		self.errorMsg = errorMsg;
+		self.abortUnfinishedLoadingFn = null;
 		self.update();
+		if(self.onloadingerror && (typeof onloadingerror) == 'function')
+			self.onloadingerror(errorMsg);
 	};
 
 	loader.onprogress = function(task, prog) {
-		self.reportProgress(task, prog);
+		if(self.showProgressBar)
+			self.reportProgress(task, prog);
+		if(self.onloadingprogress && (typeof self.onloadingprogress) == 'function')
+			self.onloadingprogress(task, prog);
 	};
 
 	loader.onresource = function(resource) {
@@ -843,7 +873,17 @@ JSC3D.Viewer.prototype.loadScene = function() {
 		self.update();
 	};
 
+	this.abortUnfinishedLoadingFn = function() {
+		loader.abort();
+		self.abortUnfinishedLoadingFn = null;
+		if(self.onloadingaborted && (typeof onloadingaborted) == 'function')
+			self.onloadingaborted();
+	};
+
 	loader.loadFromUrl(this.sceneUrl);
+
+	if(this.onloadingstarted && (typeof this.onloadingstarted) == 'function')
+		this.onloadingstarted();
 
 	return true;
 };
@@ -3079,10 +3119,16 @@ JSC3D.Viewer.prototype.definition = 'standard';
 JSC3D.Viewer.prototype.isMipMappingOn = false;
 JSC3D.Viewer.prototype.creaseAngle = -180;
 JSC3D.Viewer.prototype.sphereMapUrl = '';
+JSC3D.Viewer.prototype.showProgressBar = true;
 JSC3D.Viewer.prototype.buttonStates = null;
 JSC3D.Viewer.prototype.keyStates = null;
 JSC3D.Viewer.prototype.mouseX = 0;
 JSC3D.Viewer.prototype.mouseY = 0;
+JSC3D.Viewer.prototype.onloadingstarted = null;
+JSC3D.Viewer.prototype.onloadingcomplete = null;
+JSC3D.Viewer.prototype.onloadingprogress = null;
+JSC3D.Viewer.prototype.onloadingaborted = null;
+JSC3D.Viewer.prototype.onloadingerror = null;
 JSC3D.Viewer.prototype.onmousedown = null;
 JSC3D.Viewer.prototype.onmouseup = null;
 JSC3D.Viewer.prototype.onmousemove = null;
@@ -3154,15 +3200,12 @@ JSC3D.Scene.prototype.addChild = function(mesh) {
 
 /**
 	Remove a mesh from the scene.
-	@param {JSC3D.Mesh} mesh the mesh to be added.
+	@param {JSC3D.Mesh} mesh the mesh to be removed.
  */
 JSC3D.Scene.prototype.removeChild = function(mesh) {
-	for(var i=0; i<this.children.length; i++) {
-		if(this.children[i] == mesh) {
-			this.children.splice(i, 1);
-			break;
-		}
-	}
+	var foundAt = this.children.indexOf(mesh);
+	if(foundAt >= 0)
+		this.children.splice(foundAt, 1);
 };
 
 /**
@@ -4456,6 +4499,7 @@ JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
 	this.onprogress = (onprogress && typeof(onprogress) == 'function') ? onprogress : null;
 	this.onresource = (onresource && typeof(onresource) == 'function') ? onresource : null;
 	this.requestCount = 0;
+	this.requests = [];
 };
 
 /**
@@ -4476,6 +4520,17 @@ JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 
 	this.requestCount = 0;
 	this.loadObjFile(urlPath, fileName);
+};
+
+/**
+	Abort current loading if it is not finished yet.
+ */
+JSC3D.ObjLoader.prototype.abort = function() {
+	for(var i=0; i<this.requests.length; i++) {
+		this.requests[i].abort();
+	}
+	this.requests = [];
+	this.requestCount = 0;
 };
 
 /**
@@ -4502,17 +4557,18 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 						for(var i=0; i<mtllibs.length; i++)
 							self.loadMtlFile(scene, urlPath, mtllibs[i]);
 					}
+					self.requests.splice(self.requests.indexOf(this), 1);
 					if(--self.requestCount == 0)
 						self.onload(scene);
 				}
 			}
 			else {
+				self.requests.splice(self.requests.indexOf(this), 1);
+				self.requestCount--;
 				if(JSC3D.console)
 					JSC3D.console.logError('Failed to load obj file "' + urlName + '".');
-				if(self.onerror) {
-					self.requestCount--;
+				if(self.onerror)
 					self.onerror('Failed to load obj file "' + urlName + '".');
-				}
 			}
 		}
 	};
@@ -4524,6 +4580,7 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 		};
 	}
 
+	this.requests.push(xhr);
 	this.requestCount++;
 	xhr.send();
 };
@@ -4572,6 +4629,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 				if(JSC3D.console)
 					JSC3D.console.logWarning('Failed to load mtl file "' + urlName + '". A default material will be applied.');
 			}
+			self.requests.splice(self.requests.indexOf(this), 1);
 			if(--self.requestCount == 0)
 				self.onload(scene);
 		}
@@ -4584,6 +4642,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 		};
 	}
 
+	this.requests.push(xhr);
 	this.requestCount++;
 	xhr.send();
 };
@@ -4874,6 +4933,7 @@ JSC3D.StlLoader = function(onload, onerror, onprogress, onresource) {
 	this.onprogress = (onprogress && typeof(onprogress) == 'function') ? onprogress : null;
 	this.onresource = (onresource && typeof(onresource) == 'function') ? onresource : null;
 	this.decimalPrecision = 3;
+	this.request = null;
 };
 
 /**
@@ -4945,6 +5005,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onerror)
 					self.onerror('Failed to load STL file "' + urlName + '".');
 			}
+			self.request = null;
 		}
 	};
 
@@ -4955,7 +5016,18 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 		};
 	}
 
+	this.request = xhr;
 	xhr.send();
+};
+
+/**
+	Abort current loading if it is not finished yet.
+ */
+JSC3D.StlLoader.prototype.abort = function() {
+	if(this.request) {
+		this.request.abort();
+		this.request = null;
+	}
 };
 
 /**
