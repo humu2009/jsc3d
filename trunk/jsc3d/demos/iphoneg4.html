@@ -6,13 +6,13 @@
  </HEAD>
 
  <BODY>
-	<div style="width:420px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+	<div style="width:420px; margin:auto; position:relative; font-size:9pt; color:#777777;">
 		<canvas id="cv" style="border: 1px solid;" width="420" height="560" ></canvas>
-		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:10px; top:508px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; opacity:0.5;"> 
+		<div id="tip" style="display:block; color:#ffffff; position:absolute; left:10px; top:508px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; opacity:0.5; font:1em/1.4 Cambria,Arial,sans-serif; padding:6px; pointer-events:none;"> 
 			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
 		</div>
-		<p style="font-family:Arial,sans-serif;">This demo consists of 43930 vertices, 48888 faces and 3 textures. It may take several minutes to load.<p>
-		<p style="font-family:Arial,sans-serif;">The iphone 4 model used in this demo is from the internet. It <b>should not</b> be used for any commercial purpose.<p>
+		<p style="font-family:Cambria,Arial,sans-serif;">This demo consists of 43930 vertices, 48888 faces and 3 textures. It may take a while to load.<p>
+		<p style="font-family:Cambria,Arial,sans-serif;">The IPhone4 model used here is from the internet. It <b>should not</b> be used for any commercial purpose.<p>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
 	<script type="text/javascript">
@@ -22,9 +22,9 @@
 	viewer.setParameter('InitRotationX', 0);
 	viewer.setParameter('InitRotationY', 0);
 	viewer.setParameter('InitRotationZ', 0);
-	viewer.setParameter('ModelColor', '#CAA618');
-	viewer.setParameter('BackgroundColor1', '#FFFFFF');
-	viewer.setParameter('BackgroundColor2', '#383840');
+	viewer.setParameter('ModelColor', '#AAAAAA');
+	viewer.setParameter('BackgroundColor1', '#333333');
+	viewer.setParameter('BackgroundColor2', '#333333');
 	viewer.setParameter('RenderMode', 'texturesmooth');
 	viewer.setParameter('MipMapping', 'on');
 	viewer.init();
