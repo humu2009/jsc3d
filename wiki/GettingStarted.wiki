@@ -4,4 +4,10 @@
 
 JSC3D is very easy to setup and requires only a few lines of code to initialize.
 
-As JSC3D uses [https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas] element for rendering, the first step is to declare a canvas tag in the <strong>body</strong> segment of the page.
+As JSC3D uses <strong>[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]</strong> element for rendering, the first step is to declare a canvas in the <strong>body</strong> segment of the page.
+
+<code language="html">
+<body>
+    <canvas id="cv" width=640 height=480></canvas>
+</body>
+</code>
