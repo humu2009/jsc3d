@@ -1,13 +1,7 @@
 #summary This document covers the fundamentals of building applications using JSC3D.
 
-= Introduction =
+= Getting Started with JSC3D =
 
-Add your content here.
+JSC3D is very easy to setup and requires only a few lines of code to initialize.
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+As JSC3D uses [https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas] element for rendering, the first step is to declare a canvas tag in the body segment of the page.
