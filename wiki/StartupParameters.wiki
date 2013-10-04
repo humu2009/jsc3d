@@ -1,1 +1,27 @@
 #summary This document provides a detailed description of the viewer object's startup parameters for customizing the rendering.
+
+= The Startup Parameters =
+
+== SceneUrl ==
+
+The `SceneUrl` parameter specifies a URL string 
+
+== InitRotationX, InitRotationY and InitRotationZ ==
+
+== ModelColor ==
+
+== BackgroundColor1 and BackgroundColor2 ==
+
+== BackgroundImageUrl ==
+
+== RenderMode ==
+
+== Definition ==
+
+== MipMapping ==
+
+== CreaseAngle ==
+
+== SphereMapUrl ==
+
+== ProgressBar ==
