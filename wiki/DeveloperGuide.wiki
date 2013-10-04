@@ -1,3 +1,0 @@
-#summary This document contains all the details for developing application using JSC3D.
-
-Coming soon ...
