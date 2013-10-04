@@ -4,7 +4,7 @@
 
 _JSC3D_ is very easy to setup and requires only a few lines of code to initialize.
 
-As _JSC3D_ uses _*[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]*_ element for rendering, the first step is to declare a canvas with non-zero size in the _*body*_ segment of the page.
+As _JSC3D_ uses _*[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]*_ element for rendering, the first step is to declare a _*canvas*_ with non-zero size in the _*body*_ segment of the page.
 
 {{{
 <body>
