@@ -4,7 +4,7 @@
 
 == SceneUrl ==
 
-Set `SceneUrl` to URL of a model file so that the `viewer` will load it automatically. The loading will be started immediately after the `init()` call. This is very convenient for applications that just display a single model. The default value for this parameter is '' which lets the scene empty and only background will be drawn after the first `update()` call.
+Set `SceneUrl` to URL of a model file so that the `viewer` will load it automatically. The loading will be started immediately after the `init()` call. This is very convenient for applications that just display a single model. The default value for this parameter is '' which lets the scene empty and only background will be drawn after the first `update()` call. 
 
 == InitRotationX, InitRotationY and InitRotationZ ==
 
@@ -12,9 +12,15 @@ Set `InitRotationX`, `InitRotationY` and/or `InitRotationZ` to adjust the initia
 
 == ModelColor ==
 
+Set `ModelColor` to specify the color of the default material which will be used for rendering of meshes that do not have an own material. For example, an STL model does not contain any material information, so it will be rendered using the default material. An valid value for this parameter should be the color's string representation formated as `'#RRGGBB'`.
+
 == BackgroundColor1 and BackgroundColor2 ==
 
+Set `BackgroundColor1` and `BackgroundColor2` to customize the background colors. The first parameter defines the color on the topmost row and the other one defines that on the bottom row. Then color will be linearly interpolated from top down. Both parameters receive a string represented color that should be formated as `'#RRGGBB'`.
+
 == BackgroundImageUrl ==
+
+Set `BackgroundImageUrl` to URL of an image that will be used as the background. The loading will be started automatically after the `init()` call. The image will be scaled to fit the actual dimensions of the canvas. So it is recommended to adjust the image's size to be the same as the canvas in preparation to avoid distortion.
 
 == RenderMode ==
 
