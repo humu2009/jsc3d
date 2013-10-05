@@ -54,6 +54,6 @@ Set `MipMapping` to `'on'` to enable automatically mipmap generation for texture
 
 == SphereMapUrl ==
 
-Set `SphereMapUrl` to URL of an image that will be used as the [http://en.wikipedia.org/wiki/Reflection_mapping#Sphere_mapping spherical reflection map] for the model. Sphere mapping is an image-based simulation technique to cast environment onto surfaces of the model. _In current implementation, sphere mapping is available only under the `'texturesmooth'` render mode_. A mesh's `isEnvironmentCast` property must be set to `true` to indicate it should be involved in shpere mapping.
+Set `SphereMapUrl` to URL of an image that will be used as the [http://en.wikipedia.org/wiki/Reflection_mapping#Sphere_mapping spherical reflection map] for the model. Sphere mapping is an image-based simulation technique to cast environment onto surfaces of the model. _In current implementation, sphere mapping is available only under the `'texturesmooth'` render mode_. A mesh's `isEnvironmentCast` property should be set to `true` to indicate it is involved in shpere mapping.
 
 == ProgressBar ==
