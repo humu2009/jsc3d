@@ -1,10 +1,10 @@
-#summary This document provides a detailed description of the viewer object's startup parameters for customizing the rendering.
+#summary This document provides a detailed description of the viewer object's startup parameters for customizing the display.
 
 = The Startup Parameters =
 
 == SceneUrl ==
 
-Set `SceneUrl` to URL of a model file so that the `viewer` will load it automatically. The loading will be started immediately after the `init()` call. This is very convenient for applications that just display a single model. The default value for this parameter is '' which lets the scene empty and only background will be drawn after the first `update()` call. 
+Set `SceneUrl` to URL of a model file so that the `viewer` will load it automatically. The loading will be started immediately after the `init()` call. This is very convenient for applications that just display a single model. The default value for this parameter is '' which lets the scene empty and only background will be drawn after the first `update()` call. And after initialization, the `replaceSceneFromUrl()` method can be used to begin to load the model at an appropriate moment.
 
 == InitRotationX, InitRotationY and InitRotationZ ==
 
@@ -24,7 +24,21 @@ Set `BackgroundImageUrl` to URL of an image that will be used as the background.
 
 == RenderMode ==
 
+Set `RenderMode` to specify the initial render mode the `viewer` adopts. Render mode controls how the model will be rendered. The following render modes are available in current implementation:
+
+  * `point` - meshes will be rendered as points.
+  * `wireframe` - meshes will be rendered as wireframe.
+  * `flat` - meshes will be rendered using flat shading.
+  * `smooth` - meshes will be rendered using smooth shading.
+  * `texture` - meshes will be rendered as textured primitives with no lighting applied. If textures are unavailable, the `flat` mode will be used as the fallback.
+  * `textureflat` - meshes will be rendered as textured primitives with lighting computed per face. If textures are unavailable, the `flat` mode will be used as the fallback.
+  * `texturesmooth` - meshes will be rendered as textured primitives with lighting computed per vertex and then interpolated. If textures are unavailable, the `smooth` mode will be used as the fallback.
+
+The default value for this parameter is `'flat'`. The `setRenderMode()` method can be used to change current render mode at runtime.
+
 == Definition ==
+
+Set `Definition` 
 
 == MipMapping ==
 
