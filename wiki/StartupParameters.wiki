@@ -4,9 +4,11 @@
 
 == SceneUrl ==
 
-The `SceneUrl` parameter specifies a URL string 
+Set `SceneUrl` to URL of a model file so that the `viewer` will load it automatically. The loading will be started immediately after the `init()` call. This is very convenient for applications that just display a single model. The default value for this parameter is '' which lets the scene empty and only background will be drawn after the first `update()` call.
 
 == InitRotationX, InitRotationY and InitRotationZ ==
+
+Set `InitRotationX`, `InitRotationY` and/or `InitRotationZ` to adjust the initial orientation of the model. Each value should be an angle (in degrees) that specifies rotation around the corresponding axis. By default there are no additional initial rotations and the model will displayed as defined.
 
 == ModelColor ==
 
