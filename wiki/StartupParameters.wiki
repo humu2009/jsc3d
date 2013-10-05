@@ -28,17 +28,23 @@ Set `RenderMode` to specify the initial render mode the `viewer` adopts. Render 
 
   * `point` - meshes will be rendered as points.
   * `wireframe` - meshes will be rendered as wireframe.
-  * `flat` - meshes will be rendered using flat shading.
+  * `flat` - meshes will be rendered using flat shading. This is the default value for the `RenderMode` parameter.
   * `smooth` - meshes will be rendered using smooth shading.
   * `texture` - meshes will be rendered as textured primitives with no lighting applied. If textures are unavailable, the `flat` mode will be used as the fallback.
   * `textureflat` - meshes will be rendered as textured primitives with lighting computed per face. If textures are unavailable, the `flat` mode will be used as the fallback.
   * `texturesmooth` - meshes will be rendered as textured primitives with lighting computed per vertex and then interpolated. If textures are unavailable, the `smooth` mode will be used as the fallback.
 
-The default value for this parameter is `'flat'`. The `setRenderMode()` method can be used to change current render mode at runtime.
+The `setRenderMode()` method can be used to change current render mode at runtime.
 
 == Definition ==
 
-Set `Definition` 
+Set `Definition` to specify the graphical quality for rendering. Available values are:
+
+  * `low` - the model will be rendered into frame buffers with half the dimensions of the canvas and then resampled to put to display. The output quality is rather low. Especially there will be apparent 'jagged' effect on edges of the polygons.
+  * `high` - dimensions of frame buffers will be set to twice of those of the canvas. The rendering will be resampled to put to display. This technique is also known as 2x2 FSAA([http://en.wikipedia.org/wiki/FSAA#Super_sampling_.2F_full-scene_anti-aliasing Full Screen Anti-Anliasing]) which helps to reduce artificial on edge area and thus produces better results.
+  * `standard` - dimensions of frame buffers will be set to the same with the canvas. This is the default value for the `Definition` parameter.
+
+The `setDefinition()` method can be used to change the definition setting at runtime.
 
 == MipMapping ==
 
