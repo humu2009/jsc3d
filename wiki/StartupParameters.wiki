@@ -59,3 +59,5 @@ Set `CreaseAngle` to define an angle threshold (in degrees) to preserve sharp ed
 Set `SphereMapUrl` to URL of an image that will be used as the [http://en.wikipedia.org/wiki/Reflection_mapping#Sphere_mapping spherical reflection map] for the model. Sphere mapping is an image-based simulation technique to cast environment onto surfaces of the model. _In current implementation, sphere mapping is available only under the `'texturesmooth'` render mode_. A mesh's `isEnvironmentCast` property should be set to `true` to indicate it is involved in shpere mapping.
 
 == ProgressBar ==
+
+Set `ProgressBar` to `'on'`/`'off'` to enable/disable the default progress bar. The viewer provides a default progress bar which will be displayed when a model file is still in loading. By setting this parameter to `'off'`, the default progress bar is turned off so that a user-defined progress indicator can be used. The default value is `'on'`.
