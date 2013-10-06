@@ -1,1 +1,15 @@
 #summary Projects using JSC3D.
+
+= JSC3D in Applications =
+
+== Online Ring Customization ==
+
+_*Princeton Ring*_ provides an online ring design interface where a client can fully customize and preview a new ring. After an order placement, the result is generated immediately using 3D printing, then polished and delivered. _JSC3D_ is integrated into the online design system for preview of a ring.
+
+[http://princetonring.com/ [Website]]
+
+== Hygiene Products Display ==
+
+_*Berendsen Textil Service A/S*_ uses _JSC3D_ for online display of their hygienic solutions. The virtual environment of a washroom is built up based on pictures and videos as well as a series of hot spots that navigate to facilities. On close view of each facility, there is a hot spot linking to a 3D view of this product, where its detailed and customizable model will be shown. 
+
+[http://www.berendsen.dk/toiletmiljoeer [Website]]
