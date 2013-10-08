@@ -1,4 +1,5 @@
 #summary Projects using JSC3D.
+#labels Featured
 
 = JSC3D in Applications =
 
