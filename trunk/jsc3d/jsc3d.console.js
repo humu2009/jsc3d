@@ -1,6 +1,7 @@
 /**
-	@preserve Copyright (c) 2012 Humu humu2009@gmail.com
-	jsc3d is freely distributable under the terms of the MIT license.
+	@preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
+	This file is part of jsc3d project, which is freely distributable under the 
+	terms of the MIT license.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
