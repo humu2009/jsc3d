@@ -96,7 +96,6 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.isLoaded = false;
 	this.isFailed = false;
 	this.abortUnfinishedLoadingFn = null;
-	this.errorMsg = '';
 	this.needUpdate = false;
 	this.needRepaint = false;
 	this.initRotX = 0;
@@ -135,6 +134,9 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.afterupdate = null;
 	this.mouseUsage = 'default';
 	this.isDefaultInputHandlerEnabled = true;
+	this.progressFrame = null;
+	this.progressRectangle = null;
+	this.messagePanel = null;
 
 	// setup input handlers.
 	// compatibility for touch devices is taken into account
@@ -232,7 +234,6 @@ JSC3D.Viewer.prototype.init = function() {
 	this.transformMatrix.identity();
 	this.isLoaded = false;
 	this.isFailed = false;
-	this.errorMsg = '';
 	this.needUpdate = false;
 	this.needRepaint = false;
 	this.scene = null;
@@ -272,10 +273,8 @@ JSC3D.Viewer.prototype.init = function() {
 	@param {Boolean} repaintOnly true to repaint last frame; false(default) to render a new frame.
  */
 JSC3D.Viewer.prototype.update = function(repaintOnly) {
-	if(this.isFailed) {
-		this.reportError(this.errorMsg);
+	if(this.isFailed)
 		return;
-	}
 
 	if(repaintOnly)
 		this.needRepaint = true;
@@ -463,7 +462,6 @@ JSC3D.Viewer.prototype.replaceScene = function(scene) {
 	this.sceneUrl = '';
 	this.isFailed = false;
 	this.isLoaded = true;
-	this.errorMsg = '';
 	this.setupScene(scene);
 };
 
@@ -818,6 +816,8 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	this.scene = null;
 	this.isLoaded = false;
 
+	this.update();
+
 	if(this.sceneUrl == '')
 		return false;
 
@@ -854,9 +854,9 @@ JSC3D.Viewer.prototype.loadScene = function() {
 		self.scene = null;
 		self.isLoaded = false;
 		self.isFailed = true;
-		self.errorMsg = errorMsg;
 		self.abortUnfinishedLoadingFn = null;
 		self.update();
+		self.reportError(errorMsg);
 		if(self.onloadingerror && (typeof self.onloadingerror) == 'function')
 			self.onloadingerror(errorMsg);
 	};
@@ -877,6 +877,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	this.abortUnfinishedLoadingFn = function() {
 		loader.abort();
 		self.abortUnfinishedLoadingFn = null;
+		self.hideProgress();
 		if(self.onloadingaborted && (typeof self.onloadingaborted) == 'function')
 			self.onloadingaborted();
 	};
@@ -919,70 +920,138 @@ JSC3D.Viewer.prototype.setupScene = function(scene) {
 	this.scene = scene;
 	this.isLoaded = true;
 	this.isFailed = false;
-	this.errorMsg = '';
 	this.needUpdate = false;
 	this.needRepaint = false;
 	this.update();
+	this.hideProgress();
+	this.hideError();
 };
 
 /**
-	Show progress and some informations about current time-cosuming task.
+	Show progress with information on current time-cosuming task.
 	@param {String} task text information about current task.
 	@param {Number} progress progress of current task. this should be a number between 0 and 1.
  */
 JSC3D.Viewer.prototype.reportProgress = function(task, progress) {
-	if(!this.ctx)
-		return;
+	if(!this.progressFrame) {
+		var canvasRect = this.canvas.getBoundingClientRect();
 
-	this.drawBackground();
+		var r = 255 - ((this.bkgColor1 & 0xff0000) >> 16);
+		var g = 255 - ((this.bkgColor1 & 0xff00) >> 8);
+		var b = 255 - (this.bkgColor1 & 0xff);
+		var color = 'rgb(' + r + ',' + g + ',' + b + ')';
 
-	this.ctx.save();
+		var barX = canvasRect.left + 40;
+		var barY = canvasRect.top + canvasRect.height * 0.38;
+		var barWidth = canvasRect.width - (barX - canvasRect.left) * 2;
+		var barHeight = 20;
 
-	var r = 255 - ((this.bkgColor1 & 0xff0000) >> 16);
-	var g = 255 - ((this.bkgColor1 & 0xff00) >> 8);
-	var b = 255 - (this.bkgColor1 & 0xff);
-	var style = '#' + r.toString(16) + g.toString(16) + b.toString(16);
-	this.ctx.strokeStyle = style;
-	this.ctx.fillStyle = style;
+		this.progressFrame = document.createElement('div');
+		this.progressFrame.style.position = 'absolute';
+		this.progressFrame.style.left   = barX + 'px';
+		this.progressFrame.style.top    = barY + 'px';
+		this.progressFrame.style.width  = barWidth + 'px';
+		this.progressFrame.style.height = barHeight + 'px';
+		this.progressFrame.style.border = '1px solid ' + color;
+		this.progressFrame.style.pointerEvents = 'none';
+		document.body.appendChild(this.progressFrame);
 
-	var barX = 40;
-	var barY = this.canvas.height * 0.38;
-	var barWidth = this.canvas.width - barX * 2;
-	var barHeight = 20;
-	this.ctx.strokeRect(barX, barY, barWidth, barHeight);
-	this.ctx.fillRect(barX+2, barY+2, (barWidth-4)*progress, barHeight-4);
+		this.progressRectangle = document.createElement('div');
+		this.progressRectangle.style.position = 'absolute';
+		this.progressRectangle.style.left   = (barX + 3) + 'px';
+		this.progressRectangle.style.top    = (barY + 3) + 'px';
+		this.progressRectangle.style.width  = '0px';
+		this.progressRectangle.style.height = (barHeight - 4) + 'px';
+		this.progressRectangle.style.background = color;
+		this.progressRectangle.style.pointerEvents = 'none';
+		document.body.appendChild(this.progressRectangle);
 
-	this.ctx.font = '12px Courier New';
-	this.ctx.textAlign = 'left';
-	this.ctx.fillText(task, barX, barY-4, barWidth);
+		if(!this.messagePanel) {
+			this.messagePanel = document.createElement('div');
+			this.messagePanel.style.position = 'absolute';
+			this.messagePanel.style.left   = barX + 'px';
+			this.messagePanel.style.top    = (barY - 16) + 'px';
+			this.messagePanel.style.width  = barWidth + 'px';
+			this.messagePanel.style.height = '14px';
+			this.messagePanel.style.font   = 'bold 14px Courier New';
+			this.messagePanel.style.color  = color;
+			this.messagePanel.style.pointerEvents = 'none';
+			document.body.appendChild(this.messagePanel);
+		}
+	}
 
-	this.ctx.restore();
+	if(this.progressFrame.style.display != 'block') {
+		this.progressFrame.style.display = 'block';
+		this.progressRectangle.style.display = 'block';
+	}
+	if(task && this.messagePanel.style.display != 'block')
+		this.messagePanel.style.display = 'block';
+
+	this.progressRectangle.style.width = (parseFloat(this.progressFrame.style.width) - 4) * progress + 'px';
+	this.messagePanel.innerHTML = task;
 };
 
 /**
-	Show informations about a fatal error.
+	Hide the progress bar.
+	@private
+ */
+JSC3D.Viewer.prototype.hideProgress = function() {
+	if(this.progressFrame) {
+		this.messagePanel.style.display = 'none';
+		this.progressFrame.style.display = 'none';
+		this.progressRectangle.style.display = 'none';
+	}
+};
+
+/**
+	Show information about a fatal error.
 	@param {String} message text information about this error.
  */
 JSC3D.Viewer.prototype.reportError = function(message) {
-	if(!this.ctx)
-		return;
+	if(!this.messagePanel) {
+		var canvasRect = this.canvas.getBoundingClientRect();
 
-	this.drawBackground();
+		var r = 255 - ((this.bkgColor1 & 0xff0000) >> 16);
+		var g = 255 - ((this.bkgColor1 & 0xff00) >> 8);
+		var b = 255 - (this.bkgColor1 & 0xff);
+		var color = 'rgb(' + r + ',' + g + ',' + b + ')';
 
-	this.ctx.save();
+		var panelX = canvasRect.left + 40;
+		var panelY = canvasRect.top + canvasRect.height * 0.38;
+		var panelWidth = canvasRect.width - (panelX - canvasRect.left) * 2;
+		var panelHeight = 14;
 
-	var msgX = 40;
-	var msgY = this.canvas.height * 0.38 - 4;
-	var r = 255 - ((this.bkgColor1 & 0xff0000) >> 16);
-	var g = 255 - ((this.bkgColor1 & 0xff00) >> 8);
-	var b = 255 - (this.bkgColor1 & 0xff);
-	var style = '#' + r.toString(16) + g.toString(16) + b.toString(16);
-	this.ctx.fillStyle = style;
-	this.ctx.font = '16px Courier New';
-	this.ctx.textAlign = 'left';
-	this.ctx.fillText(message, msgX, msgY);
+		this.messagePanel = document.createElement('div');
+		this.messagePanel.style.position = 'absolute';
+		this.messagePanel.style.left   = panelX + 'px';
+		this.messagePanel.style.top    = (panelY - 16) + 'px';
+		this.messagePanel.style.width  = panelWidth + 'px';
+		this.messagePanel.style.height = panelHeight + 'px';
+		this.messagePanel.style.font   = 'bold 14px Courier New';
+		this.messagePanel.style.color  = color;
+		this.messagePanel.style.pointerEvents = 'none';
+		document.body.appendChild(this.messagePanel);
+	}
 
-	this.ctx.restore();
+	// hide the progress bar if it is on
+	if(this.progressFrame.style.display != 'none') {
+		this.progressFrame.style.display = 'none';
+		this.progressRectangle.style.display = 'none';
+	}
+
+	if(message && this.messagePanel.style.display != 'block')
+		this.messagePanel.style.display = 'block';
+
+	this.messagePanel.innerHTML = message;
+};
+
+/**
+	Hide the error message.
+	@private
+ */
+JSC3D.Viewer.prototype.hideError = function() {
+	if(this.messagePanel)
+		this.messagePanel.style.display = 'none';
 };
 
 /**
@@ -3101,7 +3170,6 @@ JSC3D.Viewer.prototype.defaultMaterial = null;
 JSC3D.Viewer.prototype.sphereMap = null;
 JSC3D.Viewer.prototype.isLoaded = false;
 JSC3D.Viewer.prototype.isFailed = false;
-JSC3D.Viewer.prototype.errorMsg = '';
 JSC3D.Viewer.prototype.needUpdate = false;
 JSC3D.Viewer.prototype.needRepaint = false;
 JSC3D.Viewer.prototype.initRotX = 0;
