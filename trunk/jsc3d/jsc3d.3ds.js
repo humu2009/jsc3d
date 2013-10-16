@@ -33,6 +33,7 @@ JSC3D.Autodesk3DSLoader = function(onload, onerror, onprogress, onresource) {
 	this.onerror = (onerror && typeof(onerror) == 'function') ? onerror : null;
 	this.onprogress = (onprogress && typeof(onprogress) == 'function') ? onprogress : null;
 	this.onresource = (onresource && typeof(onresource) == 'function') ? onresource : null;
+	this.request = null;
 
 	this._materials = {};
 	this._unfinalized_objects = {};
@@ -52,7 +53,6 @@ JSC3D.Autodesk3DSLoader = function(onload, onerror, onprogress, onresource) {
  @param {String} urlName a string that specifies where to fetch the 3DS file.
  */
 JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
-
 	var self = this;
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
@@ -94,6 +94,7 @@ JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onerror)
 					self.onerror('Failed to load 3DS file "' + urlName + '".');
 			}
+			self.request = null;
 		}
 	};
 
@@ -104,7 +105,18 @@ JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
 		};
 	}
 
+	this.request = xhr;
 	xhr.send();
+};
+
+/**
+	Abort current loading if it is not finished yet.
+ */
+JSC3D.Autodesk3DSLoader.prototype.abort = function() {
+	if(this.request) {
+		this.request.abort();
+		this.request = null;
+	}
 };
 
 JSC3D.Autodesk3DSLoader.prototype.parseMaterial= function (reader, endMaterial) {
