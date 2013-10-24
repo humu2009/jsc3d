@@ -1,26 +1,26 @@
 /**
-	@preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
-	This file is part of jsc3d project, which is freely distributable under the 
-	terms of the MIT license.
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-**/
+ * @preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
+ * This file is part of jsc3d project, which is freely distributable under the 
+ * terms of the MIT license.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 
 /**
@@ -121,6 +121,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.keyStates = {};
 	this.mouseX = 0;
 	this.mouseY = 0;
+	this.isHeld = false;
+	this.baseZoomFactor = 1;
 	this.onloadingstarted = null;
 	this.onloadingcomplete = null;
 	this.onloadingprogress = null;
@@ -151,9 +153,14 @@ JSC3D.Viewer = function(canvas, parameters) {
 		document.addEventListener('keyup', function(e){self.keyUpHandler(e);}, false);
 	}
 	else {
-		this.canvas.addEventListener('touchstart', function(e){self.touchStartHandler(e);}, false);
-		this.canvas.addEventListener('touchend', function(e){self.touchEndHandler(e);}, false);
-		this.canvas.addEventListener('touchmove', function(e){self.touchMoveHandler(e);}, false);
+		if(JSC3D.Hammer) {
+			JSC3D.Hammer(this.canvas).on('touch release hold drag pinch', function(e){self.gestureHandler(e);});
+		}
+		else {
+			this.canvas.addEventListener('touchstart', function(e){self.touchStartHandler(e);}, false);
+			this.canvas.addEventListener('touchend', function(e){self.touchEndHandler(e);}, false);
+			this.canvas.addEventListener('touchmove', function(e){self.touchMoveHandler(e);}, false);
+		}
 	}
 };
 
@@ -428,6 +435,7 @@ JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 
 /**
 	Set control of mouse pointer.
+	@deprecated This method is obsolete since version 1.5.0 and may be removed in the future.
 	Available options are:<br />
 	'<b>default</b>':	default mouse control will be used;<br />
 	'<b>free</b>':		this tells {JSC3D.Viewer} a user-defined mouse control will be adopted. 
@@ -802,6 +810,69 @@ JSC3D.Viewer.prototype.keyUpHandler = function(e) {
 		return;
 
 	this.keyStates[e.keyCode] = false;
+};
+
+/**
+	The gesture event handling routine which implements gesture-based control on touch devices.
+	This is based on Hammer.js gesture event implementation.
+	@private
+ */
+JSC3D.Viewer.prototype.gestureHandler = function(e) {
+	if(!this.isLoaded)
+		return;
+
+	var clientX = e.gesture.center.pageX - document.body.scrollLeft;
+	var clientY = e.gesture.center.pageY - document.body.scrollTop;
+	var info = this.pick(clientX, clientY);
+
+	switch(e.type) {
+	case 'touch':
+		if(this.onmousedown)
+			this.onmousedown(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		this.baseZoomFactor = this.zoomFactor;
+		this.mouseX = clientX;
+		this.mouseY = clientY;
+		break;
+	case 'release':
+		if(this.onmouseup)
+			this.onmouseup(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		this.isHeld = false;
+		break;
+	case 'hold':
+		this.isHeld = true;
+		break;
+	case 'drag':
+		if(this.onmousemove)
+			this.onmousemove(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		if(!this.isDefaultInputHandlerEnabled)
+			break;
+		if(this.isHeld) {	// pan
+			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
+			this.panning[0] += ratio * (clientX - this.mouseX);
+			this.panning[1] += ratio * (clientY - this.mouseY);
+		}
+		else {				// rotate
+			var rotX = (clientY - this.mouseY) * 360 / this.canvas.width;
+			var rotY = (clientX - this.mouseX) * 360 / this.canvas.height;
+			this.rotMatrix.rotateAboutXAxis(rotX);
+			this.rotMatrix.rotateAboutYAxis(rotY);
+		}
+		this.mouseX = clientX;
+		this.mouseY = clientY;
+		this.update();
+		break;
+	case 'pinch':
+		if(!this.isDefaultInputHandlerEnabled)
+			break;
+		this.zoomFactor = this.baseZoomFactor * e.gesture.scale;
+		this.update();
+		break;
+	default:
+		break;
+	}
+
+	e.gesture.preventDefault();
+	e.gesture.stopPropagation();
 };
 
 /**
