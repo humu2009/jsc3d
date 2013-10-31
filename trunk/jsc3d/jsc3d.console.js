@@ -25,7 +25,7 @@
 
 /**
 	@namespace JSC3D
-*/
+ */
 var JSC3D = JSC3D || {};
 
 

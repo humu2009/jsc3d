@@ -121,7 +121,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.keyStates = {};
 	this.mouseX = 0;
 	this.mouseY = 0;
-	this.isHeld = false;
+	this.isTouchHeld = false;
 	this.baseZoomFactor = 1;
 	this.onloadingstarted = null;
 	this.onloadingcomplete = null;
@@ -152,15 +152,13 @@ JSC3D.Viewer = function(canvas, parameters) {
 		document.addEventListener('keydown', function(e){self.keyDownHandler(e);}, false);
 		document.addEventListener('keyup', function(e){self.keyUpHandler(e);}, false);
 	}
+	else if(JSC3D.Hammer) {
+		JSC3D.Hammer(this.canvas).on('touch release hold drag pinch', function(e){self.gestureHandler(e);});
+	}
 	else {
-		if(JSC3D.Hammer) {
-			JSC3D.Hammer(this.canvas).on('touch release hold drag pinch', function(e){self.gestureHandler(e);});
-		}
-		else {
-			this.canvas.addEventListener('touchstart', function(e){self.touchStartHandler(e);}, false);
-			this.canvas.addEventListener('touchend', function(e){self.touchEndHandler(e);}, false);
-			this.canvas.addEventListener('touchmove', function(e){self.touchMoveHandler(e);}, false);
-		}
+		this.canvas.addEventListener('touchstart', function(e){self.touchStartHandler(e);}, false);
+		this.canvas.addEventListener('touchend', function(e){self.touchEndHandler(e);}, false);
+		this.canvas.addEventListener('touchmove', function(e){self.touchMoveHandler(e);}, false);
 	}
 };
 
@@ -435,7 +433,6 @@ JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 
 /**
 	Set control of mouse pointer.
-	@deprecated This method is obsolete since version 1.5.0 and may be removed in the future.
 	Available options are:<br />
 	'<b>default</b>':	default mouse control will be used;<br />
 	'<b>free</b>':		this tells {JSC3D.Viewer} a user-defined mouse control will be adopted. 
@@ -445,6 +442,7 @@ JSC3D.Viewer.prototype.enableDefaultInputHandler = function(enabled) {
 	'<b>zoom</b>':		mouse will be used to do zooming.<br />
 	'<b>pan</b>':		mouse will be used to do panning.<br />
 	@param {String} usage control of mouse pointer to be set.
+	@deprecated This method is obsolete since version 1.5.0 and may be removed in the future.
  */
 JSC3D.Viewer.prototype.setMouseUsage = function(usage) {
 	this.mouseUsage = usage;
@@ -836,22 +834,22 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 	case 'release':
 		if(this.onmouseup)
 			this.onmouseup(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
-		this.isHeld = false;
+		this.isTouchHeld = false;
 		break;
 	case 'hold':
-		this.isHeld = true;
+		this.isTouchHeld = true;
 		break;
 	case 'drag':
 		if(this.onmousemove)
 			this.onmousemove(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
 		if(!this.isDefaultInputHandlerEnabled)
 			break;
-		if(this.isHeld) {	// pan
+		if(this.isTouchHeld) {	// pan
 			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
 			this.panning[0] += ratio * (clientX - this.mouseX);
 			this.panning[1] += ratio * (clientY - this.mouseY);
 		}
-		else {				// rotate
+		else {					// rotate
 			var rotX = (clientY - this.mouseY) * 360 / this.canvas.width;
 			var rotY = (clientX - this.mouseX) * 360 / this.canvas.height;
 			this.rotMatrix.rotateAboutXAxis(rotX);
@@ -1104,7 +1102,7 @@ JSC3D.Viewer.prototype.reportError = function(message) {
 		document.body.appendChild(this.messagePanel);
 	}
 
-	// hide the progress bar if it is on
+	// hide the progress bar if it is visible
 	if(this.progressFrame.style.display != 'none') {
 		this.progressFrame.style.display = 'none';
 		this.progressRectangle.style.display = 'none';
@@ -1626,9 +1624,9 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var opaci = 255 - trans;
 
 	/*
-		This single line removes some weird error related to floating point calculation on Safari and Mac computers.
+		This single line removes some weird error related to floating point calculation on Safari for Apple computers.
 		See http://code.google.com/p/jsc3d/issues/detail?id=8.
-		Contributed by Vasile Dirla.
+		Contributed by Vasile Dirla <vasile@dirla.ro>.
 	 */
 	var fixForMacSafari = 1 * null;
 
