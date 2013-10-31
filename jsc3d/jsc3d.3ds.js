@@ -24,6 +24,12 @@
 
 
 /**
+	@namespace JSC3D
+ */
+var JSC3D = JSC3D || {};
+
+
+/**
 	@class Autodesk3DSLoader
 
 	This class implements a scene loader from an 3DS file.
