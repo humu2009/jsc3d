@@ -2,9 +2,9 @@
 
 = Getting Started with JSC3D =
 
-_JSC3D_ is very easy to setup and requires only a few lines of code to initialize.
+_JSC3D_ is very easy to setup and run. It requires only a few lines of code to initialize.
 
-_JSC3D_ uses _*[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]*_ element for rendering, so the first step is to declare a _*canvas*_ with non-zero sizes in the _*body*_ segment of the page.
+_JSC3D_ uses _*[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]*_ element for rendering, so the first step is to declare a _*canvas*_ with non-zero sizes in the _*body*_ section of the page.
 
 {{{
 <body>
@@ -58,7 +58,7 @@ Put these altogether and we get a working example.
     </head>
     <body>
         <canvas id="cv" width=640 height=480>
-        It seems you are using an outdated browser that does not support canvas.
+        It seems you are using an outdated browser that does not support canvas :-(
         </canvas>
         <script type="text/javascript" src="jsc3d.js"></script>
         <script type="text/javascript">
