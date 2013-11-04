@@ -1334,7 +1334,7 @@ JSC3D.Viewer.prototype.render = function() {
 			JSC3D.Math3D.transformVectors(this.transformMatrix, mesh.vertexBuffer, mesh.transformedVertexBuffer);
 
 			if(mesh.visible) {
-				switch(this.renderMode) {
+				switch(mesh.renderMode || this.renderMode) {
 				case 'point':
 					this.renderPoint(mesh);
 					break;
@@ -3418,6 +3418,7 @@ JSC3D.Mesh = function(name, visible, material, texture, creaseAngle, isDoubleSid
 	this.name = name || '';
 	this.metadata = '';
 	this.visible = (visible != undefined) ? visible : true;
+	this.renderMode = null;
 	this.aabb = null;
 	this.vertexBuffer = coordBuffer || null;
 	this.indexBuffer = indexBuffer || null;
@@ -3511,6 +3512,22 @@ JSC3D.Mesh.prototype.hasTexture = function() {
 	return ( (this.texture != null) && this.texture.hasData() &&
 			 (this.texCoordBuffer != null) && (this.texCoordBuffer.length >= 2) && 
 			 ((this.texCoordIndexBuffer == null) || ((this.texCoordIndexBuffer.length >= 3) && (this.texCoordIndexBuffer.length >= this.indexBuffer.length))) );
+};
+
+/**
+	Set render mode of the mesh.<br />
+	Available render modes are:<br />
+	'<b>point</b>':         render meshes as point clouds;<br />
+	'<b>wireframe</b>':     render meshes as wireframe;<br />
+	'<b>flat</b>':          render meshes as solid objects using flat shading;<br />
+	'<b>smooth</b>':        render meshes as solid objects using smooth shading;<br />
+	'<b>texture</b>':       render meshes as solid textured objects, no lighting will be apllied;<br />
+	'<b>textureflat</b>':   render meshes as solid textured objects, lighting will be calculated per face;<br />
+	'<b>texturesmooth</b>': render meshes as solid textured objects, lighting will be calculated per vertex and interpolated.<br />
+	@param {String} mode new render mode.
+ */
+JSC3D.Mesh.prototype.setRenderMode = function(mode) {
+	this.renderMode = mode;
 };
 
 /**
@@ -3771,6 +3788,7 @@ JSC3D.Mesh.prototype.checkValid = function() {
 JSC3D.Mesh.prototype.name = '';
 JSC3D.Mesh.prototype.metadata = '';
 JSC3D.Mesh.prototype.visible = false;
+JSC3D.Mesh.prototype.renderMode = 'flat';
 JSC3D.Mesh.prototype.aabb = null;
 JSC3D.Mesh.prototype.vertexBuffer = null;
 JSC3D.Mesh.prototype.indexBuffer = null;
