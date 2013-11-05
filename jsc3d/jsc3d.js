@@ -860,6 +860,8 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 		this.update();
 		break;
 	case 'pinch':
+		if(this.onmousewheel)
+			this.onmousewheel(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
 		if(!this.isDefaultInputHandlerEnabled)
 			break;
 		this.zoomFactor = this.baseZoomFactor * e.gesture.scale;
