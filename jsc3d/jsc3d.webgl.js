@@ -495,7 +495,6 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 			gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.coords);
 			gl.vertexAttribPointer(program.attributes['a_position'], 3, gl.FLOAT, false, 0, 0);
 			gl.drawArrays(gl.POINTS, 0, mesh.compiled.coordCount);
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 			break;
 		case 'wireframe':
 			//TODO: implement this
