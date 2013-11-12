@@ -61,7 +61,9 @@ JSC3D.Viewer = function(canvas, parameters) {
 			MipMapping:			parameters.MipMapping || 'off', 
 			CreaseAngle:		parameters.parameters || -180, 
 			SphereMapUrl:		parameters.SphereMapUrl || '', 
-			ProgressBar:		parameters.ProgressBar || 'on'
+			ProgressBar:		parameters.ProgressBar || 'on', 
+			Renderer:			parameters.Renderer || '', 
+			LocalBuffers:		parameters.LocalBuffers || 'retain'
 		};
 	else
 		this.params = {
@@ -78,11 +80,13 @@ JSC3D.Viewer = function(canvas, parameters) {
 			MipMapping: 'off', 
 			CreaseAngle: -180, 
 			SphereMapUrl: '', 
-			ProgressBar: 'on'
+			ProgressBar: 'on', 
+			Renderer: '', 
+			LocalBuffers: 'retain'
 		};
 
 	this.canvas = canvas;
-	this.ctx = null;
+	this.ctx2d = null;
 	this.canvasData = null;
 	this.bkgColorBuffer = null;
 	this.colorBuffer = null;
@@ -139,6 +143,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.progressFrame = null;
 	this.progressRectangle = null;
 	this.messagePanel = null;
+	this.webglBackend = null;
 
 	// setup input handlers.
 	// compatibility for touch devices is taken into account
@@ -204,15 +209,29 @@ JSC3D.Viewer.prototype.init = function() {
 	this.isMipMappingOn = this.params['MipMapping'].toLowerCase() == 'on';
 	this.sphereMapUrl = this.params['SphereMapUrl'];
 	this.showProgressBar = this.params['ProgressBar'] == 'on';
+	this.useWebGL = this.params['Renderer'].toLowerCase() == 'webgl';
+	this.releaseLocalBuffers = this.params['LocalBuffers'].toLowerCase() == 'release';
 
-	try {
-		this.ctx = this.canvas.getContext('2d');
-		this.canvasData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+	if(this.useWebGL && JSC3D.PlatformInfo.supportWebGL && JSC3D.WebGLRenderBackend) {
+		try {
+			this.webglBackend = new JSC3D.WebGLRenderBackend(this.canvas, this.releaseLocalBuffers);
+		} catch(e){}
 	}
-	catch(e) {
-		this.ctx = null;
-		this.canvasData = null;
+	if(!this.webglBackend) {
+		if(this.useWebGL) {
+			if(JSC3D.console)
+				JSC3D.console.logWarning('WebGL is not available. Software rendering is enabled instead.');
+		}
+		try {
+			this.ctx2d = this.canvas.getContext('2d');
+			this.canvasData = this.ctx2d.getImageData(0, 0, this.canvas.width, this.canvas.height);
+		}
+		catch(e) {
+			this.ctx2d = null;
+			this.canvasData = null;
+		}
 	}
+
 
 	if(this.canvas.width <= 2 || this.canvas.height <= 2)
 		this.definition = 'standard';
@@ -242,18 +261,24 @@ JSC3D.Viewer.prototype.init = function() {
 	this.needUpdate = false;
 	this.needRepaint = false;
 	this.scene = null;
-	// allocate memory storage for frame buffers
-	this.colorBuffer = new Array(this.frameWidth * this.frameHeight);
-	this.zBuffer = new Array(this.frameWidth * this.frameHeight);
-	this.selectionBuffer = new Array(this.frameWidth * this.frameHeight);
-	this.bkgColorBuffer = new Array(this.frameWidth * this.frameHeight);
-	this.generateBackground();
+
 	// create a default material for meshes that don't have one
 	this.defaultMaterial = new JSC3D.Material;
 	this.defaultMaterial.ambientColor = 0;
 	this.defaultMaterial.diffuseColor = this.modelColor;
 	this.defaultMaterial.transparency = 0;
 	this.defaultMaterial.simulateSpecular = true;
+
+	// allocate memory storage for frame buffers
+	if(!this.webglBackend) {
+		this.colorBuffer = new Array(this.frameWidth * this.frameHeight);
+		this.zBuffer = new Array(this.frameWidth * this.frameHeight);
+		this.selectionBuffer = new Array(this.frameWidth * this.frameHeight);
+		this.bkgColorBuffer = new Array(this.frameWidth * this.frameHeight);
+	}
+
+	// apply background
+	this.generateBackground();
 	this.drawBackground();
 
 	// wake up update routine per 30 milliseconds
@@ -352,27 +377,30 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 		break;
 	}
 
-	var newSize = this.frameWidth * this.frameHeight;
-	if(this.colorBuffer.length < newSize)
-		this.colorBuffer = new Array(newSize);
-
-	if(this.zBuffer.length < newSize)
-		this.zBuffer = new Array(newSize);
-
-	if(this.selectionBuffer.length < newSize)
-		this.selectionBuffer = new Array(newSize);
-
-	if(this.bkgColorBuffer.length < newSize)
-		this.bkgColorBuffer = new Array(newSize);
-
-	this.generateBackground();
-
 	var ratio = this.frameWidth / oldFrameWidth;
 	// zoom factor should be adjusted, otherwise there would be an abrupt zoom-in or zoom-out on next frame
 	this.zoomFactor *= ratio;
 	// likewise, panning should also be adjusted to avoid abrupt jump on next frame
 	this.panning[0] *= ratio;
 	this.panning[1] *= ratio;
+
+	if(this.webglBackend)
+		return;
+
+	/*
+		Re-allocate frame buffers using the dimensions of current definition.
+	 */
+	var newSize = this.frameWidth * this.frameHeight;
+	if(this.colorBuffer.length < newSize)
+		this.colorBuffer = new Array(newSize);
+	if(this.zBuffer.length < newSize)
+		this.zBuffer = new Array(newSize);
+	if(this.selectionBuffer.length < newSize)
+		this.selectionBuffer = new Array(newSize);
+	if(this.bkgColorBuffer.length < newSize)
+		this.bkgColorBuffer = new Array(newSize);
+
+	this.generateBackground();
 };
 
 /**
@@ -501,6 +529,11 @@ JSC3D.Viewer.prototype.getScene = function() {
 JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 	var pickInfo = new JSC3D.PickInfo;
 
+	if(this.webglBackend) {
+		//TODO: implement picking in WebGL rendering
+		return pickInfo;
+	}
+
 	var canvasRect = this.canvas.getBoundingClientRect();
 	var canvasX = clientX - canvasRect.left;
 	var canvasY = clientY - canvasRect.top;
@@ -554,7 +587,7 @@ JSC3D.Viewer.prototype.doUpdate = function() {
 			this.beforeupdate();
 
 		if(this.scene) {
-			if(this.needUpdate && this.colorBuffer != null) {
+			if(this.needUpdate) {
 				this.beginScene();
 				this.render();
 				this.endScene();
@@ -579,10 +612,10 @@ JSC3D.Viewer.prototype.doUpdate = function() {
 	@private
  */
 JSC3D.Viewer.prototype.paint = function() {
-	if(!this.canvasData)
+	if(this.webglBackend || !this.ctx2d)
 		return;
 
-	this.ctx.putImageData(this.canvasData, 0, 0);
+	this.ctx2d.putImageData(this.canvasData, 0, 0);
 };
 
 /**
@@ -1130,12 +1163,18 @@ JSC3D.Viewer.prototype.hideError = function() {
 	@private
  */
 JSC3D.Viewer.prototype.generateBackground = function() {
-	if(this.bkgImage) {
+	if(this.webglBackend) {
+		if(this.bkgImage)
+			this.webglBackend.setBackgroundImage(this.bkgImage);
+		else
+			this.webglBackend.setBackgroundColors(this.bkgColor1, this.bkgColor2);
+		return;
+	}
+
+	if(this.bkgImage)
 		this.fillBackgroundWithImage();
-	}
-	else {
+	else
 		this.fillGradientBackground();
-	}
 };
 
 /**
@@ -1220,7 +1259,7 @@ JSC3D.Viewer.prototype.fillBackgroundWithImage = function() {
 	@private
  */
 JSC3D.Viewer.prototype.drawBackground = function() {
-	if(!this.canvasData)
+	if(!this.webglBackend && !this.ctx2d)
 		return;
 
 	this.beginScene();
@@ -1234,6 +1273,11 @@ JSC3D.Viewer.prototype.drawBackground = function() {
 	@private
  */
 JSC3D.Viewer.prototype.beginScene = function() {
+	if(this.webglBackend) {
+		this.webglBackend.beginFrame(this.definition);
+		return;
+	}
+
 	var cbuf = this.colorBuffer;
 	var zbuf = this.zBuffer;
 	var sbuf = this.selectionBuffer;
@@ -1253,6 +1297,11 @@ JSC3D.Viewer.prototype.beginScene = function() {
 	@private
  */
 JSC3D.Viewer.prototype.endScene = function() {
+	if(this.webglBackend) {
+		this.webglBackend.endFrame();
+		return;
+	}
+
 	var data = this.canvasData.data;
 	var width = this.canvas.width;
 	var height = this.canvas.height;
@@ -1321,14 +1370,39 @@ JSC3D.Viewer.prototype.render = function() {
 	var aabb = this.scene.aabb;
 
 	// calculate transformation matrix
-	this.transformMatrix.identity();
-	this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
-	this.transformMatrix.multiply(this.rotMatrix);
-	this.transformMatrix.scale(this.zoomFactor, -this.zoomFactor, this.zoomFactor);
-	this.transformMatrix.translate(this.frameWidth/2+this.panning[0], this.frameHeight/2+this.panning[1], 0);
+	if(this.webglBackend) {
+		var w = this.frameWidth;
+		var h = this.frameHeight;
+		var d = aabb.lengthOfDiagonal();
+		var ratio = w / h;
 
-	// sort, transform and render the scene
+		this.transformMatrix.identity();
+		this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
+		this.transformMatrix.multiply(this.rotMatrix);
+		if(w < h)
+			this.transformMatrix.scale(2*this.zoomFactor/w, 2*this.zoomFactor*ratio/w, -2/d);
+		else
+			this.transformMatrix.scale(2*this.zoomFactor/(h*ratio), 2*this.zoomFactor/h, -2/d);
+		this.transformMatrix.translate(2*this.panning[0]/w, -2*this.panning[1]/h, 0);
+	}
+	else {
+		this.transformMatrix.identity();
+		this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
+		this.transformMatrix.multiply(this.rotMatrix);
+		this.transformMatrix.scale(this.zoomFactor, -this.zoomFactor, this.zoomFactor);
+		this.transformMatrix.translate(this.frameWidth/2+this.panning[0], this.frameHeight/2+this.panning[1], 0);
+	}
+
+	// sort meshes into a render list
 	var renderList = this.sortScene(this.transformMatrix);
+
+	// delegate to WebGL backend to do the rendering
+	if(this.webglBackend) {
+		this.webglBackend.render(this.scene.getChildren()/*renderList*/, this.transformMatrix, this.rotMatrix, this.renderMode, this.defaultMaterial, this.sphereMap);
+		return;
+	}
+
+	// transform and render meshes inside the scene
 	for(var i=0; i<renderList.length; i++) {
 		var mesh = renderList[i];
 
@@ -3228,7 +3302,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 
 JSC3D.Viewer.prototype.params = null;
 JSC3D.Viewer.prototype.canvas = null;
-JSC3D.Viewer.prototype.ctx = null;
+JSC3D.Viewer.prototype.ctx2d = null;
 JSC3D.Viewer.prototype.canvasData = null;
 JSC3D.Viewer.prototype.bkgColorBuffer = null;
 JSC3D.Viewer.prototype.colorBuffer = null;
@@ -4348,7 +4422,8 @@ JSC3D.PlatformInfo = (function() {
 	var info = {
 		browser:		'other', 
 		version:		'0.0.0', 
-		isTouchDevice:	(document.createTouch != undefined)	// detect if it is running on a touch device
+		isTouchDevice:	(document.createTouch != undefined), 		// detect if it is running on touch device
+		supportWebGL:	(window.WebGLRenderingContext != undefined)	// see if WebGL context is supported
 	};
 
 	var agents = [
