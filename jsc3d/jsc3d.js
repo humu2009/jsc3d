@@ -529,50 +529,52 @@ JSC3D.Viewer.prototype.getScene = function() {
 JSC3D.Viewer.prototype.pick = function(clientX, clientY) {
 	var pickInfo = new JSC3D.PickInfo;
 
-	if(this.webglBackend) {
-		//TODO: implement picking in WebGL rendering
-		return pickInfo;
-	}
-
 	var canvasRect = this.canvas.getBoundingClientRect();
 	var canvasX = clientX - canvasRect.left;
 	var canvasY = clientY - canvasRect.top;
-	
-	var frameX = canvasX;
-	var frameY = canvasY;
-	if( this.selectionBuffer != null && 
-		canvasX >= 0 && canvasX < this.canvas.width && 
-		canvasY >= 0 && canvasY < this.canvas.height ) {
-		switch(this.definition) {
-		case 'low':
-			frameX = ~~(frameX / 2);
-			frameY = ~~(frameY / 2);
-			break;
-		case 'high':
-			frameX *= 2;
-			frameY *= 2;
-			break;
-		case 'standard':
-		default:
-			break;
-		}
-
-		var pickedId = this.selectionBuffer[frameY * this.frameWidth + frameX];
-		if(pickedId > 0) {
-			var meshes = this.scene.getChildren();
-			for(var i=0; i<meshes.length; i++) {
-				if(meshes[i].internalId == pickedId) {
-					pickInfo.mesh = meshes[i];
-					break;
-				}
-			}
-		}
-	}
 
 	pickInfo.canvasX = canvasX;
 	pickInfo.canvasY = canvasY;
-	if(pickInfo.mesh)
-		pickInfo.depth = this.zBuffer[frameY * this.frameWidth + frameX];
+	
+	var pickedId = 0;
+	if(this.webglBackend) {
+		pickedId = this.webglBackend.pick(canvasX, canvasY);
+	}
+	else {
+		var frameX = canvasX;
+		var frameY = canvasY;
+		if( this.selectionBuffer != null && 
+			canvasX >= 0 && canvasX < this.canvas.width && 
+			canvasY >= 0 && canvasY < this.canvas.height ) {
+			switch(this.definition) {
+			case 'low':
+				frameX = ~~(frameX / 2);
+				frameY = ~~(frameY / 2);
+				break;
+			case 'high':
+				frameX *= 2;
+				frameY *= 2;
+				break;
+			case 'standard':
+			default:
+				break;
+			}
+
+			pickedId  = this.selectionBuffer[frameY * this.frameWidth + frameX];
+			if(pickedId > 0)
+				pickInfo.depth = this.zBuffer[frameY * this.frameWidth + frameX];
+		}
+	}
+
+	if(pickedId > 0) {
+		var meshes = this.scene.getChildren();
+		for(var i=0; i<meshes.length; i++) {
+			if(meshes[i].internalId == pickedId) {
+				pickInfo.mesh = meshes[i];
+				break;
+			}
+		}
+	}
 
 	return pickInfo;
 };
