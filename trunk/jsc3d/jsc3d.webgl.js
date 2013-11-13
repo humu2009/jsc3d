@@ -34,14 +34,15 @@ var JSC3D = JSC3D || {};
  */
 JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.canvas = canvas;
-	this.gl = canvas.getContext('experimental-webgl'/*, {antialias: false}*/) || canvas.getContext('webgl');
+	this.gl = canvas.getContext('experimental-webgl', {/*antialias: false,*/ preserveDrawingBuffer: true}) || canvas.getContext('webgl');
 	if(!this.gl)
 		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot get WebGL context!';
 	this.definition = 'standard';
 	this.bkgColors = [0, 0];
 	this.bkgTexture = null;
 	this.backFB = null;
-	this.selectionBuffer = null;
+	this.pickingFB = null;
+	this.pickingResult = new Uint8Array(4);
 	this.releaseLocalBuffers = releaseLocalBuffers || false;
 
 	this.screen_vs =	'#ifdef GL_ES \n' + 
@@ -157,8 +158,25 @@ JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 					'		gl_FragColor = u_hasTexture ? (materialColor * texture2D(s_texture, v_texCoord)) : materialColor; \n' + 
 					'	} \n' + 
 					'}';
-	this.picking_vs = '';
-	this.picking_fs = '';
+	this.picking_vs =	'#ifdef GL_ES \n' + 
+						'	precision mediump float; \n' + 
+						'#endif	\n' + 
+						'\n' + 
+						'uniform mat4 u_transformMatrix; \n' + 
+						'attribute vec3 a_position; \n' + 
+						'\n' + 
+						'void main(void) { \n' + 
+						'	gl_Position = u_transformMatrix * vec4(a_position, 1.0); \n' + 
+						'}'; 
+	this.picking_fs =	'#ifdef GL_ES \n' + 
+						'	precision mediump float; \n' + 
+						'#endif	\n' + 
+						'\n' + 
+						'uniform vec3 u_pickingId; \n' + 
+						'\n' + 
+						'void main(void) { \n' + 
+						'	gl_FragColor = vec4(u_pickingId, 1.0); \n' + 
+						'}';
 
 	function createProgram(gl, vSrc, fSrc) {
 		var vShader = gl.createShader(gl.VERTEX_SHADER);
@@ -210,7 +228,8 @@ JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 		screen: createProgram(this.gl, this.screen_vs, this.screen_fs), 
 		gradient_background: createProgram(this.gl, this.gradient_background_vs, this.gradient_background_fs), 
 		frame: createProgram(this.gl, this.frame_vs, this.frame_fs), 
-		solid: createProgram(this.gl, this.solid_vs, this.solid_fs)
+		solid: createProgram(this.gl, this.solid_vs, this.solid_fs), 
+		picking: createProgram(this.gl, this.picking_vs, this.picking_fs)
 	};
 
 	this.canvasBoard = this.gl.createBuffer();
@@ -243,9 +262,41 @@ JSC3D.WebGLRenderBackend.prototype.setBackgroundImage = function(img) {
 JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 	var gl = this.gl;
 
+	function prepareFB(gl, fbo, w, h) {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+		// create a render buffer object and set it as the depth attachment of the fbo
+		var depthAttachment = gl.createRenderbuffer();
+		gl.bindRenderbuffer(gl.RENDERBUFFER, depthAttachment);
+		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthAttachment);
+		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+		// create a texture object and set it as the color attachment of the fbo
+		var colorAttachment = gl.createTexture();
+		//gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, colorAttachment);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorAttachment, 0);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+
+		fbo.width = w;
+		fbo.height = h;
+		fbo.texture = colorAttachment;
+	}
+
+	if(!this.pickingFB) {
+		this.pickingFB = gl.createFramebuffer();
+		prepareFB(gl, this.pickingFB, this.canvas.width, this.canvas.height);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+
 	var frameWidth  = this.canvas.width;
 	var frameHeight = this.canvas.height;
-
 	switch(definition) {
 	case 'low':
 		frameWidth  = frameWidth >> 1;
@@ -258,31 +309,6 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 	case 'standard':
 	default:
 		break;
-	}
-
-	function prepareFB(gl, fbo, w, h) {
-		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-		// create a render buffer object and set it as the depth attachment of the fbo
-		var depthAttachment = gl.createRenderbuffer();
-		gl.bindRenderbuffer(gl.RENDERBUFFER, depthAttachment);
-		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
-		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthAttachment);
-
-		// create a texture object and set it as the color attachment of the fbo
-		var colorAttachment = gl.createTexture();
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, colorAttachment);
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorAttachment, 0);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		fbo.texture = colorAttachment;
-
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 	}
 
 	/*
@@ -354,13 +380,13 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 	var gl = this.gl;
 
+	// unbind any frame-buffer and redirect latter output to canvas
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
 	switch(this.definition) {
 	case 'low':
 	case 'high':
 		if(this.backFB) {
-			// unbind the back frame-buffer and redirect latter output to canvas
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
 			// resample the drawings onto canvas
 			gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 			gl.frontFace(gl.CCW);
@@ -386,8 +412,7 @@ JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 };
 
 JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix, normalMatrix, renderMode, defaultMaterial, sphereMap) {
-	if(sphereMap && sphereMap.hasData() && !sphereMap.compiled)
-		this.compileTexture(sphereMap);
+	var gl = this.gl;
 
 	var transformMat4Flattened = new Float32Array([
 		transformMatrix.m00, transformMatrix.m10, transformMatrix.m20, 0, 
@@ -401,6 +426,31 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 		normalMatrix.m01, normalMatrix.m11, normalMatrix.m21, 
 		normalMatrix.m02, normalMatrix.m12, normalMatrix.m22
 	]);
+
+	this.renderColorPass(renderList, transformMat4Flattened, normalMat3Flattened, renderMode, defaultMaterial, sphereMap);
+	if(this.pickingFB) {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.pickingFB);
+		this.renderPickingPass(renderList, transformMat4Flattened, defaultMaterial);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+};
+
+JSC3D.WebGLRenderBackend.prototype.pick = function(x, y) {
+	if(!this.pickingFB)
+		return 0;
+
+	var gl = this.gl;
+
+	gl.bindFramebuffer(gl.FRAMEBUFFER, this.pickingFB);
+	gl.readPixels(x, this.pickingFB.height - y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.pickingResult);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+	return this.pickingResult[0] << 16 | this.pickingResult[1] << 8 | this.pickingResult[2];
+};
+
+JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transformMat4, normalMat3, renderMode, defaultMaterial, sphereMap) {
+	if(sphereMap && sphereMap.hasData() && !sphereMap.compiled)
+		this.compileTexture(sphereMap);
 
 	var gl = this.gl;
 
@@ -490,7 +540,7 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 		case 'point':
 			gl.uniform1i(program.uniforms['u_isPoint'], rmode == 'point');
 			gl.uniform3fv(program.uniforms['u_materialColor'], material.compiled.diffColor);
-			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4Flattened);
+			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4);
 			gl.enableVertexAttribArray(program.attributes['a_position']);
 			gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.coords);
 			gl.vertexAttribPointer(program.attributes['a_position'], 3, gl.FLOAT, false, 0, 0);
@@ -505,8 +555,8 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 			gl.uniform1i(program.uniforms['u_isCast'], false);
 			gl.uniform1i(program.uniforms['u_hasTexture'], false);
 			gl.uniform1f(program.uniforms['u_opacity'], opacity);
-			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3Flattened);
-			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4Flattened);
+			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3);
+			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, material.compiled.palette);
 			gl.uniform1i(program.uniforms['s_palette'], 0);
@@ -524,8 +574,8 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 			gl.uniform1i(program.uniforms['u_isCast'], false);
 			gl.uniform1i(program.uniforms['u_hasTexture'], true);
 			gl.uniform1f(program.uniforms['u_opacity'], opacity);
-			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3Flattened);
-			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4Flattened);
+			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3);
+			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4);
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, texture.compiled.tex);
 			gl.uniform1i(program.uniforms['s_texture'], 1);
@@ -543,8 +593,8 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 			gl.uniform1i(program.uniforms['u_isCast'], false);
 			gl.uniform1i(program.uniforms['u_hasTexture'], true);
 			gl.uniform1f(program.uniforms['u_opacity'], opacity);
-			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3Flattened);
-			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4Flattened);
+			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3);
+			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, material.compiled.palette);
 			gl.uniform1i(program.uniforms['s_palette'], 0);
@@ -567,8 +617,8 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 			gl.uniform1i(program.uniforms['u_isCast'], isSphereMapped);
 			gl.uniform1i(program.uniforms['u_hasTexture'], !isSphereMapped);
 			gl.uniform1f(program.uniforms['u_opacity'], opacity);
-			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3Flattened);
-			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4Flattened);
+			gl.uniformMatrix3fv(program.uniforms['u_rotationMatrix'], false, normalMat3);
+			gl.uniformMatrix4fv(program.uniforms['u_transformMatrix'], false, transformMat4);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, material.compiled.palette);
 			gl.uniform1i(program.uniforms['s_palette'], 0);
@@ -603,8 +653,58 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 	}
 };
 
-JSC3D.WebGLRenderBackend.prototype.pick = function() {
-	//TODO: implement this
+JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, transformMat4, defaultMaterial) {
+	var gl = this.gl;
+
+	gl.disable(gl.BLEND);
+	gl.enable(gl.DEPTH_TEST);
+	gl.depthMask(true);
+	gl.frontFace(gl.CCW);
+
+	gl.viewport(0, 0, this.pickingFB.width, this.pickingFB.height);
+	gl.clearColor(0, 0, 0, 1);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+	gl.useProgram(this.programs.picking);
+
+	for(var i=0; i<renderList.length; i++) {
+		var mesh = renderList[i];
+		if(mesh.isTrivial() || !mesh.visible)
+			continue;
+
+		// skip the mesh if it is totally transparent
+		var material = mesh.material || defaultMaterial;
+		if(material.transparency > 0.99)
+			continue;
+
+		if(mesh.isDoubleSided)
+			gl.disable(gl.CULL_FACE);
+		else
+			gl.enable(gl.CULL_FACE);
+
+		gl.uniformMatrix4fv(this.programs.picking.uniforms['u_transformMatrix'], false, transformMat4);
+		gl.uniform3fv(this.programs.picking.uniforms['u_pickingId'], mesh.compiled.pickingId);
+		gl.enableVertexAttribArray(this.programs.picking.attributes['a_position']);
+		gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.coords);
+		gl.vertexAttribPointer(this.programs.picking.attributes['a_position'], 3, gl.FLOAT, false, 0, 0);
+
+		switch(mesh.compiled.remderMode) {
+		case 'point':
+			gl.drawArrays(gl.POINTS, 0, mesh.compiled.coordCount);
+			break;
+		case 'wireframe':
+			//TODO: implement this
+			break;
+		case 'flat':
+		case 'smooth':
+		case 'texture':
+		case 'textureflat':
+		case 'texturesmooth':
+		default:
+			gl.drawArrays(gl.TRIANGLES, 0, mesh.compiled.coordCount);
+			break;
+		}
+	}
 };
 
 JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
@@ -635,6 +735,10 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 		 */
 
 		mesh.compiled = {};
+
+		mesh.compiled.pickingId = new Float32Array([
+			(mesh.internalId & 0xff0000) / 16777216, (mesh.internalId & 0xff00) / 65536, (mesh.internalId & 0xff) / 256
+		]);
 
 		var triangles, edges, coords, normals, texcoords;
 		if(hasTrianglesOnly) {
