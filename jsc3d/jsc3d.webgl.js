@@ -34,7 +34,7 @@ var JSC3D = JSC3D || {};
  */
 JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.canvas = canvas;
-	this.gl = canvas.getContext('experimental-webgl', {/*antialias: false,*/ preserveDrawingBuffer: true}) || canvas.getContext('webgl');
+	this.gl = canvas.getContext('experimental-webgl', {/*antialias: false,*/ preserveDrawingBuffer: true/*this is necessary since we need to read back pixels for picking*/}) || canvas.getContext('webgl');
 	if(!this.gl)
 		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot get WebGL context!';
 	this.definition = 'standard';
@@ -287,6 +287,13 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 		fbo.width = w;
 		fbo.height = h;
 		fbo.texture = colorAttachment;
+		fbo.depthRB = depthAttachment;
+	}
+
+	function destroyFB(gl, fbo) {
+		gl.deleteRenderbuffer(fbo.depthRB);
+		gl.deleteTexture(fbo.texture);
+		gl.deleteFramebuffer(fbo);
 	}
 
 	if(!this.pickingFB) {
@@ -313,7 +320,7 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 
 	/*
 	 * For definitions other than 'standard', drawings will be generated in the back frame-buffer
-	 * and then resampled to canvas.
+	 * and then resampled to be applied to canvas.
 	 */
 	if(frameWidth != this.canvas.width) {
 		if(!this.backFB) {
@@ -324,6 +331,11 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 			prepareFB(gl, this.backFB, frameWidth, frameHeight);
 		else
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this.backFB);
+	}
+	else if(this.backFB) {
+		// delete and destroy the back frame-buffer as it is no longer needed under 'standard' definition
+		destroyFB(gl, this.backFB);
+		this.backFB = null;
 	}
 
 	this.definition = definition;
