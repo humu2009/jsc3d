@@ -12,10 +12,16 @@ _JSC3D_ uses _*[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]*_ e
 </body>
 }}}
 
-The script file `jsc3d.js` or `jsc3d.min.js` should also be included which contains the implementation of _JSC3D_ library.
+The script file `jsc3d.js` or `jsc3d.min.js` should be included which contains the implementation of _JSC3D_ library.
 
 {{{
 <script type="text/javascript" src="jsc3d.js"></script>
+}}}
+
+For touch devices, an additional script file `jsc3d.touch.js` should also be included which provides support for touch/multi-touch based control.
+
+{{{
+<script type="text/javascript" src="jsc3d.touch.js"></script>
 }}}
 
 An instance of `JSC3D.Viewer` should be constructed with the _*canvas*_ element declared previously as the render target. The following code demonstrates how to do this.
@@ -61,6 +67,7 @@ Put these altogether and we get a working example.
         It seems you are using an outdated browser that does not support canvas :-(
         </canvas>
         <script type="text/javascript" src="jsc3d.js"></script>
+        <script type="text/javascript" src="jsc3d.touch.js"></script>
         <script type="text/javascript">
             var viewer = new JSC3D.Viewer(document.getElementById('cv'));
             viewer.setParameter('SceneUrl',         'my_model.obj');
