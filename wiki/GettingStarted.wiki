@@ -12,7 +12,7 @@ _JSC3D_ uses _*[https://developer.mozilla.org/en-US/docs/HTML/Canvas canvas]*_ e
 </body>
 }}}
 
-The script file `jsc3d.js` or `jsc3d.min.js` should be included which contains the implementation of _JSC3D_ library.
+The script file `jsc3d.js` or `jsc3d.min.js` should be included which contains the main implementation of _JSC3D_ library.
 
 {{{
 <script type="text/javascript" src="jsc3d.js"></script>
