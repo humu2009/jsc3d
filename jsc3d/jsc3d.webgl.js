@@ -296,6 +296,7 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 		gl.deleteFramebuffer(fbo);
 	}
 
+	// create the picking frame-buffer
 	if(!this.pickingFB) {
 		this.pickingFB = gl.createFramebuffer();
 		prepareFB(gl, this.pickingFB, this.canvas.width, this.canvas.height);
@@ -324,13 +325,19 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 	 */
 	if(frameWidth != this.canvas.width) {
 		if(!this.backFB) {
+			// create the back frame-buffer and bind it as render target
 			this.backFB = gl.createFramebuffer();
 			prepareFB(gl, this.backFB, frameWidth, frameHeight);
 		}
-		else if(this.definition != definition)
+		else if(this.definition != definition) {
+			// reallocate storage for the back frame-buffer as definition has changed, then bind it
+			// as render target
 			prepareFB(gl, this.backFB, frameWidth, frameHeight);
-		else
+		}
+		else {
+			// bind the back frame-buffer as render target
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this.backFB);
+		}
 	}
 	else if(this.backFB) {
 		// delete and destroy the back frame-buffer as it is no longer needed under 'standard' definition
@@ -392,7 +399,7 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 	var gl = this.gl;
 
-	// unbind any frame-buffer and redirect latter output to canvas
+	// unbind any additional frame-buffer and redirect latter output to canvas
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 	switch(this.definition) {
@@ -439,7 +446,10 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 		normalMatrix.m02, normalMatrix.m12, normalMatrix.m22
 	]);
 
+	// render the color pass
 	this.renderColorPass(renderList, transformMat4Flattened, normalMat3Flattened, renderMode, defaultMaterial, sphereMap);
+
+	// render the picking pass
 	if(this.pickingFB) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.pickingFB);
 		this.renderPickingPass(renderList, transformMat4Flattened, defaultMaterial);
@@ -950,7 +960,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMaterial = function(material) {
 
 	var rgba = new Uint8Array((new Uint32Array(material.getPalette())).buffer);
 	// the sequence should be converted from BGRA to RGBA by swapping each 1st and 3rd components
-	//TODO: shall we also take into account the case for Big-Endian?
+	//TODO: this only works on Little-Endian platforms. We shall also take into account the case for Big-Endian.
 	for(var i=0; i<rgba.length; i+=4) {
 		var tmp = rgba[i];
 		rgba[i] = rgba[i + 2];
@@ -973,6 +983,8 @@ JSC3D.WebGLRenderBackend.prototype.compileTexture = function(texture, genMipmap)
 	if(!texture.hasData())
 		return false;
 
+	genMipmap = genMipmap || texture.hasMipmap();
+
 	var gl = this.gl;
 
 	texture.compiled = {};
@@ -990,10 +1002,10 @@ JSC3D.WebGLRenderBackend.prototype.compileTexture = function(texture, genMipmap)
 	gl.bindTexture(gl.TEXTURE_2D, texture.compiled.tex);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, rgba);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, genMipmap ? gl.LINEAR_MIPMAP_NEAREST : gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-	if(genMipmap || texture.hasMipmap())
+	if(genMipmap)
 		gl.generateMipmap(gl.TEXTURE_2D);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
