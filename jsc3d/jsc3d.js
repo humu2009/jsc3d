@@ -4422,19 +4422,25 @@ JSC3D.Math3D = {
 
 JSC3D.PlatformInfo = (function() {
 	var info = {
-		browser:		'other', 
-		version:		'0.0.0', 
-		isTouchDevice:	(document.createTouch != undefined), 		// detect if it is running on touch device
-		supportWebGL:	(window.WebGLRenderingContext != undefined)	// see if WebGL context is supported
+		browser:			'other', 
+		version:			'n/a', 
+		isTouchDevice:		(document.createTouch != undefined), 		// detect if it is running on touch device
+		supportTypedArrays:	(window.Uint32Array != undefined),			// see if Typed Arrays are supported 
+		supportWebGL:		(window.WebGLRenderingContext != undefined)	// see if WebGL context is supported
 	};
 
 	var agents = [
-		['firefox', /Firefox[\/\s](\d+(?:.\d+)*)/], 
-		['chrome',  /Chrome[\/\s](\d+(?:.\d+)*)/ ], 
-		['opera',   /Opera[\/\s](\d+(?:.\d+)*)/], 
-		['safari',  /Safari[\/\s](\d+(?:.\d+)*)/], 
-		['webkit',  /AppleWebKit[\/\s](\d+(?:.\d+)*)/], 
-		['ie',      /MSIE[\/\s](\d+(?:.\d+)*)/]
+		['firefox', /Firefox[\/\s](\d+(?:\.\d+)*)/], 
+		['chrome',  /Chrome[\/\s](\d+(?:\.\d+)*)/ ], 
+		['opera',   /Opera[\/\s](\d+(?:\.\d+)*)/], 
+		['safari',  /Safari[\/\s](\d+(?:\.\d+)*)/], 
+		['webkit',  /AppleWebKit[\/\s](\d+(?:\.\d+)*)/], 
+		['ie',      /MSIE[\/\s](\d+(?:\.\d+)*)/], 
+		/*
+		 * For IE11 and above, as the old keyword 'MSIE' no longer exists there.
+		 * By Laurent Piroelle <laurent.piroelle@fabzat.com>.
+		 */
+		['ie',      /Trident\/\d+\.\d+;\s.*rv:(\d+(?:\.\d+)*)/]
 	];
 
 	var matches;
@@ -5320,7 +5326,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	if(!isBinary) {
 		/*
 			This should be an ASCII STL file.
-			Contributed by Triffid Hunter.
+			Contributed by Triffid Hunter <triffid.hunter@gmail.com>.
 		 */
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
