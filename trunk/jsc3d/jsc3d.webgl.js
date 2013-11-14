@@ -34,6 +34,14 @@ var JSC3D = JSC3D || {};
  */
 JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.canvas = canvas;
+	// We temporarily disable WebGL rendering for IE11 and above. For their partial implementation of WebGL 
+	// causes runtime problems that result in wrong output.
+	//TODO: this can definitely be solved by only using the stable subset of IE WebGL API.
+	if(JSC3D.PlatformInfo.browser == 'ie' && parseInt(JSC3D.PlatformInfo.version) >= 11) {
+		if(JSC3D.console)
+			JSC3D.console.logWarning('WebGL rendering is disabled on IE for some compatibility issues.');
+		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot use WebGL rendering on IE.';
+	}
 	this.gl = canvas.getContext('experimental-webgl', {/*antialias: false,*/ preserveDrawingBuffer: true/*this is necessary since we need to read back pixels for picking*/}) || canvas.getContext('webgl');
 	if(!this.gl)
 		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot get WebGL context!';
