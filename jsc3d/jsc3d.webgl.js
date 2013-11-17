@@ -34,10 +34,11 @@ var JSC3D = JSC3D || {};
  */
 JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.canvas = canvas;
-	// We temporarily disable WebGL rendering for IE11 and above. For their partial implementation of WebGL 
-	// causes runtime problems that result in wrong output.
+	this.isIE11 = (JSC3D.PlatformInfo.browser == 'ie') && (parseInt(JSC3D.PlatformInfo.version) >= 11);
+	// We will temporarily disable WebGL rendering for IE11 and above. For their partial implementation of 
+	// WebGL causes runtime problems that result in wrong output.
 	//TODO: this can definitely be solved by only using the stable subset of IE WebGL API.
-	if(JSC3D.PlatformInfo.browser == 'ie' && parseInt(JSC3D.PlatformInfo.version) >= 11) {
+	if(false/*this.isIE11*/) {
 		if(JSC3D.console)
 			JSC3D.console.logWarning('WebGL rendering is disabled on IE for some compatibility issues.');
 		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot use WebGL rendering on IE.';
@@ -242,7 +243,7 @@ JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 
 	this.canvasBoard = this.gl.createBuffer();
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.canvasBoard);
-	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, 1, 1, -1, 1]), this.gl.STATIC_DRAW);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, 1, 1, 1, 1, -1, 1, -1, -1]), this.gl.STATIC_DRAW);
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 };
 
@@ -374,7 +375,7 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 		gl.enableVertexAttribArray(0);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.canvasBoard);
 		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
@@ -391,7 +392,7 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 		gl.enableVertexAttribArray(0);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.canvasBoard);
 		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-		gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	else {
@@ -425,7 +426,7 @@ JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 			gl.enableVertexAttribArray(0);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.canvasBoard);
 			gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 			gl.bindTexture(gl.TEXTURE_2D, null);
 		}
@@ -764,7 +765,9 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 		 * Rebuild all primitives from scratch.
 		 */
 
-		mesh.compiled = {};
+		mesh.compiled = {
+			isIndexed: false
+		};
 
 		mesh.compiled.pickingId = new Float32Array([
 			(mesh.internalId & 0xff0000) / 16777216, (mesh.internalId & 0xff00) / 65536, (mesh.internalId & 0xff) / 256
@@ -892,7 +895,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 	}
 	else {
 		/*
-		 * Do not need to rebuild, just refresh normal data.
+		 * Do not need to rebuild, just update normal data.
 		 */
 
 		var isFlat = (mesh.compiled.remderMode == 'flat') || (mesh.compiled.remderMode == 'textureflat');
@@ -948,9 +951,19 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 				normals = new Float32Array(normals);
 			}
 
-			gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.normals);
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, normals);
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			if(this.isIE11) {
+				// IE11 does not support bufferSubData() for buffer content update. So the normal VBO has to be reallocated.
+				gl.deleteBuffer(mesh.compiled.normals);
+				mesh.compiled.normals = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.normals);
+				gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			}
+			else {
+				gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.normals);
+				gl.bufferSubData(gl.ARRAY_BUFFER, 0, normals);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			}
 		}
 	}
 
