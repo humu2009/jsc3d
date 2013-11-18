@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
  <HEAD>
   <TITLE> JSC3D - Test </TITLE>
@@ -8,6 +8,7 @@
  <BODY>
 	<div id="main_frame" style="width:490px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
 		<canvas id="cv" style="border: 1px solid;" width="490" height="368" ></canvas>
+		<div id="statistics" style="position:absolute; width:100px; height:50px; left:10px; top:10px; font:12px Courier New; color:red; background:transparent;"></div>
 		<div id="loading" style="position:absolute; left:90px; top:159px;"></div>
 		<div style="float:left;">
 		<select id="model_list">
@@ -38,145 +39,150 @@
 	<script type="text/javascript" src="../jsc3d.console.js"></script>
 	<script type="text/javascript" src="../external/Sonic/sonic.js"></script>
 	<script type="text/javascript">
-	JSC3D.console.setup('main_frame', '120px');
+		// setup and activate the console singleton
+		JSC3D.console.setup('main_frame', '120px');
 
-	var canvas = document.getElementById('cv');
-	var viewer = new JSC3D.Viewer(canvas);
-	var logoTimerID = 0;
-	viewer.setParameter('SceneUrl', 'models/jsc_logo.obj');
-	viewer.setParameter('InitRotationX', 20);
-	viewer.setParameter('InitRotationY', 20);
-	viewer.setParameter('InitRotationZ', 0);
-	viewer.setParameter('ModelColor', '#CAA618');
-	viewer.setParameter('BackgroundColor1', '#000000');
-	viewer.setParameter('BackgroundColor2', '#6A6AD4');
-	viewer.setParameter('RenderMode', 'smooth');
-	viewer.setParameter('SphereMapUrl', 'models/chrome.jpg');
-	viewer.setParameter('ProgressBar', 'off');
-	viewer.init();
-	viewer.update();
-
-	viewer.enableDefaultInputHandler(false);
-	logoTimerID = setInterval( function() { 
-		viewer.rotate(0, 10, 0);
+		var canvas = document.getElementById('cv');
+		var viewer = new JSC3D.Viewer(canvas);
+		var logoTimerID = 0;
+		viewer.setParameter('SceneUrl', 'models/jsc_logo.obj');
+		viewer.setParameter('InitRotationX', 20);
+		viewer.setParameter('InitRotationY', 20);
+		viewer.setParameter('InitRotationZ', 0);
+		viewer.setParameter('ModelColor', '#CAA618');
+		viewer.setParameter('BackgroundColor1', '#000000');
+		viewer.setParameter('BackgroundColor2', '#6A6AD4');
+		viewer.setParameter('RenderMode', 'smooth');
+		viewer.setParameter('SphereMapUrl', 'models/chrome.jpg');
+		viewer.setParameter('ProgressBar', 'off');
+		viewer.init();
 		viewer.update();
-	}, 100);
-	setTimeout( function() {
-		viewer.enableDefaultInputHandler(true); 
-		if(logoTimerID > 0)
-			loadModel();
-	}, 8000);
 
-	viewer.onloadingstarted = function() {
-		displayUserDefinedProgressBar(true);
-	};
+		/*
+		 * Disable interactions in logo time.
+		 */
+		viewer.enableDefaultInputHandler(false);
+		logoTimerID = setInterval( function() { 
+			viewer.rotate(0, 10, 0);
+			viewer.update();
+		}, 100);
+		setTimeout( function() {
+			viewer.enableDefaultInputHandler(true); 
+			if(logoTimerID > 0)
+				loadModel();
+		}, 8000);
 
-	viewer.onloadingcomplete = viewer.onloadingaborted = viewer.onloadingerror = function() {
-		displayUserDefinedProgressBar(false);
-	};
+		/*
+		 * Show our user-defined progress indicator in loading.
+		 */
+		viewer.onloadingstarted = function() {
+			displayUserDefinedProgressBar(true);
+		};
+		viewer.onloadingcomplete = viewer.onloadingaborted = viewer.onloadingerror = function() {
+			displayUserDefinedProgressBar(false);
 
-	var ctx = canvas.getContext('2d');
-	ctx.font = '12px Courier New';
-	ctx.fillStyle = '#FF0000';
-	viewer.afterupdate = function() {
-		if(logoTimerID > 0)
-			return;
+			if(logoTimerID > 0)
+				return;
 
-		var scene = viewer.getScene();
-		if(scene != null && scene.getChildren().length > 0) {
-			var objects = scene.getChildren();
-			var totalFaceCount = 0;
-			var totalVertexCount = 0
-			for(var i=0; i<objects.length; i++) {
-				totalFaceCount += objects[i].faceCount;
-				totalVertexCount += objects[i].vertexBuffer.length / 3;
-			}
-			ctx.fillText(totalVertexCount.toString() + ' vertices', 10, 20);
-			ctx.fillText(totalFaceCount.toString() + ' faces', 10, 35);
-		}
-	};
-
-	function loadModel() {
-		if(logoTimerID > 0) {
-			clearInterval(logoTimerID);
-			logoTimerID = 0;
-			viewer.enableDefaultInputHandler(true);
-		}
-		var models = document.getElementById('model_list');
-		viewer.replaceSceneFromUrl('models/' + models[models.selectedIndex].innerHTML);
-		viewer.update();
-	}
-
-	function setRenderMode() {
-		if(logoTimerID > 0)
-			return;
-		var modes = document.getElementById('render_mode_list');
-		switch(modes.selectedIndex) {
-		case 0:
-			viewer.setRenderMode('point');
-			JSC3D.console.logInfo('Set to point mode.');
-			break;
-		case 1:
-			viewer.setRenderMode('wireframe');
-			JSC3D.console.logInfo('Set to wireframe mode.');
-			break;
-		case 2:
-			viewer.setRenderMode('flat');
-			JSC3D.console.logInfo('Set to flat mode.');
-			break;
-		case 3:
-			viewer.setRenderMode('smooth');
-			JSC3D.console.logInfo('Set to smooth mode.');
-			break;
-		case 4:
-			viewer.setRenderMode('texturesmooth');
+			// show statistics of current model when loading is completed
 			var scene = viewer.getScene();
-			if(scene) {
+			if(scene && scene.getChildren().length > 0) {
 				var objects = scene.getChildren();
-				for(var i=0; i<objects.length; i++)
-					objects[i].isEnvironmentCast = true;
+				var totalFaceCount = 0;
+				var totalVertexCount = 0
+				for(var i=0; i<objects.length; i++) {
+					totalFaceCount += objects[i].faceCount;
+					totalVertexCount += objects[i].vertexBuffer.length / 3;
+				}
+				var stats = totalVertexCount.toString() + ' vertices' + '<br/>' + totalFaceCount.toString() + ' faces';
+				document.getElementById('statistics').innerHTML = stats;
 			}
-			JSC3D.console.logInfo('Set to environment-mapping mode.');
-			break;
-		default:
-			viewer.setRenderMode('flat');
-			break;
-		}
-		viewer.update();
-	}
+			else {
+				document.getElementById('statistics').innerHTML = '';
+			}
+		};
 
-	/*
-	 *	Create a user-defined progress bar.
-	 */
-	var sonic = new Sonic({
-		width: 300, 
-		height: 50, 
-		stepsPerFrame: 1, 
-		trailLength: 0.6, 
-		pointDistance: .0333, 
-		fps: 10, 
-		padding: 5, 
-		fillColor: '#95952B', 
-		setup: function() {
-			this._.lineWidth = 20;
-		}, 
-		path: [
-			['line', 0, 20, 300, 20],
-			['line', 300, 20, 0, 20]
-		]
-	});
-	document.getElementById('loading').appendChild(sonic.canvas);
+		function loadModel() {
+			if(logoTimerID > 0) {
+				clearInterval(logoTimerID);
+				logoTimerID = 0;
+				viewer.enableDefaultInputHandler(true);
+			}
+			var models = document.getElementById('model_list');
+			viewer.replaceSceneFromUrl('models/' + models[models.selectedIndex].innerHTML);
+			viewer.update();
+		}
 
-	function displayUserDefinedProgressBar(show) {
-		if(show) {
-			sonic.play();
-			document.getElementById('loading').style.display = 'block';
+		function setRenderMode() {
+			if(logoTimerID > 0)
+				return;
+			var modes = document.getElementById('render_mode_list');
+			switch(modes.selectedIndex) {
+			case 0:
+				viewer.setRenderMode('point');
+				JSC3D.console.logInfo('Set to point mode.');
+				break;
+			case 1:
+				viewer.setRenderMode('wireframe');
+				JSC3D.console.logInfo('Set to wireframe mode.');
+				break;
+			case 2:
+				viewer.setRenderMode('flat');
+				JSC3D.console.logInfo('Set to flat mode.');
+				break;
+			case 3:
+				viewer.setRenderMode('smooth');
+				JSC3D.console.logInfo('Set to smooth mode.');
+				break;
+			case 4:
+				viewer.setRenderMode('texturesmooth');
+				var scene = viewer.getScene();
+				if(scene) {
+					var objects = scene.getChildren();
+					for(var i=0; i<objects.length; i++)
+						objects[i].isEnvironmentCast = true;
+				}
+				JSC3D.console.logInfo('Set to environment-mapping mode.');
+				break;
+			default:
+				viewer.setRenderMode('flat');
+				break;
+			}
+			viewer.update();
 		}
-		else {
-			sonic.stop();
-			document.getElementById('loading').style.display = 'none';
+
+		/*
+		 *	Create a user-defined progress bar.
+		 */
+		var sonic = new Sonic({
+			width: 300, 
+			height: 50, 
+			stepsPerFrame: 1, 
+			trailLength: 0.6, 
+			pointDistance: .0333, 
+			fps: 10, 
+			padding: 5, 
+			fillColor: '#95952B', 
+			setup: function() {
+				this._.lineWidth = 20;
+			}, 
+			path: [
+				['line', 0, 20, 300, 20],
+				['line', 300, 20, 0, 20]
+			]
+		});
+		document.getElementById('loading').appendChild(sonic.canvas);
+
+		function displayUserDefinedProgressBar(show) {
+			if(show) {
+				sonic.play();
+				document.getElementById('loading').style.display = 'block';
+			}
+			else {
+				sonic.stop();
+				document.getElementById('loading').style.display = 'none';
+			}
 		}
-	}
-  </script>
+	</script>
  </BODY>
 </HTML>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
  <HEAD>
   <TITLE> JSC3D - Urban Street Scene Demo </TITLE>
@@ -11,6 +11,7 @@
 		<p style="font-family:Arial,sans-serif;">The scene data used here is exported from Enter3D's demo. You may also want to see the original scene from <a href="http://www.enter3d.de/vrml/street_sadri/start.wrl">this link</a>. <b>Should not</b> be used for any commercial purpose.<p>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
+	<script type="text/javascript" src="../jsc3d.webgl.js"></script>
 	<script type="text/javascript" src="../jsc3d.touch.js"></script>
 	<script type="text/javascript">
 	var canvas = document.getElementById('cv');
@@ -23,6 +24,7 @@
 	viewer.setParameter('BackgroundColor1', '#000000');
 	viewer.setParameter('BackgroundColor2', '#000000');
 	viewer.setParameter('RenderMode', 'texturesmooth');
+	viewer.setParameter('Renderer', 'webgl');
 	viewer.init();
 	viewer.update();
 

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
  <HEAD>
   <TITLE> JSC3D - House Demo </TITLE>
@@ -8,9 +8,13 @@
  <BODY>
 	<div style="width:600px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
 		<canvas id="cv" style="border: 1px solid;" width="600" height="450" ></canvas>
-		<p style="font-family:Arial,sans-serif;">The model is from the internet, thus <b><big>should not</big></b> be used for any commercial purpose.<p>
+		<div id="tip-box" style="position:absolute; border:1px solid black; border-radius:2px; background:yellow; box-shadow:2px 2px #3e3e3e; visibility:hidden;">
+			<p id="tip-text" style="font:12px Courier New; color:black; margin:5px;"></p>
+		</div>
+		<p style="font-family:Arial,sans-serif;">The model is from the internet, thus <b><big>should not</big></b> be used for any commercial purpose.</p>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
+	<script type="text/javascript" src="../jsc3d.webgl.js"></script>
 	<script type="text/javascript" src="../jsc3d.touch.js"></script>
 	<script type="text/javascript">
 	var canvas = document.getElementById('cv');
@@ -23,6 +27,7 @@
 	viewer.setParameter('BackgroundColor1', '#FFFFFF');
 	viewer.setParameter('BackgroundColor2', '#383840');
 	viewer.setParameter('RenderMode', 'texturesmooth');
+	viewer.setParameter('Renderer', 'webgl');
 	viewer.init();
 	viewer.update();
 
@@ -356,13 +361,6 @@
 	var pointedObject = null;
 
 	var isTipOn = false;
-	var tipText = '';
-	var tipTextMargin = 5;
-	var tipTextHeight = 12;
-	var tipTextFont = '12px Courier New'
-	var tipTextColor = '#000000';
-	var tipBackgroundColor = '#FFFF00';
-	var tipFrameColor = '#000000';
 	var tipOffsetX = 0;
 	var tipOffsetY = 16;
 
@@ -372,7 +370,7 @@
 		// hide the tip when the pointer is moving
 		if(isTipOn && (x != pointerX || y != pointerY)) {
 			isTipOn = false;
-			drawTip();
+			toggleTip();
 		}
 
 		pointerX = x;
@@ -389,46 +387,21 @@
 			// the pointer stays at an object. show tip on it.
 			isTipOn = true;
 			tipText = pointedObject.name != '' ? pointedObject.name : '(anonymous)';
-			drawTip();
+			toggleTip();
 		}
 	}
 
-	function drawTip() {
+	function toggleTip() {
+		var tipBox  = document.getElementById('tip-box');
+		var tipText = document.getElementById('tip-text');
 		if(isTipOn) {
-			ctx.font = tipTextFont;
-
-			var textWidth = ctx.measureText(tipText).width;
-			var rectLeft = pointerX + tipOffsetX;
-			var rectRight = rectLeft + textWidth + tipTextMargin * 2;
-			var rectTop = pointerY + tipOffsetY;
-			var rectBottom = rectTop + tipTextHeight + tipTextMargin * 2;
-
-			// generate a rounded rectangle as the tip box
-			ctx.beginPath();
-			ctx.moveTo(rectLeft, rectTop + 2);
-			ctx.quadraticCurveTo(rectLeft, rectTop, rectLeft + 2, rectTop);
-			ctx.lineTo(rectRight - 2, rectTop);
-			ctx.quadraticCurveTo(rectRight, rectTop, rectRight, rectTop + 2);
-			ctx.lineTo(rectRight, rectBottom - 2);
-			ctx.quadraticCurveTo(rectRight, rectBottom, rectRight - 2, rectBottom);
-			ctx.lineTo(rectLeft + 2, rectBottom);
-			ctx.quadraticCurveTo(rectLeft, rectBottom, rectLeft, rectBottom - 2);
-			ctx.closePath();
-
-			// draw frame of tip box
-			ctx.lineWidth = 1;
-			ctx.strokeStyle = tipFrameColor;
-			ctx.stroke();
-			// draw tip box
-			ctx.fillStyle = tipBackgroundColor;
-			ctx.fill();
-			// draw tip text
-			ctx.fillStyle = tipTextColor;
-			ctx.fillText(tipText, rectLeft + tipTextMargin, rectTop + tipTextMargin + tipTextHeight - 2);
+			tipText.innerHTML = pointedObject.name;
+			tipBox.style.left = pointerX + 'px';
+			tipBox.style.top  = (pointerY + 16) + 'px';
+			tipBox.style.visibility = 'visible';
 		}
 		else {
-			// call viewer to repaint to erase the tip stuff
-			viewer.update(true/*repaint only*/);
+			tipBox.style.visibility = 'hidden';
 		}
 	}
 
