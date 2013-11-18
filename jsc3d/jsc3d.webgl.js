@@ -34,15 +34,9 @@ var JSC3D = JSC3D || {};
  */
 JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.canvas = canvas;
+	// IE11 only has a partial implementation of WebGL API, thus some special treatments are required 
+	// to avoid usage of unsupported methods and properties.
 	this.isIE11 = (JSC3D.PlatformInfo.browser == 'ie') && (parseInt(JSC3D.PlatformInfo.version) >= 11);
-	// We will temporarily disable WebGL rendering for IE11 and above. For their partial implementation of 
-	// WebGL causes runtime problems that result in wrong output.
-	//TODO: this can definitely be solved by only using the stable subset of IE WebGL API.
-	if(false/*this.isIE11*/) {
-		if(JSC3D.console)
-			JSC3D.console.logWarning('WebGL rendering is disabled on IE for some compatibility issues.');
-		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot use WebGL rendering on IE.';
-	}
 	this.gl = canvas.getContext('experimental-webgl', {/*antialias: false,*/ preserveDrawingBuffer: true/*this is necessary since we need to read back pixels for picking*/}) || canvas.getContext('webgl');
 	if(!this.gl)
 		throw 'JSC3D.WebGLRenderBackend constructor failed: Cannot get WebGL context!';
@@ -891,7 +885,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 		mesh.compiled.faceCount = numOfFaces;
-		mesh.compiled.coordCount = coords.length / 3;
+		mesh.compiled.coordCount = 3 * numOfFaces;
 	}
 	else {
 		/*
@@ -952,7 +946,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 			}
 
 			if(this.isIE11) {
-				// IE11 does not support bufferSubData() for buffer content update. So the normal VBO has to be reallocated.
+				// IE11 does not support bufferSubData() for buffer content update. So the normal VBO has to be reallocated for the new data.
 				gl.deleteBuffer(mesh.compiled.normals);
 				mesh.compiled.normals = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, mesh.compiled.normals);
@@ -975,9 +969,9 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 JSC3D.WebGLRenderBackend.prototype.compileMaterial = function(material) {
 	var gl = this.gl;
 
-	material.compiled = {};
-
-	material.compiled.diffColor = new Float32Array([(material.diffuseColor & 0xff0000) / 16777216, (material.diffuseColor & 0xff00) / 65536, (material.diffuseColor & 0xff) / 256]);
+	material.compiled = {
+		diffColor: new Float32Array([(material.diffuseColor & 0xff0000) / 16777216, (material.diffuseColor & 0xff00) / 65536, (material.diffuseColor & 0xff) / 256])
+	};
 
 	var rgba = new Uint8Array((new Uint32Array(material.getPalette())).buffer);
 	// the sequence should be converted from BGRA to RGBA by swapping each 1st and 3rd components
@@ -1008,7 +1002,9 @@ JSC3D.WebGLRenderBackend.prototype.compileTexture = function(texture, genMipmap)
 
 	var gl = this.gl;
 
-	texture.compiled = {};
+	texture.compiled = {
+		hasMipmap: genMipmap
+	};
 
 	var rgba = new Uint8Array((new Uint32Array(texture.data)).buffer);
 	// convert the sequence from BGRA to RGBA by swapping each 1st and 3rd components

@@ -477,6 +477,14 @@ JSC3D.Viewer.prototype.setMouseUsage = function(usage) {
 };
 
 /**
+	Check if WebGL is enabled for rendering.
+	@returns {Boolean} true if WebGL is enabled; false if WebGL is not enabled or unavailable.
+ */
+JSC3D.Viewer.prototype.isWebGLEnabled = function() {
+	return this.webglBackend != null;
+};
+
+/**
 	Load a new scene from the given url to replace the current scene.
 	@param {String} sceneUrl url string that describes where to load the new scene.
  */
