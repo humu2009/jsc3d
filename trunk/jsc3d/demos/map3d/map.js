@@ -1,7 +1,7 @@
 /**
 	This file is exported by TileBuilder 0.2.0.
 	Do NOT edit it manually.
-	11:23 2011/9/7
+	12:20 2013/11/18
 */
 
 /**
@@ -64,6 +64,8 @@ viewer.setParameter('BackgroundColor1', '#FFFFFF');
 viewer.setParameter('BackgroundColor2', '#FFFFFF');
 viewer.setParameter('RenderMode', 'texture');
 viewer.setParameter('MipMapping', 'on');
+viewer.setParameter('Renderer', 'webgl');
+
 
 viewer.init();
 viewer.update();
