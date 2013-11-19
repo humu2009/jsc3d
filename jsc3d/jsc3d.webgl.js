@@ -409,7 +409,7 @@ JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 	case 'low':
 	case 'high':
 		if(this.backFB) {
-			// resample the drawings onto canvas
+			// resample the drawings in the back frame-buffer and apply it to canvas
 			gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 			gl.frontFace(gl.CCW);
 			gl.disable(gl.DEPTH_TEST);
@@ -885,7 +885,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 		mesh.compiled.faceCount = numOfFaces;
-		mesh.compiled.coordCount = 3 * numOfFaces;
+		mesh.compiled.coordCount = coords.length / 3;
 	}
 	else {
 		/*
