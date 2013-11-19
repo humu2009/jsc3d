@@ -61,3 +61,7 @@ Set `SphereMapUrl` to URL of an image that will be used as the [http://en.wikipe
 == ProgressBar ==
 
 Set `ProgressBar` to `'on'`/`'off'` to enable/disable the default progress bar. The viewer provides a default progress bar which will be displayed when a model file is still in loading. By setting this parameter to `'off'`, the default progress bar is turned off so that a user-defined progress indicator can be used. The default value is `'on'`.
+
+== Renderer ==
+
+Set `Renderer` to `'webgl'` to enable WebGL to take charge of all rendering. If this is set, the `viewer` instance will be internally initialized with the WebGL render back-end to replace the default software rendering modules. This brings about better graphic output and more efficient rendering especially for large models. For browsers without WebGL support, software rendering will be automatically enabled as the fallback. It should be noted that in current implementation the WebGL render back-end is provided as an optional part in a separate source file _jsc3d.webgl.js_, which must also be included to enable WebGL rendering.
