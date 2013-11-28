@@ -183,7 +183,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
 	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
 	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to '';<br />
-	'<b>ProgressBar</b>':			turn on/off the progress bar when loading, default to 'on'. By turning off the default progress bar, a user defined loading indicator can be used instead.<br />
+	'<b>ProgressBar</b>':			turn on/off the progress bar when loading, default to 'on'. By turning off the default progress bar, a user defined loading indicator can be used instead;<br />
+	'<b>Renderer</b>':				set to 'webgl' to enable WebGL for rendering, default to ''.
 	@param {String} name name of the parameter to set.
 	@param value new value for the parameter.
  */
