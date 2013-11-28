@@ -30,7 +30,10 @@ var JSC3D = JSC3D || {};
 
 
 /**
-	@class WebGLRenderBackend
+ * @class WebGLRenderBackend
+ *
+ * This class implements an optional WebGL render back-end for {JSC3D.Viewer}. If enabled, it takes 
+ * place of {JSC3D.Viewer}'s default software rendering module and provides high performance rendering.
  */
 JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.canvas = canvas;
