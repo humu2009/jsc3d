@@ -1,4 +1,4 @@
-#summary This document discribes navigation controls of the Viewer.
+#summary This document discribes navigation controls of JSC3D viewer.
 
 = Controls =
 
