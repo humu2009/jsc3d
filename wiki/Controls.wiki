@@ -17,3 +17,5 @@ _JSC3D_ Viewer provides different navigation controls for PC and touch based pla
  * *rotate*: drag
  * *zoom*: pinch (with two fingers)
  * *pan*: hold (for at least 500ms) and drag
+
+Note: `jsc3d.touch.js` should be included to enable touch based control.
