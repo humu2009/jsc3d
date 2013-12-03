@@ -27,8 +27,8 @@ _*IvarFace Technology*_ fused the cutting-edge 3D scanning and 3D printing techn
 
 [http://www.ivarface.com/ [Website]]
 
-== Review of Submitted Models before 3D Printing ==
+== Review of User Submitted Models before 3D Printing ==
 
-_*3D Printing @ Columbia*_ is a research project that allows people to upload interesting models (in STL format) to be 3D printed freely. When a model is submitted, it will be displayed using _JSC3D_ in a review page to take snapshots. The model will then be added into the gallery where visitors can view all submitted stuff and vote for their favorite masterpieces. The most up-voted models will be put to printing with a _MakerBot Replicator_ 3D printer.
+_*3D Printing @ Columbia*_ is a research project that allows people to upload interesting models (in STL format) to be 3D printed freely. When a model is submitted, it will be displayed using _JSC3D_ in a review page to take snapshots. The model will then be added into the gallery where visitors can view all submitted stuff and vote for their favorite masterpieces. The most up-voted models will be put to printing with a _MakerBot Replicator 2_ 3D printer.
 
 [http://3dprint.cul.columbia.edu/?page_id=1275 [Website]]
