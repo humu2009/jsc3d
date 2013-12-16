@@ -28,6 +28,12 @@
  */
 var JSC3D = JSC3D || {};
 
+/**
+ * The following part of the file is a modified copy of hammer.js, which is 
+ * released by Jorik Tangelder <j.tangelder@gmail.com> under the terms of the
+ * MIT license.
+ */
+
 /*
  * ! Hammer.JS - v1.0.5 - 2013-04-07
  * http://eightmedia.github.com/hammer.js
