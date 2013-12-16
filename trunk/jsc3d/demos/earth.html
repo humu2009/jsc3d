@@ -11,6 +11,7 @@
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
 	<script type="text/javascript" src="../jsc3d.touch.js"></script>
+	<script type="text/javascript" src="../jsc3d.webgl.js"></script>
 	<script type="text/javascript">
 	var canvas = document.getElementById('cv');
 	var viewer = new JSC3D.Viewer(canvas);
@@ -21,6 +22,8 @@
 	viewer.setParameter('ModelColor', '#CAA618');
 	viewer.setParameter('BackgroundColor1', '#000000');
 	viewer.setParameter('BackgroundColor2', '#000000');
+	viewer.setParameter('BackgroundImageUrl', 'models/starsbg.jpg');
+	viewer.setParameter('Renderer', 'webgl');
 	viewer.setParameter('RenderMode', 'texturesmooth');
 	viewer.init();
 	viewer.update();

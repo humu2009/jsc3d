@@ -209,7 +209,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.creaseAngle = parseFloat(this.params['CreaseAngle']);
 	this.isMipMappingOn = this.params['MipMapping'].toLowerCase() == 'on';
 	this.sphereMapUrl = this.params['SphereMapUrl'];
-	this.showProgressBar = this.params['ProgressBar'] == 'on';
+	this.showProgressBar = this.params['ProgressBar'].toLowerCase() == 'on';
 	this.useWebGL = this.params['Renderer'].toLowerCase() == 'webgl';
 	this.releaseLocalBuffers = this.params['LocalBuffers'].toLowerCase() == 'release';
 

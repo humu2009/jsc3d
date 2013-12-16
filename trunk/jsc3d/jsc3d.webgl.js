@@ -30,6 +30,14 @@ var JSC3D = JSC3D || {};
 
 
 /**
+ * Lacked Features / Issue List:
+ * 1. Wireframe rendering is not implemented yet.
+ * 2. Does not support data updating.
+ * 3. Picking does not work correctly on old Firefox (tested on FF6, 8). This may be related with some defect in FF's frame-buffer binding.
+ * 4. Each 1st frame is not presented properly when switching from 'standard' to other definitions on old Firefox. There will be a blank frame then.
+ */
+
+/**
  * @class WebGLRenderBackend
  *
  * This class implements an optional WebGL render back-end for {JSC3D.Viewer}. If enabled, it takes 
@@ -526,7 +534,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 
 		var isSphereMapped = mesh.isEnvironmentCast && (sphereMap != null);
 
-		// determine current render mode and program
+		// resolve current render mode and chose a right program
 		var rmode = mesh.renderMode || renderMode;
 		var program;
 		switch(rmode) {
