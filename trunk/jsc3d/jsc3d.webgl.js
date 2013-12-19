@@ -252,12 +252,18 @@ JSC3D.WebGLRenderBackend = function(canvas, releaseLocalBuffers) {
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 };
 
+/**
+ * Set colors that will be applied to fill the background.
+ */
 JSC3D.WebGLRenderBackend.prototype.setBackgroundColors = function(color1, color2) {
 	this.bkgColors = [new Float32Array([(color1 & 0xff0000) / 16777216, (color1 & 0xff00) / 65536, (color1 & 0xff) / 256])];
 	if(color1 != color2)
 		this.bkgColors.push(new Float32Array([(color2 & 0xff0000) / 16777216, (color2 & 0xff00) / 65536, (color2 & 0xff) / 256]));
 };
 
+/**
+ * Set an image to be used as background.
+ */
 JSC3D.WebGLRenderBackend.prototype.setBackgroundImage = function(img) {
 	var gl = this.gl;
 
@@ -273,6 +279,9 @@ JSC3D.WebGLRenderBackend.prototype.setBackgroundImage = function(img) {
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 };
 
+/**
+ * Begin to render a new frame.
+ */
 JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 	var gl = this.gl;
 
@@ -410,6 +419,9 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 	}
 };
 
+/**
+ * End rendering of a frame.
+ */
 JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 	var gl = this.gl;
 
@@ -444,6 +456,9 @@ JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 	gl.flush();
 };
 
+/**
+ * Do render a new frame.
+ */
 JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix, normalMatrix, renderMode, defaultMaterial, sphereMap) {
 	var gl = this.gl;
 
@@ -471,6 +486,9 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 	}
 };
 
+/**
+ * Pick at a given position.
+ */
 JSC3D.WebGLRenderBackend.prototype.pick = function(x, y) {
 	if(!this.pickingFB)
 		return 0;
@@ -484,6 +502,10 @@ JSC3D.WebGLRenderBackend.prototype.pick = function(x, y) {
 	return this.pickingResult[0] << 16 | this.pickingResult[1] << 8 | this.pickingResult[2];
 };
 
+/**
+ * Render a given list of meshes, generating colored stuff of this frame.
+ * @privte
+ */
 JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transformMat4, normalMat3, renderMode, defaultMaterial, sphereMap) {
 	if(sphereMap && sphereMap.hasData() && !sphereMap.compiled)
 		this.compileTexture(sphereMap);
@@ -689,6 +711,10 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 	}
 };
 
+/**
+ * Fill the picking buffer of this frame.
+ * @privte
+ */
 JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, transformMat4, defaultMaterial) {
 	var gl = this.gl;
 
@@ -743,6 +769,10 @@ JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, tran
 	}
 };
 
+/**
+ * Compile a mesh according to the given render mode, generating the WebGL dependent stuff.
+ * @privte
+ */
 JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 	if(mesh.isTrivial())
 		return false;
@@ -977,6 +1007,10 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 	return true;
 };
 
+/**
+ * Compile a material, generating the WebGL dependent stuff.
+ * @privte
+ */
 JSC3D.WebGLRenderBackend.prototype.compileMaterial = function(material) {
 	var gl = this.gl;
 
@@ -1005,6 +1039,10 @@ JSC3D.WebGLRenderBackend.prototype.compileMaterial = function(material) {
 	return true;
 };
 
+/**
+ * Compile a texture into WebGL texture object.
+ * @privte
+ */
 JSC3D.WebGLRenderBackend.prototype.compileTexture = function(texture, genMipmap) {
 	if(!texture.hasData())
 		return false;
