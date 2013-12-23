@@ -3567,7 +3567,7 @@ JSC3D.Mesh.prototype.init = function() {
 };
 
 /**
-	See if the mesh is a trivial mesh. A trivial mesh should be omited in any calculations and rendering.
+	See if the mesh is a trivial mesh. A trivial mesh should be omited in any calculation or rendering.
 	@returns {Boolean} true if it is trivial; false if not.
  */
 JSC3D.Mesh.prototype.isTrivial = function() {
