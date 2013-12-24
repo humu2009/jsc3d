@@ -128,6 +128,20 @@ JSC3D.OpenCTMLoader = function(onload, onerror, onprogress, onresource) {
 
 	this.urlPath = '';
 	this.request = null;
+
+	/*
+	 * Throws on incompatible browsers.
+	 */
+	if(JSC3D.PlatformInfo.browser == 'ie' && parseInt(JSC3D.PlatformInfo.version) < 11) {
+		if(JSC3D.console)
+			JSC3D.console.logError('CTM file loader is not supported on IE versions < 11.');
+		throw 'JSC3D.OpenCTMLoader constructor failed: This loader is not supported on IE versions < 11!';
+	}
+	if(!JSC3D.PlatformInfo.supportTypedArrays) {
+		if(JSC3D.console)
+			JSC3D.console.logError('CTM file loader is not supported on this browser.');
+		throw 'JSC3D.OpenCTMLoader constructor failed: This loader is not supported on this browser!';
+	}
 };
 
 /**
@@ -135,22 +149,20 @@ JSC3D.OpenCTMLoader = function(onload, onerror, onprogress, onresource) {
  * @param {String} urlName a string specifying where to fetch the CTM file.
  */
 JSC3D.OpenCTMLoader.prototype.loadFromUrl = function(urlName) {
+	// extract parent path name
 	var lastSlashAt = urlName.lastIndexOf('/');
-	if(lastSlashAt == -1)
+	if(lastSlashAt < 0)
 		lastSlashAt = urlName.lastIndexOf('\\');
-	if(lastSlashAt != -1)
-		this.urlPath = urlName.substring(0, lastSlashAt+1);
-	else
+	if(lastSlashAt < 0)
 		this.urlPath = '';
+	else
+		this.urlPath = urlName.substring(0, lastSlashAt+1);
 
-	var self = this;
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
-	if(JSC3D.PlatformInfo.browser == 'ie')
-		xhr.setRequestHeader("Accept-Charset", "x-user-defined");
-	else
-		xhr.overrideMimeType('text/plain; charset=x-user-defined');
+	xhr.overrideMimeType('text/plain; charset=x-user-defined');
 
+	var self = this;
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
 			if(this.status == 200 || this.status == 0) {
@@ -217,7 +229,7 @@ JSC3D.OpenCTMLoader.prototype.parseCTM = function(scene, data) {
 	if(ctm.body.uvMaps && ctm.body.uvMaps.length > 0) {
 		// read texture coords
 		mesh.texCoordBuffer = ctm.body.uvMaps[0].uv;
-		// flip v components of the texture coords
+		// flip v components of the texture coords to fit the convention of JSC3D
 		for(var i=1, l=mesh.texCoordBuffer.length; i<l; i+=2) {
 			mesh.texCoordBuffer[i] = 1 - mesh.texCoordBuffer[i];
 		}
