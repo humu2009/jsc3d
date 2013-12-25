@@ -145,7 +145,7 @@ function setup() {
  * create new hammer instance
  * all methods should return the instance itself, so it is chainable.
  * @param   {HTMLElement}       element
- * @param   {Object}            [options={}]
+ * @param   {Object}            options={}
  * @returns {Hammer.Instance}
  * @constructor
  */
@@ -815,7 +815,6 @@ Hammer.detection = {
 
     /**
      * Hammer.gesture detection
-     * @param   {Object}    eventData
      * @param   {Object}    eventData
      */
     detect: function detect(eventData) {

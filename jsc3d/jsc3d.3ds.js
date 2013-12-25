@@ -46,10 +46,10 @@ JSC3D.Autodesk3DSLoader = function(onload, onerror, onprogress, onresource) {
 	this._textures={};
 
 	this._cur_obj_end = 0;
-	this._cur_obj;
+	this._cur_obj = null;
 
 	this._cur_mat_end = 0;
-	this._cur_mat;
+	this._cur_mat = null;
 
 	this.totalFaces = 0;
 };
