@@ -171,6 +171,7 @@ JSC3D.OpenCTMLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading CTM file ...', 1);
+					// parse the loaded stuff into a scene
 					var scene = new JSC3D.Scene;
 					self.parseCTM(scene, this.responseText);
 					self.onload(scene);
@@ -227,13 +228,6 @@ JSC3D.OpenCTMLoader.prototype.parseCTM = function(scene, data) {
 	//	mesh.vertexNormalBuffer = ctm.body.normals;
 
 	if(ctm.body.uvMaps && ctm.body.uvMaps.length > 0) {
-		// read texture coords
-		mesh.texCoordBuffer = ctm.body.uvMaps[0].uv;
-		// flip v components of the texture coords to fit the convention of JSC3D
-		for(var i=1, l=mesh.texCoordBuffer.length; i<l; i+=2) {
-			mesh.texCoordBuffer[i] = 1 - mesh.texCoordBuffer[i];
-		}
-
 		// create texture and start downloading
 		var self = this;
 		var texture = new JSC3D.Texture(ctm.body.uvMaps[0].name, function() {
@@ -242,6 +236,13 @@ JSC3D.OpenCTMLoader.prototype.parseCTM = function(scene, data) {
 				self.onresource(this);
 		});
 		texture.createFromUrl(this.urlPath + ctm.body.uvMaps[0].filename);
+
+		// read texture coords
+		mesh.texCoordBuffer = ctm.body.uvMaps[0].uv;
+		// flip v components of the texture coords to fit the convention of JSC3D
+		for(var i=1, l=mesh.texCoordBuffer.length; i<l; i+=2) {
+			mesh.texCoordBuffer[i] = 1 - mesh.texCoordBuffer[i];
+		}
 	}
 
 	// add mesh to scene
