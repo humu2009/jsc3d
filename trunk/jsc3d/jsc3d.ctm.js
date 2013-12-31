@@ -30,7 +30,8 @@
  * OpenCTM is created by Marcus Geelnard. 
  * For more details about OpenCTM, see http://en.wikipedia.org/wiki/OpenCTM.
  *
- * This software uses js-openctm, a JavaScript library for reading OpenCTM files.
+ * This software contains a modified copy of js-openctm, a JavaScript library for 
+ * reading and parsing OpenCTM files.
  * js-openctm is authored by Juan Mellado <jcmellado@gmail.com>.
  * For more details about js-openctm, see http://code.google.com/p/js-openctm/.
  */
@@ -116,150 +117,7 @@ var JSC3D = JSC3D || {};
 
 
 /**
- * @class OpenCTMLoader
- *
- * This class implements a loader for OpenCTM (.ctm) coded files.
- */
-JSC3D.OpenCTMLoader = function(onload, onerror, onprogress, onresource) {
-	this.onload = (onload && (typeof onload) == 'function') ? onload : null;
-	this.onerror = (onerror && (typeof onerror) == 'function') ? onerror : null;
-	this.onprogress = (onprogress && (typeof onprogress) == 'function') ? onprogress : null;
-	this.onresource = (onresource && (typeof onresource) == 'function') ? onresource : null;
-
-	this.urlPath = '';
-	this.request = null;
-
-	/*
-	 * Throws on incompatible browsers.
-	 */
-	if(JSC3D.PlatformInfo.browser == 'ie' && parseInt(JSC3D.PlatformInfo.version) < 11) {
-		if(JSC3D.console)
-			JSC3D.console.logError('CTM file loader is not supported on IE versions < 11.');
-		throw 'JSC3D.OpenCTMLoader constructor failed: This loader is not supported on IE versions < 11!';
-	}
-	if(!JSC3D.PlatformInfo.supportTypedArrays) {
-		if(JSC3D.console)
-			JSC3D.console.logError('CTM file loader is not supported on this browser.');
-		throw 'JSC3D.OpenCTMLoader constructor failed: This loader is not supported on this browser!';
-	}
-};
-
-/**
- * Load scene from a given CTM file.
- * @param {String} urlName a string specifying where to fetch the CTM file.
- */
-JSC3D.OpenCTMLoader.prototype.loadFromUrl = function(urlName) {
-	// extract parent path name
-	var lastSlashAt = urlName.lastIndexOf('/');
-	if(lastSlashAt < 0)
-		lastSlashAt = urlName.lastIndexOf('\\');
-	if(lastSlashAt < 0)
-		this.urlPath = '';
-	else
-		this.urlPath = urlName.substring(0, lastSlashAt+1);
-
-	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
-	xhr.overrideMimeType('text/plain; charset=x-user-defined');
-
-	var self = this;
-	xhr.onreadystatechange = function() {
-		if(this.readyState == 4) {
-			if(this.status == 200 || this.status == 0) {
-				if(JSC3D.console)
-					JSC3D.console.logInfo('Finished loading CTM file "' + urlName + '".');
-				if(self.onload) {
-					if(self.onprogress)
-						self.onprogress('Loading CTM file ...', 1);
-					// parse the loaded stuff into a scene
-					var scene = new JSC3D.Scene;
-					self.parseCTM(scene, this.responseText);
-					self.onload(scene);
-				}
-			}
-			else {
-				if(JSC3D.console)
-					JSC3D.console.logError('Failed to load CTM file "' + urlName + '".');
-				if(self.onerror)
-					self.onerror('Failed to load CTM file "' + urlName + '".');
-			}
-			self.request = null;
-		}
-	};
-
-	this.request = xhr;
-	xhr.send();
-};
-
-/**
- * Cancel current loading if it is not finished yet. 
- */
-JSC3D.OpenCTMLoader.prototype.abort = function() {
-	if(!this.request)
-		return;
-
-	this.request.abort();
-	this.request = null;
-};
-
-/**
- * Parse the content of the CTM file (in binary string form) into a scene.
- * @private
- */
-JSC3D.OpenCTMLoader.prototype.parseCTM = function(scene, data) {
-	var ctm = new JSC3D.CTM.File(new JSC3D.CTM.Stream(data));
-
-	var mesh  = new JSC3D.Mesh;
-
-	// read triangle indices
-	mesh.indexBuffer = new Int32Array(4 * ctm.body.indices.length / 3);
-	for(var i=0, j=0, indices=ctm.body.indices, l=indices.length; i<l; i+=3, j+=4) {
-		mesh.indexBuffer[j    ] = indices[i    ];
-		mesh.indexBuffer[j + 1] = indices[i + 1];
-		mesh.indexBuffer[j + 2] = indices[i + 2];
-		mesh.indexBuffer[j + 3] = -1;
-	}
-
-	// read vertex positions
-	mesh.vertexBuffer = ctm.body.vertices;
-
-	// Do not import the loaded normals, for the mesh may be given a crease-angle.
-	//if(ctm.body.normals)
-	//	mesh.vertexNormalBuffer = ctm.body.normals;
-
-	if(ctm.body.uvMaps && ctm.body.uvMaps.length > 0) {
-		// create texture and start downloading
-		var self = this;
-		var texture = new JSC3D.Texture(ctm.body.uvMaps[0].name, function() {
-			mesh.setTexture(this);
-			if(self.onresource)
-				self.onresource(this);
-		});
-		texture.createFromUrl(this.urlPath + ctm.body.uvMaps[0].filename);
-
-		// read texture coords
-		mesh.texCoordBuffer = ctm.body.uvMaps[0].uv;
-		// flip v components of the texture coords to fit the convention of JSC3D
-		for(var i=1, l=mesh.texCoordBuffer.length; i<l; i+=2) {
-			mesh.texCoordBuffer[i] = 1 - mesh.texCoordBuffer[i];
-		}
-	}
-
-	// add mesh to scene
-	if(!mesh.isTrivial())
-		scene.addChild(mesh);
-};
-
-JSC3D.OpenCTMLoader.prototype.onload = null;
-JSC3D.OpenCTMLoader.prototype.onerror = null;
-JSC3D.OpenCTMLoader.prototype.onprogress = null;
-JSC3D.OpenCTMLoader.prototype.onresource = null;
-
-JSC3D.LoaderSelector.registerLoader('ctm', JSC3D.OpenCTMLoader);
-
-
-/**
- * ctm.js & lzma.js
+ * Both ctm.js & lzma.js have been merged into this file.
  */
 (function(namespace) {
 
@@ -1411,7 +1269,7 @@ LZMA.decompress = function(properties, inStream, outStream, outSize){
 
 
 /**
- * Export symbols.
+ * Export the CTM namespace.
  */
 namespace.CTM = CTM;
 
