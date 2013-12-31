@@ -213,11 +213,14 @@ JSC3D.Viewer.prototype.init = function() {
 	this.useWebGL = this.params['Renderer'].toLowerCase() == 'webgl';
 	this.releaseLocalBuffers = this.params['LocalBuffers'].toLowerCase() == 'release';
 
+	// Create WebGL render back-end if it is specified to.
 	if(this.useWebGL && JSC3D.PlatformInfo.supportWebGL && JSC3D.WebGLRenderBackend) {
 		try {
 			this.webglBackend = new JSC3D.WebGLRenderBackend(this.canvas, this.releaseLocalBuffers);
 		} catch(e){}
 	}
+
+	// Fall back to software rendering when WebGL is not specified or unavailable.
 	if(!this.webglBackend) {
 		if(this.useWebGL) {
 			if(JSC3D.console)
@@ -233,10 +236,10 @@ JSC3D.Viewer.prototype.init = function() {
 		}
 	}
 
-
 	if(this.canvas.width <= 2 || this.canvas.height <= 2)
 		this.definition = 'standard';
 	
+	// calculate dimensions of frame buffers
 	switch(this.definition) {
 	case 'low':
 		this.frameWidth = ~~((this.canvas.width + 1) / 2);
@@ -253,6 +256,7 @@ JSC3D.Viewer.prototype.init = function() {
 		break;
 	}
 
+	// initialize states
 	this.zoomFactor = 1;
 	this.panning = [0, 0];
 	this.rotMatrix.identity();
@@ -598,18 +602,22 @@ JSC3D.Viewer.prototype.doUpdate = function() {
 			this.beforeupdate();
 
 		if(this.scene) {
+			/*
+			 * Render a new frame or just redraw last frame.
+			 */
 			if(this.needUpdate) {
 				this.beginScene();
 				this.render();
 				this.endScene();
 			}
-
 			this.paint();
 		}
 		else {
+			// Only need to redraw the background since there is nothing to render.
 			this.drawBackground();
 		}
 
+		// clear dirty flags
 		this.needRepaint = false;
 		this.needUpdate = false;
 
