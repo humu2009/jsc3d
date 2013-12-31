@@ -960,7 +960,7 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	var loader = JSC3D.LoaderSelector.getLoader(fileExtName);
 	if(!loader) {
 		if(JSC3D.console)
-			JSC3D.console.logError('Unknown file format: "' + fileExtName + '".');
+			JSC3D.console.logError('Unsupported file format: "' + fileExtName + '".');
 		return false;
 	}
 
@@ -5328,7 +5328,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	var isBinary = false;
 	var reader = new JSC3D.BinaryStream(data);
 
-	// detect whether this is an ASCII STL stream or a binary STL stream by checking a snippet of contents.
+	// Detect whether this is an ASCII STL stream or a binary STL stream by checking a snippet of contents.
 	reader.skip(HEADER_BYTES + FACE_COUNT_BYTES);
 	for(var i=0; i<256 && !reader.eof(); i++) {
 		if(reader.readUInt8() > 0x7f) {
@@ -5410,7 +5410,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 		var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
 							(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
 		
-		// file is not complete
+		// is file complete?
 		if(reader.size() < expectedLen) {
 			if(JSC3D.console)
 				JSC3D.console.logError('Failed to parse contents of the file. It seems not complete.');
