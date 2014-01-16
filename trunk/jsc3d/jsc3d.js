@@ -3375,13 +3375,25 @@ JSC3D.Viewer.prototype.isDefaultInputHandlerEnabled = false;
 /**
 	@class PickInfo
 
-	PickInfo is used as the return value of JSC3D.Viewer's pick() method, holding picking values at a given position
+	PickInfo is used as the return value of {JSC3D.Viewer}'s pick() method, holding picking result on a given position
 	on the canvas.
  */
 JSC3D.PickInfo = function() {
+	/**
+	 * {Number} X coordinate on canvas.
+	 */
 	this.canvasX = 0;
+	/**
+	 * {Number} Y coordinate on canvas.
+	 */
 	this.canvasY = 0;
+	/**
+	 * {Number} The depth value.
+	 */
 	this.depth = -Infinity;
+	/**
+	 * {JSC3D.Mesh} Mesh picked on current position or null if none.
+	 */
 	this.mesh = null;
 };
 
