@@ -1,5 +1,5 @@
 /**
- * @preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
+ * @preserve Copyright (c) 2011~2014 Humu <humu2009@gmail.com>
  * This file is part of jsc3d project, which is freely distributable under the 
  * terms of the MIT license.
  *
@@ -3357,16 +3357,37 @@ JSC3D.Viewer.prototype.buttonStates = null;
 JSC3D.Viewer.prototype.keyStates = null;
 JSC3D.Viewer.prototype.mouseX = 0;
 JSC3D.Viewer.prototype.mouseY = 0;
+/**
+ * {Function} A callback function that should be invoked as soon as a new loading is started.
+ */
 JSC3D.Viewer.prototype.onloadingstarted = null;
+/**
+ * {Function} A callback function that should be invoked when the previous loading finished successfully.
+ */
 JSC3D.Viewer.prototype.onloadingcomplete = null;
+/**
+ * {Function} A callback function that should be invoked 0, once or several times as a loading is in progress.
+ */
 JSC3D.Viewer.prototype.onloadingprogress = null;
+/**
+ * {Function} A callback function that should be invoked when the previous loading has been aborted.
+ */
 JSC3D.Viewer.prototype.onloadingaborted = null;
+/**
+ * {Function} A callback function that should be invoked when 
+ */
 JSC3D.Viewer.prototype.onloadingerror = null;
 JSC3D.Viewer.prototype.onmousedown = null;
 JSC3D.Viewer.prototype.onmouseup = null;
 JSC3D.Viewer.prototype.onmousemove = null;
 JSC3D.Viewer.prototype.onmousewheel = null;
+/**
+ * {Function} A callback function that should be invoked before each update.
+ */
 JSC3D.Viewer.prototype.beforeupdate = null;
+/**
+ * {Function} A callback function that should be invoked after each update.
+ */
 JSC3D.Viewer.prototype.afterupdate = null;
 JSC3D.Viewer.prototype.mouseUsage = 'default';
 JSC3D.Viewer.prototype.isDefaultInputHandlerEnabled = false;
