@@ -52,7 +52,7 @@ Set `MipMapping` to `'on'` to enable automatically mipmap generation for texture
 
 == CreaseAngle ==
 
-Set `CreaseAngle` to define an angle threshold (in degrees) to preserve sharp edges in smooth rendering. Crease angle affects how vertex normals are generated. If the angle between the normals of two adjacent faces is less than the given crease angle, the vertex normals should be computed so that the faces will be shaded smoothly across the edge. Otherwise there should be a lighting discontinuity (aka a crease) across the edge. This parameter only works under the `'smooth'` and `'texturesmooth'` render modes. If it is set to 0, the rendered result is equivalent to that under the `'flat'` or `'textureflat'` render modes. Usaully, an angle value between 30~45 degrees produces nice output.
+Set `CreaseAngle` to define an angle threshold (in degrees) to preserve sharp edges in smooth rendering. Crease angle affects how vertex normals are generated. If the angle between the normals of two adjacent faces is less than the given crease angle, the vertex normals should be computed so that the faces will be shaded smoothly across the edge. Otherwise there should be a lighting discontinuity (aka a crease) across the edge. This parameter only works under the `'smooth'` and `'texturesmooth'` render modes. If it is set to 0, the rendered result is equivalent to that under the `'flat'` or `'textureflat'` render modes. Usually, an angle value between 30~45 degrees produces nice output.
 
 == SphereMapUrl ==
 
