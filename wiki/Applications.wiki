@@ -43,7 +43,7 @@ _*Smorf Crystals*_ puts effort to collect and arrange information of crystal min
 
 == CAD Modeling Tool Online ==
 
-_*OpenJSCAD-soprano*_ is an experimental branch of the _OpenJSCAD_ project, which aims to provide a distinctive CAD tool for modellers to generate solid 3D models online. Unlike other modeling softwares, most of which are designed for artists, _OpenJSCAD_ is focusing on an industrial aspect. The tool accepts a snippet of script and generates 3D models from it using constructive solid geometry (CSG) method. Existing models from files (STL, AMF, etc.) are also acceptable. With _JSC3D_, this tool runs smoothly on most browsers with or without WebGL.
+_*OpenJSCAD-soprano*_ is an experimental branch of the _OpenJSCAD_ project, which aims to provide a distinctive CAD tool for modellers to generate solid 3D models online. Unlike other modeling softwares, most of which are designed for artists, _OpenJSCAD_ is focusing on an industrial aspect: it accepts a snippet of script and generates 3D models from it using constructive solid geometry (CSG) method. Existing models from files (STL, AMF, etc.) are also acceptable. With _JSC3D_, the tool runs smoothly on most browsers with or without WebGL.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-openjscad-5.jpg]
 
