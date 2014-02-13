@@ -56,6 +56,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			BackgroundColor1:	parameters.BackgroundColor1 || '#ffffff', 
 			BackgroundColor2:	parameters.BackgroundColor2 || '#383840', 
 			BackgroundImageUrl:	parameters.BackgroundImageUrl || '', 
+			Background:			parameters.Background || 'on', 
 			RenderMode:			parameters.RenderMode || 'flat', 
 			Definition:			parameters.Definition || 'standard', 
 			MipMapping:			parameters.MipMapping || 'off', 
@@ -75,6 +76,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			BackgroundColor1: '#ffffff', 
 			BackgroundColor2: '#383840', 
 			BackgroundImageUrl: '', 
+			Background: 'on', 
 			RenderMode: 'flat', 
 			Definition: 'standard', 
 			MipMapping: 'off', 
@@ -115,6 +117,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.bkgColor2 = 0x383840;
 	this.bkgImageUrl = '';
 	this.bkgImage = null;
+	this.isBackgroundOn = true;
 	this.renderMode = 'flat';
 	this.definition = 'standard';
 	this.isMipMappingOn = false;
@@ -170,7 +173,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 /**
 	Set the initial value for a parameter to parameterize the viewer.<br />
 	Available parameters are:<br />
-	'<b>SceneUrl</b>':				url string that describes where to load the scene, default to '';<br />
+	'<b>SceneUrl</b>':				URL string that describes where to load the scene, default to '';<br />
 	'<b>InitRotationX</b>':			initial rotation angle around x-axis for the whole scene, default to 0;<br />
 	'<b>InitRotationY</b>':			initial rotation angle around y-axis for the whole scene, default to 0;<br />
 	'<b>InitRotationZ</b>':			initial rotation angle around z-axis for the whole scene, default to 0;<br />
@@ -178,11 +181,12 @@ JSC3D.Viewer = function(canvas, parameters) {
 	'<b>ModelColor</b>':			fallback color for all meshes, default to '#caa618';<br />
 	'<b>BackgroundColor1</b>':		color at the top of the background, default to '#ffffff';<br />
 	'<b>BackgroundColor2</b>':		color at the bottom of the background, default to '#383840';<br />
-	'<b>BackgroundImageUrl</b>':	url string that describes where to load the image used for background, default to '';<br />
+	'<b>BackgroundImageUrl</b>':	URL string that describes where to load the image used for background, default to '';<br />
+	'<b>Background</b>':			turn on/off rendering of background. If this is set to 'off', the background area will be transparent. Default to 'on';<br />
 	'<b>RenderMode</b>':			render mode, default to 'flat';<br />
 	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
 	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
-	'<b>SphereMapUrl</b>':			url string that describes where to load the image used for sphere mapping, default to '';<br />
+	'<b>SphereMapUrl</b>':			URL string that describes where to load the image used for sphere mapping, default to '';<br />
 	'<b>ProgressBar</b>':			turn on/off the progress bar when loading, default to 'on'. By turning off the default progress bar, a user defined loading indicator can be used instead;<br />
 	'<b>Renderer</b>':				set to 'webgl' to enable WebGL for rendering, default to ''.
 	@param {String} name name of the parameter to set.
@@ -204,6 +208,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.bkgColor1 = parseInt('0x' + this.params['BackgroundColor1'].substring(1));
 	this.bkgColor2 = parseInt('0x' + this.params['BackgroundColor2'].substring(1));
 	this.bkgImageUrl = this.params['BackgroundImageUrl'];
+	this.isBackgroundOn = this.params['Background'].toLowerCase() == 'on';
 	this.renderMode = this.params['RenderMode'].toLowerCase();
 	this.definition = this.params['Definition'].toLowerCase();
 	this.creaseAngle = parseFloat(this.params['CreaseAngle']);
@@ -1212,6 +1217,8 @@ JSC3D.Viewer.prototype.fillGradientBackground = function() {
 	var g2 = (this.bkgColor2 & 0xff00) >> 8;
 	var b2 = this.bkgColor2 & 0xff;
 
+	var alpha = this.isBackgroundOn ? 0xff000000 : 0;
+
 	var pix = 0;
 	for(var i=0; i<h; i++) {
 		var r = (r1 + i * (r2 - r1) / h) & 0xff;
@@ -1219,7 +1226,7 @@ JSC3D.Viewer.prototype.fillGradientBackground = function() {
 		var b = (b1 + i * (b2 - b1) / h) & 0xff;
 
 		for(var j=0; j<w; j++) {
-			pixels[pix++] = r << 16 | g << 8 | b;
+			pixels[pix++] = alpha | r << 16 | g << 8 | b;
 		}
 	}
 };
@@ -1268,8 +1275,9 @@ JSC3D.Viewer.prototype.fillBackgroundWithImage = function() {
 
 	var pixels = this.bkgColorBuffer;
 	var size = w * h;
+	var alpha = this.isBackgroundOn ? 0xff000000 : 0;
 	for(var i=0, j=0; i<size; i++, j+=4) {
-		pixels[i] = data[j] << 16 | data[j+1] << 8 | data[j+2];
+		pixels[i] = alpha | data[j] << 16 | data[j+1] << 8 | data[j+2];
 	}
 };
 
@@ -1293,7 +1301,7 @@ JSC3D.Viewer.prototype.drawBackground = function() {
  */
 JSC3D.Viewer.prototype.beginScene = function() {
 	if(this.webglBackend) {
-		this.webglBackend.beginFrame(this.definition);
+		this.webglBackend.beginFrame(this.definition, this.isBackgroundOn);
 		return;
 	}
 
@@ -1340,7 +1348,7 @@ JSC3D.Viewer.prototype.endScene = function() {
 				data[dest    ] = (color & 0xff0000) >> 16;
 				data[dest + 1] = (color & 0xff00) >> 8;
 				data[dest + 2] = color & 0xff;
-				data[dest + 3] = 0xff;
+				data[dest + 3] = color >>> 24;
 				src += (j & 1);
 				dest += 4;
 			}
@@ -1358,7 +1366,7 @@ JSC3D.Viewer.prototype.endScene = function() {
 				data[dest    ] = ((color0 & 0xff0000) + (color1 & 0xff0000) + (color2 & 0xff0000) + (color3 & 0xff0000)) >> 18;
 				data[dest + 1] = ((color0 & 0xff00) + (color1 & 0xff00) + (color2 & 0xff00) + (color3 & 0xff00)) >> 10;
 				data[dest + 2] = ((color0 & 0xff) + (color1 & 0xff) + (color2 & 0xff) + (color3 & 0xff)) >> 2;
-				data[dest + 3] = 0xff;
+				data[dest + 3] = color0 >>> 24;
 				src += 2;
 				dest += 4;
 			}
@@ -1372,7 +1380,7 @@ JSC3D.Viewer.prototype.endScene = function() {
 			data[dest    ] = (color & 0xff0000) >> 16;
 			data[dest + 1] = (color & 0xff00) >> 8;
 			data[dest + 2] = color & 0xff;
-			data[dest + 3] = 0xff;
+			data[dest + 3] = color >>> 24;
 		}
 		break;
 	}
@@ -1532,7 +1540,7 @@ JSC3D.Viewer.prototype.renderPoint = function(mesh) {
 	var sbuf = this.selectionBuffer;
 	var numOfVertices = vbuf.length / 3;
 	var id = mesh.internalId;
-	var color = mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor;
+	var color = 0xff000000 | (mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor);
 	
 //	if(!nbuf || nbuf.length < numOfVertices) {
 //		mesh.transformedVertexNormalZBuffer = new Array(numOfVertices);
@@ -1596,7 +1604,7 @@ JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
 	var sbuf = this.selectionBuffer;
 	var numOfFaces = mesh.faceCount;
 	var id = mesh.internalId;
-	var color = mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor;
+	var color = 0xff000000 | (mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor);
 
 	if(!nbuf || nbuf.length < numOfFaces) {
 		mesh.transformedFaceNormalZBuffer = new Array(numOfFaces);
@@ -1749,7 +1757,7 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 			} while (ibuf[j++] != -1);
 		}
 		else {
-			var color = palette[~~(xformedNz * 255)];
+			var color = 0xff000000 | palette[~~(xformedNz * 255)];
 
 			var v0, v1, v2;
 			v0 = ibuf[j++] * 3;
@@ -1846,7 +1854,8 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 										var rr = ((backColor & 0xff0000) * trans + (foreColor & 0xff0000) * opaci) >> 8;
 										var gg = ((backColor & 0xff00) * trans + (foreColor & 0xff00) * opaci) >> 8;
 										var bb = ((backColor & 0xff) * trans + (foreColor & 0xff) * opaci) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										var aa = (backColor & 0xff000000) | (opaci << 24);
+										cbuf[pix] = aa | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2058,7 +2067,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 								for(var x=xLeft, z=zLeft, n=nLeft; x<=xRight; x++, z+=zInc, n+=nInc) {
 									if(z > zbuf[pix]) {
 										zbuf[pix] = z;
-										cbuf[pix] = palette[n > 0 ? (~~n) : 0];
+										cbuf[pix] = 0xff000000 | palette[n > 0 ? (~~n) : 0];
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2072,7 +2081,8 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 										var rr = ((backColor & 0xff0000) * trans + (foreColor & 0xff0000) * opaci) >> 8;
 										var gg = ((backColor & 0xff00) * trans + (foreColor & 0xff00) * opaci) >> 8;
 										var bb = ((backColor & 0xff) * trans + (foreColor & 0xff) * opaci) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										var aa = (backColor & 0xff000000) | (opaci << 24);
+										cbuf[pix] = aa | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2350,7 +2360,8 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 										var rr = ((backColor & 0xff0000) * trans + (foreColor & 0xff0000) * opaci) >> 8;
 										var gg = ((backColor & 0xff00) * trans + (foreColor & 0xff00) * opaci) >> 8;
 										var bb = ((backColor & 0xff) * trans + (foreColor & 0xff) * opaci) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										var aa = (backColor & 0xff000000) | (opaci << 24);
+										cbuf[pix] = aa | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2446,7 +2457,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 			} while (ibuf[j++] != -1);
 		}
 		else {
-			var color = palette[~~(xformedNz * 255)];
+			var color = 0xff000000 | palette[~~(xformedNz * 255)];
 
 			var v0, v1, v2;
 			var t0, t1, t2;
@@ -2625,7 +2636,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 										var rr = (((color & 0xff0000) >> 16) * ((texel & 0xff0000) >> 8));
 										var gg = (((color & 0xff00) >> 8) * ((texel & 0xff00) >> 8));
 										var bb = ((color & 0xff) * (texel & 0xff)) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										cbuf[pix] = 0xff000000 | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2640,6 +2651,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 										var rr = (((color & 0xff0000) >> 16) * ((foreColor & 0xff0000) >> 8));
 										var gg = (((color & 0xff00) >> 8) * ((foreColor & 0xff00) >> 8));
 										var bb = ((color & 0xff) * (foreColor & 0xff)) >> 8;
+										var aa = (backColor & 0xff000000) | (opaci << 24);
 										if(opaci > 250) {
 											zbuf[pix] = z;
 										}
@@ -2649,7 +2661,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 											gg = (gg * opaci + (backColor & 0xff00) * trans) >> 8;
 											bb = (bb * opaci + (backColor & 0xff) * trans) >> 8;
 										}
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										cbuf[pix] = aa | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2969,7 +2981,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 										var rr = (((color & 0xff0000) >> 16) * ((texel & 0xff0000) >> 8));
 										var gg = (((color & 0xff00) >> 8) * ((texel & 0xff00) >> 8));
 										var bb = ((color & 0xff) * (texel & 0xff)) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										cbuf[pix] = 0xff000000 | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -2985,6 +2997,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 										var rr = (((color & 0xff0000) >> 16) * ((foreColor & 0xff0000) >> 8));
 										var gg = (((color & 0xff00) >> 8) * ((foreColor & 0xff00) >> 8));
 										var bb = ((color & 0xff) * (foreColor & 0xff)) >> 8;
+										var aa = (backColor & 0xff000000) | (opaci << 24);
 										if(opaci > 250) {
 											zbuf[pix] = z;
 										}
@@ -2994,7 +3007,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 											gg = (gg * opaci + (backColor & 0xff00) * trans) >> 8;
 											bb = (bb * opaci + (backColor & 0xff) * trans) >> 8;
 										}
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										cbuf[pix] = aa | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -3259,7 +3272,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 										var rr = (((color & 0xff0000) >> 16) * ((stexel & 0xff0000) >> 8));
 										var gg = (((color & 0xff00) >> 8) * ((stexel & 0xff00) >> 8));
 										var bb = ((color & 0xff) * (stexel & 0xff)) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										cbuf[pix] = 0xff000000 | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -3274,10 +3287,11 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 										var rr = (((color & 0xff0000) >> 16) * ((foreColor & 0xff0000) >> 8));
 										var gg = (((color & 0xff00) >> 8) * ((foreColor & 0xff00) >> 8));
 										var bb = ((color & 0xff) * (foreColor & 0xff)) >> 8;
+										var aa = (backColor | color) & 0xff000000;
 										rr = (rr * opaci + (backColor & 0xff0000) * trans) >> 8;
 										gg = (gg * opaci + (backColor & 0xff00) * trans) >> 8;
 										bb = (bb * opaci + (backColor & 0xff) * trans) >> 8;
-										cbuf[pix] = (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
+										cbuf[pix] = aa | (rr & 0xff0000) | (gg & 0xff00) | (bb & 0xff);
 										sbuf[pix] = id;
 									}
 									pix++;
@@ -4428,7 +4442,7 @@ JSC3D.Math3D = {
 	},
 
 	/**
-		Transform vectors' z components using the given matrix.
+		Transform vectors using the given matrix. Only z components (transformed) will be written out.
 		@param {JSC3D.Matrix3x4} mat the transformation matrix.
 		@param {Array} vecs a batch of vectors to be transform.
 		@param {Array} xfveczs where to output the transformed z components of the input vectors.
