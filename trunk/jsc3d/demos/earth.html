@@ -6,8 +6,8 @@
  </HEAD>
 
  <BODY>
-	<div style="width:640px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
-		<canvas id="cv" style="border: 1px solid;" width="640" height="490" ></canvas>
+	<div style="width:640px; margin:auto; position:relative; background:url(models/starsbg.jpg) no-repeat center; background-size:cover;">
+		<canvas id="cv" width="640" height="490" ></canvas>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
 	<script type="text/javascript" src="../jsc3d.touch.js"></script>
@@ -20,9 +20,7 @@
 	viewer.setParameter('InitRotationY', 0);
 	viewer.setParameter('InitRotationZ', 0);
 	viewer.setParameter('ModelColor', '#CAA618');
-	viewer.setParameter('BackgroundColor1', '#000000');
-	viewer.setParameter('BackgroundColor2', '#000000');
-	viewer.setParameter('BackgroundImageUrl', 'models/starsbg.jpg');
+	viewer.setParameter('Background', 'off');
 	viewer.setParameter('Renderer', 'webgl');
 	viewer.setParameter('RenderMode', 'texturesmooth');
 	viewer.init();

@@ -1,5 +1,5 @@
 /**
- * @preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
+ * @preserve Copyright (c) 2011~2014 Humu <humu2009@gmail.com>
  * This file is part of jsc3d project, which is freely distributable under the 
  * terms of the MIT license.
  *
@@ -282,7 +282,7 @@ JSC3D.WebGLRenderBackend.prototype.setBackgroundImage = function(img) {
 /**
  * Begin to render a new frame.
  */
-JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
+JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition, hasBackground) {
 	var gl = this.gl;
 
 	function prepareFB(gl, fbo, w, h) {
@@ -375,7 +375,14 @@ JSC3D.WebGLRenderBackend.prototype.beginFrame = function(definition) {
 	/*
 	 * Clear canvas with the given background.
 	 */
-	if(this.bkgTexture) {
+	if(!hasBackground) {
+		/*
+		 * Background should be transparent.
+		 */
+		gl.clearColor(0, 0, 0, 0);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	}
+	else if(this.bkgTexture) {
 		/*
 		 * Apply background texture.
 		 */
