@@ -22,6 +22,10 @@ Set `BackgroundColor1` and `BackgroundColor2` to customize the background colors
 
 Set `BackgroundImageUrl` to URL of an image that will be used as the background. The loading will be started automatically after the `init()` call. The image will be scaled to fit the actual dimensions of the canvas. So it is recommended to adjust the image's size to be the same as the canvas in preparation to avoid distortion.
 
+== Background ==
+
+Set `Background` to `'on'` to indicate the background area should be filled with specified colors on images. If this parameter is set to `'off'`, then the background area will be completely transparent and as a result, the DOM element behind the canvas will be visible accordingly.
+
 == RenderMode ==
 
 Set `RenderMode` to specify the initial render mode the `viewer` adopts. Render mode controls how the model will be rendered. The following render modes are available in current implementation:
