@@ -16,7 +16,7 @@ Set `ModelColor` to specify the color of the default material which will be used
 
 == BackgroundColor1 and BackgroundColor2 ==
 
-Set `BackgroundColor1` and `BackgroundColor2` to customize the background colors. The first parameter defines the color on the topmost row and the other one defines that on the bottom row. Then color will be linearly interpolated from top down. Both parameters receive a string represented color that should be formated as '`#`<font color="red">`RR`</font><font color="green">`GG`</font><font color="blue">`BB`</font>'.
+Set `BackgroundColor1` and `BackgroundColor2` to customize the background colors. The first parameter defines the color for the topmost row and the other one defines that for the bottom row. Then color will be linearly interpolated from top down. Both parameters receive a string represented color that should be formated as '`#`<font color="red">`RR`</font><font color="green">`GG`</font><font color="blue">`BB`</font>'.
 
 == BackgroundImageUrl ==
 
@@ -24,7 +24,7 @@ Set `BackgroundImageUrl` to URL of an image that will be used as the background.
 
 == Background ==
 
-Set `Background` to `'on'` to indicate the background area should be filled with specified colors on images. If this parameter is set to `'off'`, then the background area will be completely transparent and as a result, the DOM element behind the canvas will be visible accordingly.
+Set `Background` to `'on'` to indicate the background area should be filled up with specified colors on images. If this parameter is set to `'off'`, then the background area becomes completely transparent. As a result, the DOM element behind the canvas will be visible accordingly.
 
 == RenderMode ==
 
@@ -56,7 +56,7 @@ Set `MipMapping` to `'on'` to enable automatically mipmap generation for texture
 
 == CreaseAngle ==
 
-Set `CreaseAngle` to define an angle threshold (in degrees) to preserve sharp edges in smooth rendering. Crease angle affects how vertex normals are generated. If the angle between the normals of two adjacent faces is less than the given crease angle, the vertex normals should be computed so that the faces will be shaded smoothly across the edge. Otherwise there should be a lighting discontinuity (aka a crease) across the edge. This parameter only works under the `'smooth'` and `'texturesmooth'` render modes. If it is set to 0, the rendered result is equivalent to that under the `'flat'` or `'textureflat'` render modes. Usually, an angle value between 30~45 degrees produces nice output.
+Set `CreaseAngle` to define an angle threshold (in degrees) to preserve sharp edges in smooth rendering. Crease angle affects how vertex normals are generated. If the angle between the normals of two adjacent faces is less than the given crease angle, the vertex normals should be computed so that the faces will be shaded smoothly across the edge. Otherwise there should be a lighting discontinuity (aka a crease) across the edge. This parameter only works under the `'smooth'` and `'texturesmooth'` render modes. If it is set to 0, the rendered result is equivalent to that under the `'flat'` or `'textureflat'` render mode. In most cases, an angle value between 30~45 degrees produces nice output.
 
 == SphereMapUrl ==
 
@@ -68,4 +68,4 @@ Set `ProgressBar` to `'on'`/`'off'` to enable/disable the default progress bar. 
 
 == Renderer ==
 
-Set `Renderer` to `'webgl'` to enable [http://en.wikipedia.org/wiki/WebGL WebGL] to take charge of all rendering. If this is set, the `viewer` instance will be internally initialized with the WebGL render back-end to replace the default software rendering modules. This brings about better graphic output and more efficient rendering especially for large models. For browsers without WebGL support, software rendering will be automatically enabled as the fallback. It should be noted that in current implementation the WebGL render back-end is provided as an optional component in a separate source file _jsc3d.webgl.js_, which must also be included to enable WebGL rendering.
+Set `Renderer` to `'webgl'` to enable [http://en.wikipedia.org/wiki/WebGL WebGL] to take charge of all rendering. If this is set, the `viewer` instance will be internally initialized with the WebGL render back-end to replace the default software rendering modules. This brings about better graphic output and more efficient rendering especially for large models. For browsers without WebGL support, software rendering will be automatically enabled as the fallback. It should be noted that in current implementation, the WebGL render back-end is provided as an optional component through a separate JavaScript source file *jsc3d.webgl.js*, which should also be included to enable WebGL rendering. Otherwise, this parameter has no effect.
