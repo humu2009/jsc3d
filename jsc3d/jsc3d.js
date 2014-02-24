@@ -60,7 +60,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			RenderMode:			parameters.RenderMode || 'flat', 
 			Definition:			parameters.Definition || 'standard', 
 			MipMapping:			parameters.MipMapping || 'off', 
-			CreaseAngle:		parameters.parameters || -180, 
+			CreaseAngle:		parameters.CreaseAngle || -180, 
 			SphereMapUrl:		parameters.SphereMapUrl || '', 
 			ProgressBar:		parameters.ProgressBar || 'on', 
 			Renderer:			parameters.Renderer || '', 
@@ -218,14 +218,14 @@ JSC3D.Viewer.prototype.init = function() {
 	this.useWebGL = this.params['Renderer'].toLowerCase() == 'webgl';
 	this.releaseLocalBuffers = this.params['LocalBuffers'].toLowerCase() == 'release';
 
-	// Create WebGL render back-end if it is specified to.
+	// Create WebGL render back-end if it is assigned to.
 	if(this.useWebGL && JSC3D.PlatformInfo.supportWebGL && JSC3D.WebGLRenderBackend) {
 		try {
 			this.webglBackend = new JSC3D.WebGLRenderBackend(this.canvas, this.releaseLocalBuffers);
 		} catch(e){}
 	}
 
-	// Fall back to software rendering when WebGL is not specified or unavailable.
+	// Fall back to software rendering when WebGL is not assigned or unavailable.
 	if(!this.webglBackend) {
 		if(this.useWebGL) {
 			if(JSC3D.console)
@@ -1310,7 +1310,7 @@ JSC3D.Viewer.prototype.beginScene = function() {
 	var sbuf = this.selectionBuffer;
 	var bbuf = this.bkgColorBuffer;
 	var size = this.frameWidth * this.frameHeight;
-	var MIN_Z = -Number.MAX_VALUE;
+	var MIN_Z = -Infinity;
 
 	for(var i=0; i<size; i++) {
 		cbuf[i] = bbuf[i];
@@ -1401,15 +1401,11 @@ JSC3D.Viewer.prototype.render = function() {
 		var w = this.frameWidth;
 		var h = this.frameHeight;
 		var d = aabb.lengthOfDiagonal();
-		var ratio = w / h;
 
 		this.transformMatrix.identity();
 		this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
 		this.transformMatrix.multiply(this.rotMatrix);
-		if(w < h)
-			this.transformMatrix.scale(2*this.zoomFactor/w, 2*this.zoomFactor*ratio/w, -2/d);
-		else
-			this.transformMatrix.scale(2*this.zoomFactor/(h*ratio), 2*this.zoomFactor/h, -2/d);
+		this.transformMatrix.scale(2*this.zoomFactor/w, 2*this.zoomFactor/h, -2/d);
 		this.transformMatrix.translate(2*this.panning[0]/w, -2*this.panning[1]/h, 0);
 	}
 	else {
@@ -3515,8 +3511,8 @@ JSC3D.Scene.prototype.forEachChild = function(operator) {
 	@private
  */
 JSC3D.Scene.prototype.calcAABB = function() {
-	this.aabb.minX = this.aabb.minY = this.aabb.minZ = Number.MAX_VALUE;
-	this.aabb.maxX = this.aabb.maxY = this.aabb.maxZ = -Number.MAX_VALUE;
+	this.aabb.minX = this.aabb.minY = this.aabb.minZ = Infinity;
+	this.aabb.maxX = this.aabb.maxY = this.aabb.maxZ = -Infinity;
 	for(var i=0; i<this.children.length; i++) {
 		var child = this.children[i];
 		if(!child.isTrivial()) {
@@ -3694,8 +3690,8 @@ JSC3D.Mesh.prototype.calcFaceCount = function() {
 	@private
  */
 JSC3D.Mesh.prototype.calcAABB = function() {
-	var minX = minY = minZ = Number.MAX_VALUE;
-	var maxX = maxY = maxZ = -Number.MAX_VALUE;
+	var minX = minY = minZ = Infinity;
+	var maxX = maxY = maxZ = -Infinity;
 
 	var vbuf = this.vertexBuffer;
 	for(var i=0; i<vbuf.length; i+=3) {
@@ -4122,6 +4118,7 @@ JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 		}
 	}
 
+	// look for appropriate texture dimensions
 	var dim = image.width > image.height ? image.width : image.height;
 	if(dim <= 32)
 		dim = 32;
