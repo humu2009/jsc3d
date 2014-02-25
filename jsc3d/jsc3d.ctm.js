@@ -793,13 +793,16 @@ CTM.calcSmoothNormals = function(indices, vertices){
 };
 
 CTM.isLittleEndian = (function(){
-  var buffer = new ArrayBuffer(2),
-	  bytes = new Uint8Array(buffer),
-	  ints = new Uint16Array(buffer);
-
-  bytes[0] = 1;
-
-  return ints[0] === 1;
+  try {
+	  var buffer = new ArrayBuffer(2),
+		  bytes = new Uint8Array(buffer),
+		  ints = new Uint16Array(buffer);
+	  bytes[0] = 1;
+	  return ints[0] === 1;
+  } catch (e) {
+	  // Does not support typedarrays? Just assume it is little-endinan.
+	  return true;
+  }
 }());
 
 CTM.InterleavedStream = function(data, count){
