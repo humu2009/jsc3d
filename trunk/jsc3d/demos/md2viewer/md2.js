@@ -234,15 +234,7 @@ JSC3D.Md2Loader.prototype.loadMd2File = function(urlPath, fileName) {
 					if(JSC3D.console)
 						JSC3D.console.logInfo('Finished loading MD2 file "' + urlName + '".');
 					var scene = new JSC3D.Scene;
-					var textureFileName = self.parseMd2( scene, 
-														 !isMSIE ?	this.responseText : 
-																	(function(arr) {
-																		var str = '';
-																		for(var i=0; i<arr.length-65536; i+=65536)
-																			str += String.fromCharCode.apply(null, arr.slice(i, i+65536));
-																		return str + String.fromCharCode.apply(null, arr.slice(i));
-																	}) ((new VBArray(this.responseBody)).toArray())
-					);
+					var textureFileName = self.parseMd2(scene, !isMSIE ? this.responseText : JSC3D.Util.ieXHRResponseBodyToString(this.responseBody));
 					if(textureFileName != '' && !scene.isEmpty())
 						self.setupTexture(scene.getChildren()[0], urlPath + textureFileName);
 					self.onload(scene);
