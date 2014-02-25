@@ -1,5 +1,5 @@
 /**
- * @preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
+ * @preserve Copyright (c) 2011~2014 Humu <humu2009@gmail.com>
  * This file is part of jsc3d project, which is freely distributable under the 
  * terms of the MIT license.
  *
@@ -139,7 +139,7 @@ JSC3D.OpenCTMLoader = function(onload, onerror, onprogress, onresource) {
 	}
 	if(!JSC3D.PlatformInfo.supportTypedArrays) {
 		if(JSC3D.console)
-			JSC3D.console.logError('CTM file loader is not supported on this browser.');
+			JSC3D.console.logError('CTM file loader is not supported on this browser. (Lacks support for typed arrays)');
 		throw 'JSC3D.OpenCTMLoader constructor failed: This loader is not supported on this browser!';
 	}
 };
