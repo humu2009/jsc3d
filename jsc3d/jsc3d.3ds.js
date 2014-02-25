@@ -1,5 +1,5 @@
 /**
- * @preserve Copyright (c) 2013 Vasile Dirla <vasile@dirla.ro>
+ * @preserve Copyright (c) 2013~2014 Vasile Dirla <vasile@dirla.ro>
  * This file is part of jsc3d project, which is freely distributable under the 
  * terms of the MIT license.
  *
@@ -62,8 +62,11 @@ JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', urlName, true);
-	if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10')
-		xhr.responseType = 'blob';	// use blob method to deal with 3DS files for IE >= 10
+//	if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10')
+//		xhr.responseType = 'blob';	// use blob method to deal with 3DS files for IE >= 10
+	if(JSC3D.PlatformInfo.browser == 'ie') {
+		xhr.setRequestHeader("Accept-Charset", "x-user-defined");
+	}
 	else{
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 //		xhr.responseType = "arraybuffer";
@@ -77,15 +80,20 @@ JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
 				if(self.onload) {
 					if(self.onprogress)
 						self.onprogress('Loading 3DS file ...', 1);
-					if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10') {
-						// asynchronously decode blob to binary string
-						var blobReader = new FileReader;
-						blobReader.onload = function(event) {
-							var scene = new JSC3D.Scene;
-							self.parse3DS(scene, event.target.result);
-							self.onload(scene);
-						};
-						blobReader.readAsText(this.response, 'x-user-defined');
+//					if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10') {
+//						// asynchronously decode blob to binary string
+//						var blobReader = new FileReader;
+//						blobReader.onload = function(event) {
+//							var scene = new JSC3D.Scene;
+//							self.parse3DS(scene, event.target.result);
+//							self.onload(scene);
+//						};
+//						blobReader.readAsText(this.response, 'x-user-defined');
+//					}
+					if(JSC3D.PlatformInfo.browser == 'ie') {
+						var scene = new JSC3D.Scene;
+						self.parse3DS(scene, JSC3D.Util.ieXHRResponseBodyToString(this.responseBody));
+						self.onload(scene);
 					}
 					else {
 						var scene = new JSC3D.Scene;
