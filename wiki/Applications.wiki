@@ -21,7 +21,7 @@ _*Berendsen Textil Service A/S*_ uses _JSC3D_ for online display of their hygien
 
 == Interactive View of Facial Sculptures ==
 
-_*IvarFace Technology*_ fused the cutting-edge 3D scanning and 3D printing technology and brings them to sculpture art. They provide statue production service for one who would like his/her face to be shaped on sculpture that looks like ancient Greek or Roman style. Face data is captured by fast 3D scanning. Then after some post processing, a high quality facial sculpture is printed out using inexpensive 3D printing technique. _JSC3D_ is adopted to provide interactive preview of face models generated from 3D scanning.
+_*IvarFace Technology*_ fused the cutting-edge 3D scanning and 3D printing technology and brings them to sculpture art. They provide statue production service for ones who would like their faces to be shaped on sculpture that looks like ancient Greek or Roman style. Face data is captured by fast 3D scanning. Then after some post processing, a high quality facial sculpture is printed out using inexpensive 3D printing technique. _JSC3D_ is adopted to provide interactive preview of face models generated from 3D scanning.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-ivarface.jpg]
 
@@ -51,7 +51,7 @@ _*OpenJSCAD-soprano*_ is an experimental branch of the _OpenJSCAD_ project, whic
 
 == Delivery of 3D content in E-Learning System ==
 
-The _*Learning and Teaching Centre (LTC)*_ and the _*Department of Ancient History*_ of _*Macquarie University*_ create a project to develop a fully online course for students of Egyptology through the use of 3D scanned artefacts. The _LTC_ has a skilled team to capture high definition scans of ancient artefacts and prepare them for inclusion in their _iLearn_ system. _JSC3D_ as a key component is used to establish a web based interface that works across browsers and mobile devices for delivery of 3D content. These provide a highly authentic learning experience. A workflow has been summarized along the development of the project and is considered to be furtherly reused in more online course design.
+The _*Learning and Teaching Centre (LTC)*_ and the _*Department of Ancient History*_ of _*Macquarie University*_ create a project to develop a fully online course for students of Egyptology through the use of 3D scanned artefacts. The _LTC_ has a skilled team to capture high definition scans of ancient artefacts and prepare them for inclusion in their _iLearn_ system. _JSC3D_ as a key component is used to establish a web based interface that works across browsers and mobile devices for delivery of 3D content. These provide a highly authentic learning experience. A workflow has been refined along the development of the project, which is considered to be furtherly reused in more online course design.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-ltc-macquarie.jpg]
 
