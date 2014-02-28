@@ -1723,9 +1723,9 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var opaci = 255 - trans;
 
 	/*
-		This single line removes some weird error related to floating point calculation on Safari for Apple computers.
-		See http://code.google.com/p/jsc3d/issues/detail?id=8.
-		Contributed by Vasile Dirla <vasile@dirla.ro>.
+	 * This single line removes some weird error related to floating point calculation on Safari for Apple computers.
+	 * See http://code.google.com/p/jsc3d/issues/detail?id=8.
+	 * By Vasile Dirla <vasile@dirla.ro>.
 	 */
 	var fixForMacSafari = 1 * null;
 
@@ -1908,6 +1908,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var opaci = 255 - trans;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
+	// By Vasile Dirla <vasile@dirla.ro>.
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -2141,6 +2142,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 	var mipentries = mipmaps ? texture.mipentries : null;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
+	// By Vasile Dirla <vasile@dirla.ro>.
 	var fixForMacSafari = 1 * null;
 
 	if(!nbuf || nbuf.length < numOfFaces) {
@@ -2425,6 +2427,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var mipentries = mipmaps ? texture.mipentries : null;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
+	// By Vasile Dirla <vasile@dirla.ro>.
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -2728,6 +2731,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var mipentries = mipmaps ? texture.mipentries : null;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
+	// By Vasile Dirla <vasile@dirla.ro>.
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -3076,6 +3080,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var opaci = 255 - trans;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
+	// By Vasile Dirla <vasile@dirla.ro>.
 	var fixForMacSafari = 1 * null;
 
 	// skip this mesh if it is completely transparent
@@ -4255,11 +4260,19 @@ JSC3D.AABB = function() {
 };
 
 /**
-	Get the center coordinates of the AABB.
+	Get center coordinates of the AABB.
+	@param {Array} c an array to receive the result.
 	@returns {Array} center coordinates as an array.
  */
-JSC3D.AABB.prototype.center = function() {
-	return [(this.minX + this.maxX) / 2, (this.minY + this.maxY) / 2, (this.minZ + this.maxZ) / 2];
+JSC3D.AABB.prototype.center = function(c) {
+	if(c) {
+		c[0] = 0.5 * (this.minX + this.maxX);
+		c[1] = 0.5 * (this.minY + this.maxY);
+		c[2] = 0.5 * (this.minZ + this.maxZ);
+	}
+	else
+		c = [0.5 * (this.minX + this.maxX), 0.5 * (this.minY + this.maxY), 0.5 * (this.minZ + this.maxZ)];
+	return c;
 };
 
 /**
@@ -4325,17 +4338,17 @@ JSC3D.Matrix3x4.prototype.translate = function(tx, ty, tz) {
 JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 	if(angle != 0) {
 		angle *= Math.PI / 180;
-		var cosA = Math.cos(angle);
-		var sinA = Math.sin(angle);
+		var c = Math.cos(angle);
+		var s = Math.sin(angle);
 
-		var m10 = cosA * this.m10 - sinA * this.m20;
-		var m11 = cosA * this.m11 - sinA * this.m21;
-		var m12 = cosA * this.m12 - sinA * this.m22;
-		var m13 = cosA * this.m13 - sinA * this.m23;
-		var m20 = cosA * this.m20 + sinA * this.m10;
-		var m21 = cosA * this.m21 + sinA * this.m11;
-		var m22 = cosA * this.m22 + sinA * this.m12;
-		var m23 = cosA * this.m23 + sinA * this.m13;
+		var m10 = c * this.m10 - s * this.m20;
+		var m11 = c * this.m11 - s * this.m21;
+		var m12 = c * this.m12 - s * this.m22;
+		var m13 = c * this.m13 - s * this.m23;
+		var m20 = c * this.m20 + s * this.m10;
+		var m21 = c * this.m21 + s * this.m11;
+		var m22 = c * this.m22 + s * this.m12;
+		var m23 = c * this.m23 + s * this.m13;
 
 		this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
 		this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
@@ -4349,17 +4362,17 @@ JSC3D.Matrix3x4.prototype.rotateAboutXAxis = function(angle) {
 JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 	if(angle != 0) {
 		angle *= Math.PI / 180;
-		var cosA = Math.cos(angle);
-		var sinA = Math.sin(angle);
+		var c = Math.cos(angle);
+		var s = Math.sin(angle);
 
-		var m00 = cosA * this.m00 + sinA * this.m20;
-		var m01 = cosA * this.m01 + sinA * this.m21;
-		var m02 = cosA * this.m02 + sinA * this.m22;
-		var m03 = cosA * this.m03 + sinA * this.m23;
-		var m20 = cosA * this.m20 - sinA * this.m00;
-		var m21 = cosA * this.m21 - sinA * this.m01;
-		var m22 = cosA * this.m22 - sinA * this.m02;
-		var m23 = cosA * this.m23 - sinA * this.m03;
+		var m00 = c * this.m00 + s * this.m20;
+		var m01 = c * this.m01 + s * this.m21;
+		var m02 = c * this.m02 + s * this.m22;
+		var m03 = c * this.m03 + s * this.m23;
+		var m20 = c * this.m20 - s * this.m00;
+		var m21 = c * this.m21 - s * this.m01;
+		var m22 = c * this.m22 - s * this.m02;
+		var m23 = c * this.m23 - s * this.m03;
 
 		this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
 		this.m20 = m20; this.m21 = m21; this.m22 = m22; this.m23 = m23;
@@ -4373,17 +4386,17 @@ JSC3D.Matrix3x4.prototype.rotateAboutYAxis = function(angle) {
 JSC3D.Matrix3x4.prototype.rotateAboutZAxis = function(angle) {
 	if(angle != 0) {
 		angle *= Math.PI / 180;
-		var cosA = Math.cos(angle);
-		var sinA = Math.sin(angle);
+		var c = Math.cos(angle);
+		var s = Math.sin(angle);
 
-		var m10 = cosA * this.m10 + sinA * this.m00;
-		var m11 = cosA * this.m11 + sinA * this.m01;
-		var m12 = cosA * this.m12 + sinA * this.m02;
-		var m13 = cosA * this.m13 + sinA * this.m03;
-		var m00 = cosA * this.m00 - sinA * this.m10;
-		var m01 = cosA * this.m01 - sinA * this.m11;
-		var m02 = cosA * this.m02 - sinA * this.m12;
-		var m03 = cosA * this.m03 - sinA * this.m13;
+		var m10 = c * this.m10 + s * this.m00;
+		var m11 = c * this.m11 + s * this.m01;
+		var m12 = c * this.m12 + s * this.m02;
+		var m13 = c * this.m13 + s * this.m03;
+		var m00 = c * this.m00 - s * this.m10;
+		var m01 = c * this.m01 - s * this.m11;
+		var m02 = c * this.m02 - s * this.m12;
+		var m03 = c * this.m03 - s * this.m13;
 
 		this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
 		this.m10 = m10; this.m11 = m11; this.m12 = m12; this.m13 = m13;
@@ -4432,7 +4445,7 @@ JSC3D.Math3D = {
 			var x = vecs[i    ];
 			var y = vecs[i + 1];
 			var z = vecs[i + 2];
-			xfvecs[i]     = mat.m00 * x + mat.m01 * y + mat.m02 * z + mat.m03;
+			xfvecs[i    ] = mat.m00 * x + mat.m01 * y + mat.m02 * z + mat.m03;
 			xfvecs[i + 1] = mat.m10 * x + mat.m11 * y + mat.m12 * z + mat.m13;
 			xfvecs[i + 2] = mat.m20 * x + mat.m21 * y + mat.m22 * z + mat.m23;
 		}
@@ -4478,6 +4491,7 @@ JSC3D.Math3D = {
 			dest[i + 2] = z;
 		}
 	}
+
 };
 
 
@@ -4489,8 +4503,8 @@ JSC3D.Util = {
 	 */
 	ieXHRResponseBodyToString: function(responseBody) {
 		// I had expected this could be done by a single line: 
-		//     String.fromCharCode.apply(null, (new VBArray(responseBody)).toArray());
-		// But it tends to result in an 'out of stack space' exception on larger files.
+		//     String.fromCharCode.apply(null, (new VBArray(responseBody)).toArray()); 
+		// But it tends to result in an 'out of stack space' exception on larger streams. 
 		// So we just cut the array to smaller pieces (64k for each) and convert them to 
 		// strings which can then be combined into one.
 		var arr = (new VBArray(responseBody)).toArray();
@@ -5012,7 +5026,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 				}
 				break;
 			case 'vn':
-				// ignore vertex normals
+				// Ignore vertex normals. These will be calculated automatically when a mesh is initialized.
 				break;
 			case 'vt':
 				if(tokens.length > 2) {
@@ -5398,7 +5412,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	if(!isBinary) {
 		/*
 			This should be an ASCII STL file.
-			Contributed by Triffid Hunter <triffid.hunter@gmail.com>.
+			By Triffid Hunter <triffid.hunter@gmail.com>.
 		 */
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
