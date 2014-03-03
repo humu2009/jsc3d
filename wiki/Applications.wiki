@@ -49,7 +49,7 @@ _*OpenJSCAD-soprano*_ is an experimental branch of the _OpenJSCAD_ project, whic
 
 [http://humu2009.github.io/OpenJSCAD [Website]]
 
-== Delivery of 3D content in E-Learning System ==
+== Delivery of 3D Content in E-Learning System ==
 
 The _*Learning and Teaching Centre (LTC)*_ and the _*Department of Ancient History*_ of _*Macquarie University*_ create a project to develop a fully online course for students of Egyptology through the use of 3D scanned artefacts. The _LTC_ has a skilled team to capture high definition scans of ancient artefacts and prepare them for inclusion in their _iLearn_ system. _JSC3D_ as a key component is used to establish a web based interface that works across browsers and mobile devices for delivery of 3D content. These provide a highly authentic learning experience. A workflow has been refined along the development of the project, which is considered to be furtherly reused in more online course design.
 
