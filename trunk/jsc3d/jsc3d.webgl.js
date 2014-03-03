@@ -482,6 +482,39 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 		normalMatrix.m02, normalMatrix.m12, normalMatrix.m22
 	]);
 
+	function sortRenderList(rlist) {
+		var opaque = [], transparent = [];
+
+		// sort the input meshes into an opaque list and a transparent list
+		for(var i=0; i<rlist.length; i++) {
+			var mesh = rlist[i];
+			// is it transparent?
+			if((mesh.material || defaultMaterial).transparency > 0 || mesh.hasTexture() && mesh.texture.hasTransparency) {
+				// calculate depth of this mesh
+				if(mesh.c)
+					mesh.aabb.center(mesh.c);
+				else
+					mesh.c = mesh.aabb.center();
+				JSC3D.Math3D.transformVectors(transformMatrix, mesh.c, mesh.c);
+				// add it to the transparent list
+				transparent.push(mesh);
+			}
+			else
+				opaque.push(mesh);
+		}
+
+		// sort the transparent meshes from far closer
+		transparent.sort(function(m0, m1) {
+			return m0.c[2] - m1.c[2];
+		});
+
+		// return a new render list that is in correct order
+		return transparent.length > 0 ? opaque.concat(transparent) : opaque;
+	}
+
+	// sort render list
+	renderList = sortRenderList(renderList);
+
 	// render the color pass
 	this.renderColorPass(renderList, transformMat4Flattened, normalMat3Flattened, renderMode, defaultMaterial, sphereMap);
 

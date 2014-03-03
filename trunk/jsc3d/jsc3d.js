@@ -1403,17 +1403,17 @@ JSC3D.Viewer.prototype.render = function() {
 		var d = aabb.lengthOfDiagonal();
 
 		this.transformMatrix.identity();
-		this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
+		this.transformMatrix.translate(-0.5*(aabb.minX+aabb.maxX), -0.5*(aabb.minY+aabb.maxY), -0.5*(aabb.minZ+aabb.maxZ));
 		this.transformMatrix.multiply(this.rotMatrix);
 		this.transformMatrix.scale(2*this.zoomFactor/w, 2*this.zoomFactor/h, -2/d);
 		this.transformMatrix.translate(2*this.panning[0]/w, -2*this.panning[1]/h, 0);
 	}
 	else {
 		this.transformMatrix.identity();
-		this.transformMatrix.translate(-(aabb.minX+aabb.maxX)/2, -(aabb.minY+aabb.maxY)/2, -(aabb.minZ+aabb.maxZ)/2);
+		this.transformMatrix.translate(-0.5*(aabb.minX+aabb.maxX), -0.5*(aabb.minY+aabb.maxY), -0.5*(aabb.minZ+aabb.maxZ));
 		this.transformMatrix.multiply(this.rotMatrix);
 		this.transformMatrix.scale(this.zoomFactor, -this.zoomFactor, this.zoomFactor);
-		this.transformMatrix.translate(this.frameWidth/2+this.panning[0], this.frameHeight/2+this.panning[1], 0);
+		this.transformMatrix.translate(0.5*this.frameWidth+this.panning[0], 0.5*this.frameHeight+this.panning[1], 0);
 	}
 
 	// sort meshes into a render list
@@ -3994,9 +3994,9 @@ JSC3D.Material.prototype.generatePalette = function() {
 	if(this.simulateSpecular) {
 		var i = 0;
 		while(i < 204) {
-			var r = ambientR + i * diffuseR / 204;
-			var g = ambientG + i * diffuseG / 204;
-			var b = ambientB + i * diffuseB / 204;
+			var r = Math.max(ambientR, i * diffuseR / 204);
+			var g = Math.max(ambientG, i * diffuseG / 204);
+			var b = Math.max(ambientB, i * diffuseB / 204);
 			if(r > 255)
 				r = 255;
 			if(g > 255)
@@ -4007,10 +4007,11 @@ JSC3D.Material.prototype.generatePalette = function() {
 			this.palette[i++] = r << 16 | g << 8 | b;
 		}
 
+		// simulate specular high light
 		while(i < 256) {
-			var r = ambientR + diffuseR + (i - 204) * (255 - diffuseR) / 82;
-			var g = ambientG + diffuseG + (i - 204) * (255 - diffuseG) / 82;
-			var b = ambientB + diffuseB + (i - 204) * (255 - diffuseB) / 82;
+			var r = Math.max(ambientR, diffuseR + (i - 204) * (255 - diffuseR) / 82);
+			var g = Math.max(ambientG, diffuseG + (i - 204) * (255 - diffuseG) / 82);
+			var b = Math.max(ambientB, diffuseB + (i - 204) * (255 - diffuseB) / 82);
 			if(r > 255)
 				r = 255;
 			if(g > 255)
@@ -4024,9 +4025,9 @@ JSC3D.Material.prototype.generatePalette = function() {
 	else {
 		var i = 0;
 		while(i < 256) {
-			var r = ambientR + i * diffuseR / 256;
-			var g = ambientG + i * diffuseG / 256;
-			var b = ambientB + i * diffuseB / 256;
+			var r = Math.max(ambientR, i * diffuseR / 256);
+			var g = Math.max(ambientG, i * diffuseG / 256);
+			var b = Math.max(ambientB, i * diffuseB / 256);
 			if(r > 255)
 				r = 255;
 			if(g > 255)
@@ -4772,15 +4773,15 @@ JSC3D.BinaryStream.prototype.decodeFloat = function(bytes, significandBits) {
 	this.offset += bytes;
 
 	switch(e) {
-		case 0:		// 0 or denormalized number
-			e = 1 - eBias;
-			break;
-		case eMax:	// NaN or +/-Infinity
-			return m ? NaN : ((s ? -1 : 1) * Infinity);
-		default:	// normalized number
-			m += Math.pow(2, mLen);
-			e -= eBias;
-			break;
+	case 0:		// 0 or denormalized number
+		e = 1 - eBias;
+		break;
+	case eMax:	// NaN or +/-Infinity
+		return m ? NaN : ((s ? -1 : 1) * Infinity);
+	default:	// normalized number
+		m += Math.pow(2, mLen);
+		e -= eBias;
+		break;
 	}
 
 	return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
@@ -4831,7 +4832,7 @@ JSC3D.LoaderSelector = {
 /**
 	@class ObjLoader
 
-	This class implements a scene loader from a wavefront obj file. 
+	This class implements a scene loader from a Wavefront obj file. 
  */
 JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
 	this.onload = (onload && typeof(onload) == 'function') ? onload : null;
