@@ -1,123 +1,131 @@
 ﻿<!DOCTYPE HTML>
 <HTML>
- <HEAD>
-  <TITLE> JSC3D - BMW Demo </TITLE>
-  <META NAME="Author" CONTENT="JSC3D">
- </HEAD>
+	<HEAD>
+		<TITLE> JSC3D - BMW Demo </TITLE>
+		<META NAME="Author" CONTENT="JSC3D">
+		<STYLE type="text/css">
+			/* ================================================================ 
+			This copyright notice must be untouched at all times.
 
- <BODY>
-	<div style="width:490px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
-		<canvas id="cv" style="border: 1px solid;" width="490" height="368" ></canvas>
-		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:10px; top:315px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
-			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
+			The original version of this stylesheet and the associated (x)html
+			is available at http://www.stunicholls.com/menu/hover_drop_1.html
+			Copyright (c) 2005-2007 Stu Nicholls. All rights reserved.
+			This stylesheet and the associated (x)html may be modified in any 
+			way to fit your requirements.
+			=================================================================== */
+			#outer {width:490px; height:35px; position:absolute;}
+			.topline {width:490px; height:3px; border:1px solid #000; background:#cdc; font-size:1px;}
+
+			#menu {list-style-type:none; padding:0; margin:0 0 0 3px;}
+			#menu ul {list-style-type:none; padding:0; margin:0;}
+			#menu li {float:left; background:#cdc; margin:3px 3px 0 0; border:1px solid #000; width:123px; height:25px;}
+			#menu li.sub {background:#aba;}
+
+			/* for IE5.5 and IE6 only */
+			#menu li a {display:block; color:#000; height:25px; font-family:arial, sans-serif; font-size:11px; line-height:24px; width:123px; text-decoration:none; text-align:center;}
+			#menu li a table {position:absolute; left:0; top:-1px; border-collapse:collapse; width:0; height:0;}
+
+			#menu :hover {color:#fff;  position:relative;}
+			#menu :hover > a {color:#fff;}
+
+			#menu ul, 
+			#menu :hover ul ul,
+			#menu :hover ul :hover ul ul,
+			#menu :hover ul :hover ul ul.right {visibility:hidden; width:0; height:0; overflow:hidden;}
+
+			#menu :hover ul {visibility:visible; overflow:visible; position:absolute; height:auto; width:128px; left:-1px;top:26px; background:url(transparent.gif);}
+
+			#menu :hover ul :hover ul,
+			#menu :hover ul :hover ul :hover ul {visibility:visible; overflow:visible; height:auto; width:128px; padding:9px 3px; left:100px; top:0;}
+
+			#menu :hover ul :hover ul.right,
+			#menu :hover ul :hover ul :hover ul.right {visibility:visible; overflow:visible; height:auto; width:128px; padding:9px 3px; left:-106px; top:0;}
+		</STYLE>
+	</HEAD>
+
+	<BODY>
+		<div style="width:490px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+			<canvas id="cv" style="border: 1px solid;" width="490" height="368" ></canvas>
+			<div id="outer" style="top:0px;">
+				<div class="topline"></div>
+				<ul id="menu">
+					<li class="sub">
+						<a href="javascript:void(0);">Colour</a>
+						<ul>
+							<li style="background:#EFEBE0;"><a href="javascript:void(0);" onclick="changeBodyColor(0xEFEBE0);"></a></li>
+							<li style="background:#FF9900;"><a href="javascript:void(0);" onclick="changeBodyColor(0xFF9900);"></a></li>
+							<li style="background:#CC0000;"><a href="javascript:void(0);" onclick="changeBodyColor(0xCC0000);"></a></li>
+							<li style="background:#330033;"><a href="javascript:void(0);" onclick="changeBodyColor(0x330033);"></a></li>
+							<li style="background:#000066;"><a href="javascript:void(0);" onclick="changeBodyColor(0x000066);"></a></li>
+							<li style="background:#003333;"><a href="javascript:void(0);" onclick="changeBodyColor(0x003333);"></a></li>
+						</ul>
+					</li>
+					<li class="sub">
+						<a href="javascript:void(0);">Definition</a>
+						<ul>
+							<li><a href="javascript:void(0);" onclick="changeDefinition('low');">Low</a></li>
+							<li><a href="javascript:void(0);" onclick="changeDefinition('high');">High</a></li>
+							<li><a href="javascript:void(0);" onclick="changeDefinition('standard');">Standard</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:5px; top:320px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
+				Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
+			</div>
 		</div>
-		<button id="low_quality" onclick="setDefinition('low');">low quality</button>
-		<button id="standard_quality" onclick="setDefinition('standard');">standard quality</button>
-		<button id="high_quality" onclick="setDefinition('high');">high quality</button>
-		<p style="font-family:Arial,sans-serif;">The model used here is exported from BS Contact's tech demo. You may also want to see the original impressive demo from <a href="http://www.bitmanagement.de/developer/contact/examples/bmw/bmw_reflect.wrl">here</a>. <b>Should not</b> be used for any commercial purpose.<p>
-	</div>
-	<script type="text/javascript" src="../jsc3d.js"></script>
-	<script type="text/javascript" src="../jsc3d.touch.js"></script>
-	<script type="text/javascript">
-	var canvas = document.getElementById('cv');
-	var viewer = new JSC3D.Viewer(canvas);
-	viewer.setParameter('SceneUrl', 'bmw/bmw.obj');
-	viewer.setParameter('InitRotationX', 0);
-	viewer.setParameter('InitRotationY', 0);
-	viewer.setParameter('InitRotationZ', 0);
-	viewer.setParameter('ModelColor', '#CAA618');
-	viewer.setParameter('BackgroundColor1', '#FFFFFF');
-	viewer.setParameter('BackgroundColor2', '#383840');
-	viewer.setParameter('RenderMode', 'texturesmooth');
-	viewer.setParameter('SphereMapUrl', 'bmw/dullchrome.jpg');
-	viewer.init();
-	viewer.update();
+		<script type="text/javascript" src="../jsc3d.js"></script>
+		<script type="text/javascript" src="../jsc3d.touch.js"></script>
+		<script type="text/javascript" src="../jsc3d.webgl.js"></script>
+		<script type="text/javascript">
+			/**
+			 * Create and initialize the viewer instance.
+			 */
+			var viewer = new JSC3D.Viewer(document.getElementById('cv'), {
+				SceneUrl: 'bmw/bmw.obj', 
+				InitRotationX: -75, 
+				InitRotationY:  45, 
+				InitRotationZ:  10, 
+				BackgroundColor1: '#FFFFFF', 
+				BackgroundColor2: '#383840', 
+				SphereMapUrl: 'bmw/dullchrome.jpg', 
+				RenderMode: 'texturesmooth', 
+				Renderer: 'webgl'
+			});
+			viewer.init();
+			viewer.update();
 
-	var ctx = canvas.getContext('2d');
+			/**
+			 * Change display definition.
+			 */
+			function changeDefinition(definition) {
+				// We don't need FSAA since Chrome already enables MSAA in WebGL by default.
+				if(definition == 'high' && viewer.isWebGLEnabled() && JSC3D.PlatformInfo.browser == 'chrome')
+					definition = 'standard';
 
-	var colorMenu = new Image;
-	colorMenu.src = 'bmw/menu.gif';
+				viewer.setDefinition(definition);
+				viewer.update();
+			}
 
-	var isMenuOpen = false;
-	var menuOffsetX = 10;
-	var menuOffsetY = 10;
-	var menuItems = [undefined, '#EFEBE0', '#FF9900', '#CC0000', '#330033', '#000066', '#003333'];
-
-	function isMenuLoaded() {
-		return colorMenu.width > 0 && colorMenu.height > 0;
-	}
-
-	function whichMenuItem(x, y) {
-		if(isMenuLoaded() && 
-			x >= menuOffsetX && x < menuOffsetX + colorMenu.width &&
-			y >= menuOffsetY && y < menuOffsetY + colorMenu.height)
-			return Math.floor((y - menuOffsetY) * menuItems.length /  colorMenu.height);
-
-		return -1;
-	}
-
-	function drawMenu() {
-		if(isMenuLoaded()) {
-			if(isMenuOpen)
-				ctx.drawImage(colorMenu, menuOffsetX, menuOffsetY, colorMenu.width, colorMenu.height);
-			else
-				ctx.drawImage(colorMenu, 0, 0, colorMenu.width, colorMenu.height / menuItems.length, menuOffsetX, menuOffsetY, colorMenu.width, colorMenu.height / menuItems.length);
-		}
-	}
-
-	function changeCarBodyColor(color) {
-		var scene = viewer.getScene();
-		if(scene) {
-			var objects = scene.getChildren();
-			for(var i=0; i<objects.length; i++) {
-				if(objects[i].material && 
-					objects[i].hasTexture() && objects[i].texture.srcUrl.indexOf('dullchrome.jpg') >= 0) {
-					// change diffuse color of car body to the given one
-					objects[i].material.diffuseColor = color;
-					objects[i].material.simulateSpecular = true;
-					// re-generate material's palette to apply the changes
-					objects[i].material.generatePalette();
-					// enable environment mapping on car body
-					objects[i].isEnvironmentCast = true;
+			/**
+			 * Change color (and reflection mode) of the car's bodywork.
+			 */
+			function changeBodyColor(color) {
+				var scene = viewer.getScene();
+				if(scene) {
+					var parts = scene.getChildren();
+					for(var i=0; i<parts.length; i++) {
+						// look for the bodywork by its texture name
+						if(parts[i].hasTexture() && parts[i].texture.srcUrl.indexOf('dullchrome.jpg') >= 0) {
+							// change diffuse color of the bodywork to the given one
+							parts[i].setMaterial(new JSC3D.Material('', 0, color, 0, true));
+							// enable environment mapping on the bodywork
+							parts[i].isEnvironmentCast = true;
+						}
+					}
+					viewer.update();
 				}
 			}
-
-			viewer.update();
-		}
-	}
-
-	viewer.afterupdate = function() {
-		drawMenu();
-	};
-
-	viewer.onmouseup = function(x, y) {
-		if(isMenuLoaded()) {
-			var itemIndex = whichMenuItem(x, y);
-			if(isMenuOpen) {
-				if(itemIndex > 0) {
-					var item = menuItems[itemIndex];
-					changeCarBodyColor(parseInt(item.substring(1), 16));
-				}
-				else if(itemIndex == 0)
-					// fold menu
-					isMenuOpen = false;
-					viewer.update(true); // do not generate new frame, just repaint it to apply the new menu state
-			}
-			else {
-				if(itemIndex == 0)
-					// unfold menu
-					isMenuOpen = true;
-					viewer.update(true); // do not generate new frame, just repaint it
-			}
-		}
-	};
-
-	function setDefinition(definition) {
-		if(viewer.getScene()) {
-			viewer.setDefinition(definition);
-			viewer.update();
-		}
-	}
-  </script>
- </BODY>
+		</script>
+	</BODY>
 </HTML>
