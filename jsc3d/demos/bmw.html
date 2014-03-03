@@ -50,7 +50,7 @@
 				<div class="topline"></div>
 				<ul id="menu">
 					<li class="sub">
-						<a href="javascript:void(0);">Colour</a>
+						<a href="javascript:void(0);">Bodywork</a>
 						<ul>
 							<li style="background:#EFEBE0;"><a href="javascript:void(0);" onclick="changeBodyColor(0xEFEBE0);"></a></li>
 							<li style="background:#FF9900;"><a href="javascript:void(0);" onclick="changeBodyColor(0xFF9900);"></a></li>
@@ -58,6 +58,15 @@
 							<li style="background:#330033;"><a href="javascript:void(0);" onclick="changeBodyColor(0x330033);"></a></li>
 							<li style="background:#000066;"><a href="javascript:void(0);" onclick="changeBodyColor(0x000066);"></a></li>
 							<li style="background:#003333;"><a href="javascript:void(0);" onclick="changeBodyColor(0x003333);"></a></li>
+						</ul>
+					</li>
+					<li class="sub">
+						<a href="javascript:void(0);">Rims</a>
+						<ul>
+							<li style="width:64px; height:64px;"><a style="width:64px; height:64px; background:url(./bmw/felge1.jpg) center; background-size:cover;" href="javascript:void(0);" onclick="changeRimTexture('./bmw/felge1.jpg');"></a></li>
+							<li style="width:64px; height:64px;"><a style="width:64px; height:64px; background:url(./bmw/felge2.jpg) center; background-size:cover;" href="javascript:void(0);" onclick="changeRimTexture('./bmw/felge2.jpg');"></a></li>
+							<li style="width:64px; height:64px;"><a style="width:64px; height:64px; background:url(./bmw/felge3.jpg) center; background-size:cover;" href="javascript:void(0);" onclick="changeRimTexture('./bmw/felge3.jpg');"></a></li>
+							<li style="width:64px; height:64px;"><a style="width:64px; height:64px; background:url(./bmw/felge4.jpg) center; background-size:cover;" href="javascript:void(0);" onclick="changeRimTexture('./bmw/felge4.jpg');"></a></li>
 						</ul>
 					</li>
 					<li class="sub">
@@ -70,7 +79,7 @@
 					</li>
 				</ul>
 			</div>
-			<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:5px; top:320px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
+			<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:5px; top:320px; background-color:#000000; height:32px; width:240px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
 				Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
 			</div>
 		</div>
@@ -124,6 +133,35 @@
 						}
 					}
 					viewer.update();
+				}
+			}
+
+			/**
+			 * Change texture of the rim parts.
+			 */
+			var rims = []; 
+			function changeRimTexture(url) {
+				var scene = viewer.getScene();
+				if(scene) {
+					// find all the rim parts by the texture name
+					if(rims.length == 0) {
+						var parts = scene.getChildren();
+						for(var i=0; i<parts.length; i++) {
+							if(parts[i].hasTexture() && parts[i].texture.srcUrl.indexOf('felge2.jpg') >= 0) {
+								rims.push(parts[i]);
+							}
+						}
+					}
+
+					// create a new texture using the given url and set it to the rim parts when done
+					var newTexture = new JSC3D.Texture();
+					newTexture.onready = function() {
+						for(var i=0; i<rims.length; i++) {
+							rims[i].setTexture(this);
+						}
+						viewer.update();
+					};
+					newTexture.createFromUrl(url);
 				}
 			}
 		</script>
