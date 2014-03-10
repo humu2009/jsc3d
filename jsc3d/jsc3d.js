@@ -398,7 +398,7 @@ JSC3D.Viewer.prototype.setDefinition = function(definition) {
 		return;
 
 	/*
-		Re-allocate frame buffers using the dimensions of current definition.
+		Reallocate frame buffers using the dimensions of current definition.
 	 */
 	var newSize = this.frameWidth * this.frameHeight;
 	if(this.colorBuffer.length < newSize)
@@ -434,7 +434,7 @@ JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
 		self.generateBackground();
 	};
 
-	img.src = backgroundImageUrl;
+	img.src = encodeURI(backgroundImageUrl);
 };
 
 /**
@@ -4099,7 +4099,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 			JSC3D.console.logWarning('Failed to load texture image file "' + this.src + '". This texture will be discarded.');
 	};
 
-	img.src = imageUrl;
+	img.src = encodeURI(imageUrl);
 };
 
 /**
@@ -4882,7 +4882,7 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 	var urlName = urlPath + fileName;
 	var self = this;
 	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
+	xhr.open('GET', encodeURI(urlName), true);
 
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
@@ -4934,7 +4934,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 	var urlName = urlPath + fileName;
 	var self = this;
 	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
+	xhr.open('GET', encodeURI(urlName), true);
 
 	xhr.onreadystatechange = function() {
 		if(this.readyState == 4) {
@@ -5296,7 +5296,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 	//TODO: current blob implementation seems do not work correctly on IE10. Repair it or turn to an arraybuffer implementation.
 	var isIE10Compatible = false;//(isIE && parseInt(JSC3D.PlatformInfo.version) >= 10);
 	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
+	xhr.open('GET', encodeURI(urlName), true);
 	if(isIE10Compatible)
 		xhr.responseType = 'blob';	// use blob method to deal with STL files for IE >= 10
 	else if(isIE)

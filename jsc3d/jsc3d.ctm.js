@@ -159,7 +159,7 @@ JSC3D.OpenCTMLoader.prototype.loadFromUrl = function(urlName) {
 		this.urlPath = urlName.substring(0, lastSlashAt+1);
 
 	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
+	xhr.open('GET', encodeURI(urlName), true);
 	xhr.overrideMimeType('text/plain; charset=x-user-defined');
 
 	var self = this;

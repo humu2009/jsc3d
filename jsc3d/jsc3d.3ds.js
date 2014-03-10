@@ -61,7 +61,7 @@ JSC3D.Autodesk3DSLoader = function(onload, onerror, onprogress, onresource) {
 JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
 	var self = this;
 	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
+	xhr.open('GET', encodeURI(urlName), true);
 //	if(JSC3D.PlatformInfo.browser == 'ie' && JSC3D.PlatformInfo.version >= '10')
 //		xhr.responseType = 'blob';	// use blob method to deal with 3DS files for IE >= 10
 	if(JSC3D.PlatformInfo.browser == 'ie') {
