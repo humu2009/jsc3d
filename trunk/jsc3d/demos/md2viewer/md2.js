@@ -1,5 +1,5 @@
 /**
-	@preserve Copyright (c) 2012 Humu humu2009@gmail.com
+	@preserve Copyright (c) 2012~2014 Humu <humu2009@gmail.com>
 	This file is part of the JSC3D project http://code.google.com/p/jsc3d.
 	JSC3D is freely distributable under the terms of the MIT license.
 
@@ -219,7 +219,7 @@ JSC3D.Md2Loader.prototype.loadMd2File = function(urlPath, fileName) {
 	var self = this;
 	var isMSIE = JSC3D.PlatformInfo.browser == 'ie';
 	var xhr = new XMLHttpRequest;
-	xhr.open('GET', urlName, true);
+	xhr.open('GET', encodeURI(urlName), true);
 	if(isMSIE)
 		xhr.setRequestHeader("Accept-Charset", "x-user-defined");
 	else
