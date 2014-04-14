@@ -3373,35 +3373,47 @@ JSC3D.Viewer.prototype.keyStates = null;
 JSC3D.Viewer.prototype.mouseX = 0;
 JSC3D.Viewer.prototype.mouseY = 0;
 /**
- * {Function} A callback function that should be invoked as soon as a new loading is started.
+ * {Function} A callback function that will be invoked as soon as a new loading is started.
  */
 JSC3D.Viewer.prototype.onloadingstarted = null;
 /**
- * {Function} A callback function that should be invoked when the previous loading finished successfully.
+ * {Function} A callback function that will be invoked when the previous loading finished successfully.
  */
 JSC3D.Viewer.prototype.onloadingcomplete = null;
 /**
- * {Function} A callback function that should be invoked 0, once or several times as a loading is in progress.
+ * {Function} A callback function that will be invoked 0, once or several times as a loading is in progress.
  */
 JSC3D.Viewer.prototype.onloadingprogress = null;
 /**
- * {Function} A callback function that should be invoked when the previous loading has been aborted.
+ * {Function} A callback function that will be invoked when the previous loading has been aborted.
  */
 JSC3D.Viewer.prototype.onloadingaborted = null;
 /**
- * {Function} A callback function that should be invoked when 
+ * {Function} A callback function that will be invoked when error occurs in loading.
  */
 JSC3D.Viewer.prototype.onloadingerror = null;
+/**
+ * {Function} A callback function that will be invoked when there is a mousedown event on the canvas.
+ */
 JSC3D.Viewer.prototype.onmousedown = null;
+/**
+ * {Function} A callback function that will be invoked when there is a mouseup event on the canvas.
+ */
 JSC3D.Viewer.prototype.onmouseup = null;
+/**
+ * {Function} A callback function that will be invoked when there is a mousemove event on the canvas.
+ */
 JSC3D.Viewer.prototype.onmousemove = null;
+/**
+ * {Function} A callback function that will be invoked when there is a mousewheel event on the canvas.
+ */
 JSC3D.Viewer.prototype.onmousewheel = null;
 /**
- * {Function} A callback function that should be invoked before each update.
+ * {Function} A callback function that will be invoked before each update.
  */
 JSC3D.Viewer.prototype.beforeupdate = null;
 /**
- * {Function} A callback function that should be invoked after each update.
+ * {Function} A callback function that will be invoked after each update.
  */
 JSC3D.Viewer.prototype.afterupdate = null;
 JSC3D.Viewer.prototype.mouseUsage = 'default';
@@ -3544,6 +3556,9 @@ JSC3D.Scene.prototype.calcAABB = function() {
 };
 
 JSC3D.Scene.prototype.name = '';
+/**
+ * {JSC3D.AABB} The Axis-aligned bounding box of the whole scene. Read only.
+ */
 JSC3D.Scene.prototype.aabb = null;
 JSC3D.Scene.prototype.children = null;
 JSC3D.Scene.prototype.maxChildId = 1;
@@ -3932,6 +3947,9 @@ JSC3D.Mesh.prototype.name = '';
 JSC3D.Mesh.prototype.metadata = '';
 JSC3D.Mesh.prototype.visible = false;
 JSC3D.Mesh.prototype.renderMode = 'flat';
+/**
+ * {JSC3D.AABB} The Axis-aligned bounding box of the mesh. Read only.
+ */
 JSC3D.Mesh.prototype.aabb = null;
 JSC3D.Mesh.prototype.vertexBuffer = null;
 JSC3D.Mesh.prototype.indexBuffer = null;
@@ -4252,12 +4270,33 @@ JSC3D.Texture.cv = null;
 /**
 	@class AABB
 
-	This class implements the Axis-Aligned Bounding Box to measure spacial enclosure.
+	This class implements the Axis-Aligned Bounding Box to measure spatial enclosure.
  */
 JSC3D.AABB = function() {
-	this.minX = this.maxX = 0;
-	this.minY = this.maxY = 0;
-	this.minZ = this.maxZ = 0;
+	/**
+	 * {Number} X coordinate of the minimum edge of the box.
+	 */
+	this.minX = 0;
+	/**
+	 * {Number} Y coordinate of the minimum edge of the box.
+	 */
+	this.minY = 0;
+	/**
+	 * {Number} Z coordinate of the minimum edge of the box.
+	 */
+	this.minZ = 0;
+	/**
+	 * {Number} X coordinate of the maximum edge of the box.
+	 */
+	this.maxX = 0;
+	/**
+	 * {Number} Y coordinate of the maximum edge of the box.
+	 */
+	this.maxY = 0;
+	/**
+	 * {Number} Z coordinate of the maximum edge of the box.
+	 */
+	this.maxZ = 0;
 };
 
 /**
@@ -5176,6 +5215,10 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 		var tokens = line.split(/[ \t]+/);
 		if(tokens.length > 0) {
 			var keyword = tokens[0];
+			/*
+			 * This has been fixed by Laurent Piroelle <laurent.piroelle@fabzat.com> to deal with mtl 
+			 * keywords in wrong case caused by some exporting tools.
+			 */
 			switch(keyword) {
 			case 'newmtl':
 				curMtlName = tokens[1];
@@ -5185,6 +5228,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 				mtls[curMtlName] = mtl;
 				break;
 			case 'Ka':
+			case 'ka':
 				/*
 				if(tokens.length == 4 && !isNaN(tokens[1])) {
 					var ambientR = (parseFloat(tokens[1]) * 255) & 0xff;
@@ -5197,6 +5241,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 				*/
 				break;
 			case 'Kd':
+			case 'kd':
 				if(tokens.length == 4 && !isNaN(tokens[1])) {
 					var diffuseR = (parseFloat(tokens[1]) * 255) & 0xff;
 					var diffuseG = (parseFloat(tokens[2]) * 255) & 0xff;
@@ -5207,6 +5252,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 				}
 				break;
 			case 'Ks':
+			case 'ks':
 				// ignore specular reflectivity definition
 				break;
 			case 'd':
@@ -5227,6 +5273,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 				*/
 				break;
 			case 'map_Kd':
+			case 'map_kd':
 				if(tokens.length == 2) {
 					var texFileName = tokens[1];
 					var mtl = mtls[curMtlName];
@@ -5412,8 +5459,8 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	
 	if(!isBinary) {
 		/*
-			This should be an ASCII STL file.
-			By Triffid Hunter <triffid.hunter@gmail.com>.
+		 * This should be an ASCII STL file.
+		 * By Triffid Hunter <triffid.hunter@gmail.com>.
 		 */
 
 		var facePattern =	'facet\\s+normal\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+([-+]?\\b(?:[0-9]*\\.)?[0-9]+(?:[eE][-+]?[0-9]+)?\\b)\\s+' + 
