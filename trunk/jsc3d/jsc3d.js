@@ -273,12 +273,8 @@ JSC3D.Viewer.prototype.init = function() {
 	this.needRepaint = false;
 	this.scene = null;
 
-	// create a default material for meshes that don't have one
-	this.defaultMaterial = new JSC3D.Material;
-	this.defaultMaterial.ambientColor = 0;
-	this.defaultMaterial.diffuseColor = this.modelColor;
-	this.defaultMaterial.transparency = 0;
-	this.defaultMaterial.simulateSpecular = true;
+	// create a default material to render meshes that don't have one
+	this.defaultMaterial = new JSC3D.Material('default', undefined, this.modelColor, 0, true);
 
 	// allocate memory storage for frame buffers
 	if(!this.webglBackend) {
@@ -3992,8 +3988,9 @@ JSC3D.Mesh.prototype.transformedVertexNormalBuffer = null;
  */
 JSC3D.Material = function(name, ambientColor, diffuseColor, transparency, simulateSpecular) {
 	this.name = name || '';
-	this.ambientColor = ambientColor || 0;
 	this.diffuseColor = diffuseColor || 0x7f7f7f;
+	// default ambient color will be of 1/8 the intensity of the diffuse color
+	this.ambientColor = (typeof ambientColor) == 'number' ? ambientColor : (((this.diffuseColor & 0xff0000) >> 3) & 0xff0000 | ((this.diffuseColor & 0xff00) >> 3) & 0xff00 | ((this.diffuseColor & 0xff) >> 3));
 	this.transparency = transparency || 0;
 	this.simulateSpecular = simulateSpecular || false;
 	this.palette = null;
