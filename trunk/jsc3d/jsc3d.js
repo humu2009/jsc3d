@@ -130,6 +130,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.mouseY = 0;
 	this.isTouchHeld = false;
 	this.baseZoomFactor = 1;
+	this.suppressDraggingRotation = false;
 	this.onloadingstarted = null;
 	this.onloadingcomplete = null;
 	this.onloadingprogress = null;
@@ -161,7 +162,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 		document.addEventListener('keyup', function(e){self.keyUpHandler(e);}, false);
 	}
 	else if(JSC3D.Hammer) {
-		JSC3D.Hammer(this.canvas).on('touch release hold drag pinch', function(e){self.gestureHandler(e);});
+		JSC3D.Hammer(this.canvas).on('touch release hold drag pinch transformend', function(e){self.gestureHandler(e);});
 	}
 	else {
 		this.canvas.addEventListener('touchstart', function(e){self.touchStartHandler(e);}, false);
@@ -901,12 +902,12 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 			this.onmousemove(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
 		if(!this.isDefaultInputHandlerEnabled)
 			break;
-		if(this.isTouchHeld) {	// pan
+		if(this.isTouchHeld) {						// pan
 			var ratio = (this.definition == 'low') ? 0.5 : ((this.definition == 'high') ? 2 : 1);
 			this.panning[0] += ratio * (clientX - this.mouseX);
 			this.panning[1] += ratio * (clientY - this.mouseY);
 		}
-		else {					// rotate
+		else if(!this.suppressDraggingRotation) {	// rotate
 			var rotX = (clientY - this.mouseY) * 360 / this.canvas.width;
 			var rotY = (clientX - this.mouseX) * 360 / this.canvas.height;
 			this.rotMatrix.rotateAboutXAxis(rotX);
@@ -916,13 +917,26 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 		this.mouseY = clientY;
 		this.update();
 		break;
-	case 'pinch':
+	case 'pinch':									// zoom
 		if(this.onmousewheel)
 			this.onmousewheel(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
 		if(!this.isDefaultInputHandlerEnabled)
 			break;
+		this.suppressDraggingRotation = true;
 		this.zoomFactor = this.baseZoomFactor * e.gesture.scale;
 		this.update();
+		break;
+	case 'transformend':
+		/*
+		 * Reset the flag to enable dragging rotation again after a delay of 0.25s after the end of a zooming.
+		 * This fixed unnecessary rotation at the end of a zooming when one finger has leaved the touch device 
+		 * while the other still stays on it sliding.
+		 * By Jeremy Ellis <jeremy.ellis@mpsd.ca>
+		 */
+		var self = this;
+		setTimeout(function() {
+			self.suppressDraggingRotation = false;
+		}, 250);
 		break;
 	default:
 		break;
