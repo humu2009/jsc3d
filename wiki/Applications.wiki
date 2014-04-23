@@ -5,11 +5,11 @@
 
 == Online Ring Customization ==
 
-_*Princeton Ring*_ provides an online ring design interface where a client can fully customize and preview a new ring. After an order placement, the result is generated immediately using 3D printing, then polished and delivered. _JSC3D_ is integrated into the online design system for preview of a ring.
+_*Princeton Ring*_ provides an online ring design interface where a client can fully customize and preview a new alumni ring. After an order placement, the result is generated immediately using the draft from the previous step with 3D printing. Then it will be polished and delivered. _JSC3D_ is integrated into the online design system for presenting each new ring.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-princeton-ring.jpg]
 
-[http://princetonring.com/ [Website]]
+[http://www.alumnirings.com [Website]]
 
 == Hygiene Products Display ==
 
