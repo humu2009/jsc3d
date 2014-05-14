@@ -544,7 +544,7 @@ JSC3D.WebGLRenderBackend.prototype.pick = function(x, y) {
 
 /**
  * Render a given list of meshes, generating colored stuff of this frame.
- * @privte
+ * @private
  */
 JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transformMat4, normalMat3, renderMode, defaultMaterial, sphereMap) {
 	if(sphereMap && sphereMap.hasData() && !sphereMap.compiled)
@@ -754,7 +754,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 
 /**
  * Fill the picking buffer of this frame.
- * @privte
+ * @private
  */
 JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, transformMat4, defaultMaterial) {
 	var gl = this.gl;
@@ -812,7 +812,7 @@ JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, tran
 
 /**
  * Compile a mesh according to the given render mode, generating the WebGL dependent stuff.
- * @privte
+ * @private
  */
 JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 	if(mesh.isTrivial())
@@ -1050,7 +1050,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMesh = function(mesh, renderMode) {
 
 /**
  * Compile a material, generating the WebGL dependent stuff.
- * @privte
+ * @private
  */
 JSC3D.WebGLRenderBackend.prototype.compileMaterial = function(material) {
 	var gl = this.gl;
@@ -1082,7 +1082,7 @@ JSC3D.WebGLRenderBackend.prototype.compileMaterial = function(material) {
 
 /**
  * Compile a texture into WebGL texture object.
- * @privte
+ * @private
  */
 JSC3D.WebGLRenderBackend.prototype.compileTexture = function(texture, genMipmap) {
 	if(!texture.hasData())

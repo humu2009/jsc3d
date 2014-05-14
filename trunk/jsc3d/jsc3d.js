@@ -1079,8 +1079,8 @@ JSC3D.Viewer.prototype.reportProgress = function(task, progress) {
 		var b = 255 - (this.bkgColor1 & 0xff);
 		var color = 'rgb(' + r + ',' + g + ',' + b + ')';
 
-		var barX = canvasRect.left + 40;
-		var barY = canvasRect.top + canvasRect.height * 0.38;
+		var barX = window.pageXOffset + canvasRect.left + 40;
+		var barY = window.pageYOffset + canvasRect.top  + canvasRect.height * 0.38;
 		var barWidth = canvasRect.width - (barX - canvasRect.left) * 2;
 		var barHeight = 20;
 
@@ -1154,8 +1154,8 @@ JSC3D.Viewer.prototype.reportError = function(message) {
 		var b = 255 - (this.bkgColor1 & 0xff);
 		var color = 'rgb(' + r + ',' + g + ',' + b + ')';
 
-		var panelX = canvasRect.left + 40;
-		var panelY = canvasRect.top + canvasRect.height * 0.38;
+		var panelX = window.pageXOffset + canvasRect.left + 40;
+		var panelY = window.pageYOffset + canvasRect.top  + canvasRect.height * 0.38;
 		var panelWidth = canvasRect.width - (panelX - canvasRect.left) * 2;
 		var panelHeight = 14;
 
@@ -4766,6 +4766,7 @@ JSC3D.BinaryStream.prototype.readBytes = function(buffer, bytesToRead) {
 	@private
  */
 JSC3D.BinaryStream.prototype.decodeInt = function(bytes, isSigned) {
+	// are there enough bytes for this integer?
 	if(this.offset + bytes > this.data.length) {
 		this.offset = this.data.length;
 		return NaN;
@@ -4787,6 +4788,7 @@ JSC3D.BinaryStream.prototype.decodeInt = function(bytes, isSigned) {
 	@private
  */
 JSC3D.BinaryStream.prototype.decodeFloat = function(bytes, significandBits) {
+	// are there enough bytes for the float?
 	if(this.offset + bytes > this.data.length) {
 		this.offset = this.data.length;
 		return NaN;
