@@ -4,3 +4,4 @@ Supported File Formats:
 - Wavefront obj
 - STL (both binary and ascii)
 - Autodesk 3DS
+- OpenCTM Highly compressed mesh
