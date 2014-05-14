@@ -5293,7 +5293,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 				}
 				break;
 			case '#':
-				// ignore any comments
+				// ignore any comment
 			default:
 				break;
 			}

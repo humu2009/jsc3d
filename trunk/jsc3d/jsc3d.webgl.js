@@ -596,7 +596,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 
 		var isSphereMapped = mesh.isEnvironmentCast && (sphereMap != null);
 
-		// resolve current render mode and chose a right program
+		// resolve current render mode and then choose a right program
 		var rmode = mesh.renderMode || renderMode;
 		var program;
 		switch(rmode) {
@@ -625,6 +625,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 			break;
 		}
 
+		// need to recompile the mesh?
 		if(!mesh.compiled || mesh.compiled.remderMode != rmode)
 			this.compileMesh(mesh, rmode);
 
@@ -633,7 +634,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 			curProgram = program;
 		}
 
-		// render this mesh with the correct render mode
+		// draw the mesh with the chosen render mode
 		switch(rmode) {
 		case 'point':
 			gl.uniform1i(program.uniforms['u_isPoint'], rmode == 'point');
@@ -1092,6 +1093,8 @@ JSC3D.WebGLRenderBackend.prototype.compileTexture = function(texture, genMipmap)
 	var gl = this.gl;
 
 	texture.compiled = {
+		width:  texture.width, 
+		height: texture.height, 
 		hasMipmap: genMipmap
 	};
 
