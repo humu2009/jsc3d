@@ -33,7 +33,7 @@ _*3D Printing @ Columbia*_ is a research project that allows people to upload in
 
 [http://3dprint.cul.columbia.edu/?page_id=1275 [Website]]
 
-== Online Interactive Crystal Reseach ==
+== Online Interactive Crystal Research ==
 
 _*Smorf Crystals*_ puts effort to collect and arrange information of crystal minerals and put them online in a way easy to view and search. They also provide 3D printing service of crystal models for researchers. _JSC3D_ is adopted there for presenting structures of various crystals.
 
