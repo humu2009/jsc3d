@@ -2,7 +2,7 @@
 
 = External Projects =
 
-Add content here.
+ * [https://www.drupal.org/project/v3dm v3dm]: Viewer for 3D models for _Drupal_ framework, based on _JSC3D_.
 
 
 = Articles =
@@ -12,4 +12,5 @@ Add content here.
 
 = Useful Tools =
 
-Add content here.
+ * [http://meshlab.sourceforge.net/ MeshLab]: A free and open source editor that can export 3D models as a variety of formats.
+ * [http://openctm.sourceforge.net/ OpenCTM]: A geometry file format providing extremely high compression rate for 3D data, together with utility tools for generating such file, which is well-supported by _JSC3D_.
