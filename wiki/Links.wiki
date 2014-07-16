@@ -2,7 +2,7 @@
 
 == External Projects ==
 
- * [https://www.drupal.org/project/v3dm v3dm]: 3D Viewer for _Drupal_ framework, based on _JSC3D_.
+ * [https://www.drupal.org/project/v3dm v3dm]: 3D viewer for _Drupal_ framework, based on _JSC3D_.
 
 
 == Articles ==
