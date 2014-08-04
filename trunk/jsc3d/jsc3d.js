@@ -431,6 +431,7 @@ JSC3D.Viewer.prototype.setBackgroudImageFromUrl = function(backgroundImageUrl) {
 		self.generateBackground();
 	};
 
+	img.crossOrigin = 'anonymous'; // explicitly enable cross-domain image
 	img.src = encodeURI(backgroundImageUrl);
 };
 
@@ -4128,6 +4129,7 @@ JSC3D.Texture.prototype.createFromUrl = function(imageUrl, useMipmap) {
 			JSC3D.console.logWarning('Failed to load texture image file "' + this.src + '". This texture will be discarded.');
 	};
 
+	img.crossOrigin = 'anonymous'; // explicitly enable cross-domain image
 	img.src = encodeURI(imageUrl);
 };
 
@@ -5491,7 +5493,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 
 			mesh.faceCount = numOfFaces;
 			var v2i = {};
-			
+
 			// reset regexp for vertex extraction
 			faceRegExp.lastIndex = 0;
 			faceRegExp.global = false;
@@ -5504,7 +5506,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 					var x = parseFloat(r[4 + (i * 3)]);
 					var y = parseFloat(r[5 + (i * 3)]);
 					var z = parseFloat(r[6 + (i * 3)]);
-					
+
 					// weld vertices by the given decimal precision
 					var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
 					var vi = v2i[vertKey];
@@ -5517,7 +5519,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 					}
 					mesh.indexBuffer.push(vi);
 				}
-				
+
 				// mark the end of the indices of a face
 				mesh.indexBuffer.push(-1);
 			}
@@ -5529,34 +5531,34 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 		 */
 
 		reader.reset();
-	
+
 		// skip 80-byte's STL file header
 		reader.skip(HEADER_BYTES);
-	
+
 		// read face count
 		var numOfFaces = reader.readUInt32();
-	
+
 		// calculate the expected length of the stream
 		var expectedLen = HEADER_BYTES + FACE_COUNT_BYTES + 
 							(FACE_NORMAL_BYTES + VERTEX_BYTES * FACE_VERTICES + ATTRIB_BYTE_COUNT_BYTES) * numOfFaces;
-		
+
 		// is file complete?
 		if(reader.size() < expectedLen) {
 			if(JSC3D.console)
 				JSC3D.console.logError('Failed to parse contents of the file. It seems not complete.');
 			return;
 		}
-	
+
 		mesh.faceCount = numOfFaces;
 		var v2i = {};
-	
+
 		// read faces
 		for(var i=0; i<numOfFaces; i++) {
 			// read normal vector of a face
 			mesh.faceNormalBuffer.push(reader.readFloat32());
 			mesh.faceNormalBuffer.push(reader.readFloat32());
 			mesh.faceNormalBuffer.push(reader.readFloat32());
-	
+
 			// read all 3 vertices of a face
 			for(var j=0; j<FACE_VERTICES; j++) {
 				// read coords of a vertex
@@ -5564,7 +5566,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 				x = reader.readFloat32();
 				y = reader.readFloat32();
 				z = reader.readFloat32();
-	
+
 				// weld vertices by the given decimal precision
 				var vertKey = x.toFixed(this.decimalPrecision) + '-' + y.toFixed(this.decimalPrecision) + '-' + z.toFixed(this.decimalPrecision);
 				var vi = v2i[vertKey];
@@ -5580,15 +5582,15 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 					mesh.indexBuffer.push(vi);
 				}
 			}
-	
+
 			// mark the end of the indices of a face
 			mesh.indexBuffer.push(-1);
-	
+
 			// skip 2-bytes' 'attribute byte count' field, since we do not deal with any additional attribs
 			reader.skip(ATTRIB_BYTE_COUNT_BYTES);
 		}
 	}
-	
+
 	// add mesh to scene
 	if(!mesh.isTrivial()) {
 		// Some tools (Blender etc.) export STLs with empty face normals (all equal to 0). In this case we ...
