@@ -128,6 +128,8 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.keyStates = {};
 	this.mouseX = 0;
 	this.mouseY = 0;
+	this.mouseDownX = -1;
+	this.mouseDownY = -1;
 	this.isTouchHeld = false;
 	this.baseZoomFactor = 1;
 	this.suppressDraggingRotation = false;
@@ -140,6 +142,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.onmouseup = null;
 	this.onmousemove = null;
 	this.onmousewheel = null;
+	this.onmouseclick = null;
 	this.beforeupdate = null;
 	this.afterupdate = null;
 	this.mouseUsage = 'default';
@@ -662,6 +665,8 @@ JSC3D.Viewer.prototype.mouseDownHandler = function(e) {
 	this.buttonStates[e.button] = true;
 	this.mouseX = e.clientX;
 	this.mouseY = e.clientY;
+	this.mouseDownX = e.clientX;
+	this.mouseDownY = e.clientY;
 };
 
 /**
@@ -672,9 +677,19 @@ JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 	if(!this.isLoaded)
 		return;
 
+	var info;
+	if (this.onmouseup || this.onmouseclick) {
+		info = this.pick(e.clientX, e.clientY);
+	}
+
 	if(this.onmouseup) {
-		var info = this.pick(e.clientX, e.clientY);
 		this.onmouseup(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
+	}
+
+	if(this.onmouseclick && this.mouseDownX == e.clientX && this.mouseDownY == e.clientY) {
+		this.onmouseclick(info.canvasX, info.canvasY, e.button, info.depth, info.mesh);
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 	}
 
 	e.preventDefault();
@@ -725,6 +740,8 @@ JSC3D.Viewer.prototype.mouseMoveHandler = function(e) {
 		}
 		this.mouseX = e.clientX;
 		this.mouseY = e.clientY;
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 		this.update();
 	}
 };
@@ -743,6 +760,9 @@ JSC3D.Viewer.prototype.mouseWheelHandler = function(e) {
 
 	if(!this.isDefaultInputHandlerEnabled)
 		return;
+
+	this.mouseDownX = -1;
+	this.mouseDownY = -1;
 
 	this.zoomFactor *= (JSC3D.PlatformInfo.browser == 'firefox' ? -e.detail : e.wheelDelta) < 0 ? 1.1 : 0.91;
 	this.update();
@@ -774,6 +794,8 @@ JSC3D.Viewer.prototype.touchStartHandler = function(e) {
 		this.buttonStates[0] = true;
 		this.mouseX = clientX;
 		this.mouseY = clientY;
+		this.mouseDownX = clientX;
+		this.mouseDownY = clientY;
 	}
 };
 
@@ -785,9 +807,19 @@ JSC3D.Viewer.prototype.touchEndHandler = function(e) {
 	if(!this.isLoaded)
 		return;
 
+	var info;
+	if(this.onmouseup || this.onmouseclick) {
+		info = this.pick(this.mouseX, this.mouseY);
+	}
+
 	if(this.onmouseup) {
-		var info = this.pick(this.mouseX, this.mouseY);
 		this.onmouseup(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+	}
+
+	if(this.onmouseclick && this.mouseDownX == e.touches[0].clientX && this.mouseDownY == e.touches[0].clientY) {
+		this.onmouseclick(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 	}
 
 	e.preventDefault();
@@ -838,6 +870,8 @@ JSC3D.Viewer.prototype.touchMoveHandler = function(e) {
 		}
 		this.mouseX = clientX;
 		this.mouseY = clientY;
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 
 		this.update();
 	}
@@ -885,14 +919,22 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 		this.baseZoomFactor = this.zoomFactor;
 		this.mouseX = clientX;
 		this.mouseY = clientY;
+		this.mouseDownX = clientX;
+		this.mouseDownY = clientY;
 		break;
 	case 'release':
 		if(this.onmouseup)
 			this.onmouseup(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		if(this.onmouseclick && this.mouseDownX == clientX && this.mouseDownY == clientY)
+			this.onmouseclick(info.canvasX, info.canvasY, 0, info.depth, info.mesh);
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 		this.isTouchHeld = false;
 		break;
 	case 'hold':
 		this.isTouchHeld = true;
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 		break;
 	case 'drag':
 		if(this.onmousemove)
@@ -912,6 +954,8 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 		}
 		this.mouseX = clientX;
 		this.mouseY = clientY;
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 		this.update();
 		break;
 	case 'pinch':									// zoom
@@ -921,6 +965,8 @@ JSC3D.Viewer.prototype.gestureHandler = function(e) {
 			break;
 		this.suppressDraggingRotation = true;
 		this.zoomFactor = this.baseZoomFactor * e.gesture.scale;
+		this.mouseDownX = -1;
+		this.mouseDownY = -1;
 		this.update();
 		break;
 	case 'transformend':
@@ -3419,6 +3465,10 @@ JSC3D.Viewer.prototype.onmousemove = null;
  * {Function} A callback function that will be invoked when there is a mousewheel event on the canvas.
  */
 JSC3D.Viewer.prototype.onmousewheel = null;
+/**
+ * {Function} A callback function that will be invoked when there is a mouseclick event on the canvas.
+ */
+JSC3D.Viewer.prototype.onmouseclick = null;
 /**
  * {Function} A callback function that will be invoked before each update.
  */
