@@ -8,26 +8,70 @@
  <BODY>
 	<div style="width:520px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
 		<canvas id="cv" style="border: 1px solid;" width="520" height="390" ></canvas>
-		<p style="font-family:Arial,sans-serif;">The model is from the internet, so <b>should not</b> be used for any commercial purpose.</p>
+		<p style="font-family:Arial,sans-serif;">The model is from the internet, so it <b>should not</b> be used for any commercial purpose.</p>
 	</div>
 	<script type="text/javascript" src="../jsc3d.js"></script>
 	<script type="text/javascript" src="../jsc3d.webgl.js"></script>
 	<script type="text/javascript" src="../jsc3d.touch.js"></script>
 	<script type="text/javascript">
-	var canvas = document.getElementById('cv');
-	var viewer = new JSC3D.Viewer(canvas);
-	viewer.setParameter('SceneUrl', 'hotel/hotel.obj');
-	viewer.setParameter('InitRotationX', -90);
-	viewer.setParameter('InitRotationY', -90);
-	viewer.setParameter('InitRotationZ', 0);
-	viewer.setParameter('ModelColor', '#CAA618');
-	viewer.setParameter('BackgroundColor1', '#FFFFFF');
-	viewer.setParameter('BackgroundColor2', '#383840');
-	viewer.setParameter('RenderMode', 'textureflat');
-	viewer.setParameter('MipMapping', 'on');
-	viewer.setParameter('Renderer', 'webgl');
-	viewer.init();
-	viewer.update();
+
+		var canvas = document.getElementById('cv');
+		var viewer = new JSC3D.Viewer(canvas);
+		viewer.setParameter('SceneUrl', 'hotel/hotel.obj');
+		viewer.setParameter('InitRotationX', -90);
+		viewer.setParameter('InitRotationY', -90);
+		viewer.setParameter('InitRotationZ', 0);
+		viewer.setParameter('ModelColor', '#CAA618');
+		viewer.setParameter('BackgroundColor1', '#FFFFFF');
+		viewer.setParameter('BackgroundColor2', '#383840');
+		viewer.setParameter('RenderMode', 'textureflat');
+		viewer.setParameter('MipMapping', 'on');
+		viewer.setParameter('Renderer', 'webgl');
+		viewer.init();
+		viewer.update();
+
+		// Add a bounding box immediately after the scene has been loaded.
+		viewer.onloadingcomplete = function() {
+			var scene = viewer.getScene();
+			if(!scene)
+				return;
+
+			makeBoundingBox(scene, 0xffffff);
+			viewer.update();
+		};
+
+		/*
+		 * Create and add bounding box of the scene.
+		 */
+		function makeBoundingBox(scene, color) {
+			var bbox = new JSC3D.Mesh('bbox');
+			bbox.vertexBuffer = [ 
+				scene.aabb.minX, scene.aabb.minY, scene.aabb.minZ, 
+				scene.aabb.maxX, scene.aabb.minY, scene.aabb.minZ, 
+				scene.aabb.maxX, scene.aabb.maxY, scene.aabb.minZ, 
+				scene.aabb.minX, scene.aabb.maxY, scene.aabb.minZ, 
+				scene.aabb.minX, scene.aabb.minY, scene.aabb.maxZ, 
+				scene.aabb.maxX, scene.aabb.minY, scene.aabb.maxZ, 
+				scene.aabb.maxX, scene.aabb.maxY, scene.aabb.maxZ, 
+				scene.aabb.minX, scene.aabb.maxY, scene.aabb.maxZ, 
+			];
+			bbox.indexBuffer = [ 
+				0, 3, 2, 1, -1, 
+				0, 4, 7, 3, -1, 
+				3, 7, 6, 2, -1, 
+				0, 1, 5, 4, -1, 
+				5, 1, 2, 6, -1, 
+				4, 5, 6, 7, -1 
+			];
+			bbox.isDoubleSided = true;
+			bbox.init();
+
+			bbox.setRenderMode('wireframe');
+			bbox.setMaterial(new JSC3D.Material('bbox-mat', 0, color, 0));
+
+			scene.addChild(bbox);
+		}
+
   </script>
  </BODY>
 </HTML>
