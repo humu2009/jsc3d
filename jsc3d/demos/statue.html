@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<HTML>
+ <HEAD>
+  <TITLE> JSC3D - Statue Demo </TITLE>
+  <META NAME="Author" CONTENT="JSC3D">
+ </HEAD>
+
+ <BODY>
+	<div style="width:410px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
+		<img src="statue/picture_frame.png"></img>
+		<canvas id="cv" style="left:25px; top:25px; position:absolute;" width="360" height="480" ></canvas>
+	</div>
+	<script type="text/javascript" src="../jsc3d.js"></script>
+	<script type="text/javascript" src="../jsc3d.touch.js"></script>
+	<script type="text/javascript" src="../jsc3d.webgl.js"></script>
+	<script type="text/javascript">
+
+		var canvas = document.getElementById('cv');
+
+		var viewer = new JSC3D.Viewer( canvas, {
+			SceneUrl: 'statue/mother_child_statue.obj', 
+			InitRotationX: 30, 
+			BackgroundColor1: '#060606', 
+			BackgroundColor2: '#303030', 
+			RenderMode: 'texture', 
+			Renderer: 'webgl'
+		} );
+		viewer.init();
+		viewer.update();
+
+		// hint the statue is clickable
+		viewer.onmousemove = function(x, y, button, depth, mesh) {
+			canvas.style.cursor = mesh ? 'pointer' : '';
+		};
+
+		// open the link to the photo on click of the statue model
+		viewer.onmouseclick = function(x, y, button, depth, mesh) {
+			if(mesh) {
+				window.open('https://www.flickr.com/photos/29424453@N02/6581187381/in/photolist-b2yiHX-m9xD9K-m9yrUX-nrwtXg-a8Quz2-9Baj36-a8Qtt4-gxwVxm-bg2rgc-nh7m4s-9dcV8N-9dcSVq-9dcUA3-9dcU3j-bksi3Y-9UZKuG-m9yrAk-dpPh6N-gHQumR-gHQLRC-dKZmE3-8uTfeC-anSEB8-iFnijd-jDBzKK-8ceD7g-jDEzzu-hHi2gx-a7RNzM');
+			}
+		};
+
+	</script>
+ </BODY>
+</HTML>
