@@ -67,7 +67,7 @@ _*UGOBAGS*_ is an innovative company focusing on improving experience of travell
 
 == Display of Driven Equipments ==
 
-_*Техпривод*_ is a solution providing company that delivers products and service of driven equipments in Russia and CIS countries. From the long list of their products, some are digitized to generate 3D models and put online with detailed discriptions and paramenters. _JSC3D_ is used on the product pages for display of these equipment models in 3D.
+_*Техпривод*_ is a solution providing company that delivers products and service of driven equipments in Russia and CIS countries. From the long list of their products, some are digitized to generate 3D models and put online with detailed discriptions and paramenters. _JSC3D_ works on the product pages for interactive display of these equipment models in 3D.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-tehprivod.jpg]
 
