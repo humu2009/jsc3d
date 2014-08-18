@@ -1,7 +1,7 @@
 /**
-	This file is exported by TileBuilder 0.2.0.
-	Do NOT edit it manually.
-	12:20 2013/11/18
+	This file is exported by TileBuilder 0.2.2.
+	Please do NOT edit it manually.
+	12:35 2014/8/9
 */
 
 /**
