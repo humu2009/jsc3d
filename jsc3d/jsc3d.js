@@ -678,7 +678,7 @@ JSC3D.Viewer.prototype.mouseUpHandler = function(e) {
 		return;
 
 	var info;
-	if (this.onmouseup || this.onmouseclick) {
+	if(this.onmouseup || this.onmouseclick) {
 		info = this.pick(e.clientX, e.clientY);
 	}
 
@@ -3616,6 +3616,9 @@ JSC3D.Scene.prototype.calcAABB = function() {
 	}
 };
 
+/**
+ * {String} Name of the scene.
+ */
 JSC3D.Scene.prototype.name = '';
 /**
  * {JSC3D.AABB} The Axis-aligned bounding box of the whole scene. Read only.
@@ -3757,6 +3760,8 @@ JSC3D.Mesh.prototype.calcFaceCount = function() {
 	this.faceCount = 0;
 
 	var ibuf = this.indexBuffer;
+
+	// add the last -1 if it is omitted
 	if(ibuf[ibuf.length - 1] != -1)
 		ibuf.push(-1);
 
@@ -4004,26 +4009,54 @@ JSC3D.Mesh.prototype.checkValid = function() {
 	//TODO: not implemented yet
 };
 
+/**
+ * {String} Name of the mesh.
+ */
 JSC3D.Mesh.prototype.name = '';
 JSC3D.Mesh.prototype.metadata = '';
+/**
+ * {Boolean} Visibility of the mesh. If it is set to false, the mesh will be ignored in rendering.
+ */
 JSC3D.Mesh.prototype.visible = false;
 JSC3D.Mesh.prototype.renderMode = 'flat';
 /**
  * {JSC3D.AABB} The Axis-aligned bounding box of the mesh. Read only.
  */
 JSC3D.Mesh.prototype.aabb = null;
+/**
+ * {Array} The plain sequence of vertex coordinates of the mesh.
+ */
 JSC3D.Mesh.prototype.vertexBuffer = null;
+/**
+ * {Array} The sequence of vertex indices that describe faces. Each face contains at least 3 vertex 
+ * indices that are ended by a -1. Faces are not limited to triangles.
+ */
 JSC3D.Mesh.prototype.indexBuffer = null;
 JSC3D.Mesh.prototype.vertexNormalBuffer = null;
 JSC3D.Mesh.prototype.vertexNormalIndexBuffer = null;
 JSC3D.Mesh.prototype.faceNormalBuffer = null;
+/**
+ * {Array} The plain sequence of texture coordinates of the mesh, or null if none.
+ */
 JSC3D.Mesh.prototype.texCoordBuffer = null;
+/**
+ * {Array} The sequence of tex coord indices. If it is null, the indexBuffer will be used.
+ */
 JSC3D.Mesh.prototype.texCoordIndexBuffer = null;
 JSC3D.Mesh.prototype.material = null;
 JSC3D.Mesh.prototype.texture = null;
+/**
+ * {Number} Number of faces of the mesh. Read only.
+ */
 JSC3D.Mesh.prototype.faceCount = 0;
 JSC3D.Mesh.prototype.creaseAngle = -180;
+/**
+ * {Boolean} If set to true, both sides of the faces will be rendered.
+ */
 JSC3D.Mesh.prototype.isDoubleSided = false;
+/**
+ * {Boolean} If set to true, the mesh accepts environment mapping.
+ */
 JSC3D.Mesh.prototype.isEnvironmentCast = false;
 JSC3D.Mesh.prototype.internalId = 0;
 JSC3D.Mesh.prototype.transformedVertexBuffer = null;
@@ -4120,6 +4153,9 @@ JSC3D.Material.prototype.generatePalette = function() {
 	}
 };
 
+/**
+ * {String} Name of the material.
+ */
 JSC3D.Material.prototype.name = '';
 JSC3D.Material.prototype.ambientColor = 0;
 JSC3D.Material.prototype.diffuseColor = 0x7f7f7f;
@@ -4207,7 +4243,9 @@ JSC3D.Texture.prototype.createFromImage = function(image, useMipmap) {
 
 	// look for appropriate texture dimensions
 	var dim = image.width > image.height ? image.width : image.height;
-	if(dim <= 32)
+	if(dim <= 16)
+		dim = 16;
+	else if(dim <= 32)
 		dim = 32;
 	else if(dim <= 64)
 		dim = 64;
@@ -4318,14 +4356,29 @@ JSC3D.Texture.prototype.hasMipmap = function() {
 	return (this.mipmaps != null);
 };
 
+/**
+ * {String} Name of the texture.
+ */
 JSC3D.Texture.prototype.name = '';
 JSC3D.Texture.prototype.data = null;
 JSC3D.Texture.prototype.mipmaps = null;
 JSC3D.Texture.prototype.mipentries = null;
+/**
+ * {Number} Width of the texture. Read only.
+ */
 JSC3D.Texture.prototype.width = 0;
+/**
+ * {Number} Height of the texture. Read only.
+ */
 JSC3D.Texture.prototype.height = 0;
 JSC3D.Texture.prototype.hasTransparency = false;
+/**
+ * {String} URL of the image source of the texture. Read only.
+ */
 JSC3D.Texture.prototype.srcUrl = '';
+/**
+ * {Function} A callback function that will be invoked immediately as the texture is ready.
+ */
 JSC3D.Texture.prototype.onready = null;
 JSC3D.Texture.cv = null;
 
@@ -5178,7 +5231,7 @@ JSC3D.ObjLoader.prototype.parseObj = function(scene, data) {
 					var meshid = curMtllibName + '-' + curMtlName;
 					var mesh = meshes[meshid];
 					if(!mesh) {
-						// create a new mesh to hold faces using the same mtl
+						// create a new mesh to accept faces using the same mtl
 						mesh = new JSC3D.Mesh;
 						mesh.name = namePrefix + meshIndex++;
 						mesh.indexBuffer = [];
@@ -5289,6 +5342,7 @@ JSC3D.ObjLoader.prototype.parseMtl = function(data) {
 				curMtlName = tokens[1];
 				var mtl = {};
 				mtl.material = new JSC3D.Material;
+				mtl.material.name = curMtlName;
 				mtl.textureFileName = '';
 				mtls[curMtlName] = mtl;
 				break;
@@ -5577,7 +5631,7 @@ JSC3D.StlLoader.prototype.parseStl = function(scene, data) {
 	}
 	else {
 		/*
-			This is a binary STL file.
+		 * This is a binary STL file.
 		 */
 
 		reader.reset();
