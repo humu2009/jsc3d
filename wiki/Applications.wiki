@@ -13,7 +13,7 @@ _*Princeton Ring*_ provides an online ring design interface where a client can f
 
 == Hygiene Product Display ==
 
-_*Berendsen Textil Service A/S*_ uses _JSC3D_ for online display of their hygienic solutions. The virtual environment of a washroom is built up based on pictures and videos as well as a series of hot spots that navigate to the hygiene facilities. On the close view of each facility, there is a hot spot linking to a 3D view of this product, where its detailed and customizable model will be displayed. 
+_*Berendsen Textil Service A/S*_ uses _JSC3D_ for online display of their hygienic solutions. The virtual environment of a washroom has been set up based on pictures and videos as well as a series of hot spots that navigate to the hygiene facilities. On the close view of each facility, there is a hot spot linking to a 3D view of this product, where its detailed and customizable model will be displayed. 
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-berendsen-2.jpg]
 
@@ -67,7 +67,7 @@ _*UGOBAGS*_ is an innovative company focusing on improving experience of travell
 
 == Display of Driven Equipments ==
 
-_*Техпривод*_ is a solution providing company that delivers products and service of driven equipments in Russia and CIS countries. From the long list of their products, some are digitized to generate 3D models and put online with detailed discriptions and paramenters. _JSC3D_ works on the product pages for interactive display of these equipment models in 3D.
+_*Техпривод*_ is a solution providing company that offers products and service of driven equipments in Russia and CIS countries. From the long list of their products, some are digitized to generate 3D models and put online with detailed discriptions and paramenters. _JSC3D_ works on the product pages for interactive display of these equipment models in 3D.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-tehprivod.jpg]
 
