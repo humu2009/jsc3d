@@ -59,6 +59,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			Background:			parameters.Background || 'on', 
 			RenderMode:			parameters.RenderMode || 'flat', 
 			Definition:			parameters.Definition || 'standard', 
+			FaceCulling:		parameters.FaceCulling || 'on', 
 			MipMapping:			parameters.MipMapping || 'off', 
 			CreaseAngle:		parameters.CreaseAngle || -180, 
 			SphereMapUrl:		parameters.SphereMapUrl || '', 
@@ -79,6 +80,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 			Background: 'on', 
 			RenderMode: 'flat', 
 			Definition: 'standard', 
+			FaceCulling: 'on', 
 			MipMapping: 'off', 
 			CreaseAngle: -180, 
 			SphereMapUrl: '', 
@@ -120,6 +122,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	this.isBackgroundOn = true;
 	this.renderMode = 'flat';
 	this.definition = 'standard';
+	this.isCullingDisabled = false;
 	this.isMipMappingOn = false;
 	this.creaseAngle = -180;
 	this.sphereMapUrl = '';
@@ -188,6 +191,7 @@ JSC3D.Viewer = function(canvas, parameters) {
 	'<b>BackgroundImageUrl</b>':	URL string that describes where to load the image used for background, default to '';<br />
 	'<b>Background</b>':			turn on/off rendering of background. If this is set to 'off', the background area will be transparent. Default to 'on';<br />
 	'<b>RenderMode</b>':			render mode, default to 'flat';<br />
+	'<b>FaceCulling</b>':			turn on/off back-face culling for all meshes, default to 'on';<br />
 	'<b>Definition</b>':			quality level of rendering, default to 'standard';<br />
 	'<b>MipMapping</b>':			turn on/off mip-mapping, default to 'off';<br />
 	'<b>SphereMapUrl</b>':			URL string that describes where to load the image used for sphere mapping, default to '';<br />
@@ -215,6 +219,7 @@ JSC3D.Viewer.prototype.init = function() {
 	this.isBackgroundOn = this.params['Background'].toLowerCase() == 'on';
 	this.renderMode = this.params['RenderMode'].toLowerCase();
 	this.definition = this.params['Definition'].toLowerCase();
+	this.isCullingDisabled = this.params['FaceCulling'].toLowerCase() == 'off';
 	this.creaseAngle = parseFloat(this.params['CreaseAngle']);
 	this.isMipMappingOn = this.params['MipMapping'].toLowerCase() == 'on';
 	this.sphereMapUrl = this.params['SphereMapUrl'];
@@ -1478,7 +1483,7 @@ JSC3D.Viewer.prototype.render = function() {
 
 	// delegate to WebGL backend to do the rendering
 	if(this.webglBackend) {
-		this.webglBackend.render(this.scene.getChildren()/*renderList*/, this.transformMatrix, this.rotMatrix, this.renderMode, this.defaultMaterial, this.sphereMap);
+		this.webglBackend.render(this.scene.getChildren(), this.transformMatrix, this.rotMatrix, this.renderMode, this.defaultMaterial, this.sphereMap, this.isCullingDisabled);
 		return;
 	}
 
@@ -1658,6 +1663,7 @@ JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
 	var numOfFaces = mesh.faceCount;
 	var id = mesh.internalId;
 	var color = 0xff000000 | (mesh.material ? mesh.material.diffuseColor : this.defaultMaterial.diffuseColor);
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	if(!nbuf || nbuf.length < numOfFaces) {
 		mesh.transformedFaceNormalZBuffer = new Array(numOfFaces);
@@ -1669,7 +1675,7 @@ JSC3D.Viewer.prototype.renderWireframe = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedNz = nbuf[i++];
-		if(mesh.isDoubleSided)
+		if(drawBothSides)
 			xformedNz = xformedNz > 0 ? xformedNz : -xformedNz;
 		if(xformedNz < 0) {
 			do {
@@ -1776,8 +1782,9 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var material = mesh.material ? mesh.material : this.defaultMaterial;
 	var palette = material.getPalette();
 	var isOpaque = material.transparency == 0;
-	var trans = material.transparency * 255;
+	var trans = ~~(material.transparency * 255);
 	var opaci = 255 - trans;
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	/*
 	 * This single line removes some weird error related to floating point calculation on Safari for Apple computers.
@@ -1803,7 +1810,7 @@ JSC3D.Viewer.prototype.renderSolidFlat = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedNz = nbuf[i++];
-		if(mesh.isDoubleSided)
+		if(drawBothSides)
 			xformedNz = xformedNz > 0 ? xformedNz : -xformedNz;
 		if(xformedNz < 0) {
 			do {
@@ -1961,8 +1968,9 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var material = mesh.material ? mesh.material : this.defaultMaterial;
 	var palette = material.getPalette();
 	var isOpaque = material.transparency == 0;
-	var trans = material.transparency * 255;
+	var trans = ~~(material.transparency * 255);
 	var opaci = 255 - trans;
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	// By Vasile Dirla <vasile@dirla.ro>.
@@ -1985,8 +1993,6 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.vertexNormalBuffer, vnbuf);
 	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.faceNormalBuffer, fnbuf);
 
-	var isDoubleSided = mesh.isDoubleSided;
-
 	var Xs = new Array(3);
 	var Ys = new Array(3);
 	var Zs = new Array(3);
@@ -1994,7 +2000,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedFNz = fnbuf[i++];
-		if(isDoubleSided)
+		if(drawBothSides)
 			xformedFNz = xformedFNz > 0 ? xformedFNz : -xformedFNz;
 		if(xformedFNz < 0) {
 			do {
@@ -2032,7 +2038,7 @@ JSC3D.Viewer.prototype.renderSolidSmooth = function(mesh) {
 				Ns[0] = vnbuf[ni0];
 				Ns[1] = vnbuf[ni1];
 				Ns[2] = vnbuf[ni2];
-				if(isDoubleSided) {
+				if(drawBothSides) {
 					if(Ns[0] < 0)
 						Ns[0] = -Ns[0];
 					if(Ns[1] < 0)
@@ -2197,6 +2203,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	// By Vasile Dirla <vasile@dirla.ro>.
@@ -2217,7 +2224,7 @@ JSC3D.Viewer.prototype.renderSolidTexture = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedNz = nbuf[i++];
-		if(mesh.isDoubleSided)
+		if(drawBothSides)
 			xformedNz = xformedNz > 0 ? xformedNz : -xformedNz;
 		if(xformedNz < 0) {
 			do {
@@ -2482,6 +2489,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	// By Vasile Dirla <vasile@dirla.ro>.
@@ -2506,7 +2514,7 @@ JSC3D.Viewer.prototype.renderTextureFlat = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedNz = nbuf[i++];
-		if(mesh.isDoubleSided)
+		if(drawBothSides)
 			xformedNz = xformedNz > 0 ? xformedNz : -xformedNz;
 		if(xformedNz < 0) {
 			do {
@@ -2786,6 +2794,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var tbound = tdim - 1;
 	var mipmaps = texture.hasMipmap() ? texture.mipmaps : null;
 	var mipentries = mipmaps ? texture.mipentries : null;
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	// By Vasile Dirla <vasile@dirla.ro>.
@@ -2808,8 +2817,6 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.vertexNormalBuffer, vnbuf);
 	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.faceNormalBuffer, fnbuf);
 
-	var isDoubleSided = mesh.isDoubleSided;
-
 	var Xs = new Array(3);
 	var Ys = new Array(3);
 	var Zs = new Array(3);
@@ -2819,7 +2826,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedFNz = fnbuf[i++];
-		if(isDoubleSided)
+		if(drawBothSides)
 			xformedFNz = xformedFNz > 0 ? xformedFNz : -xformedFNz;
 		if(xformedFNz < 0) {
 			do {
@@ -2915,7 +2922,7 @@ JSC3D.Viewer.prototype.renderTextureSmooth = function(mesh) {
 				Ns[0] = vnbuf[ni0];
 				Ns[1] = vnbuf[ni1];
 				Ns[2] = vnbuf[ni2];
-				if(isDoubleSided) {
+				if(drawBothSides) {
 					if(Ns[0] < 0)
 						Ns[0] = -Ns[0];
 					if(Ns[1] < 0)
@@ -3133,8 +3140,9 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var sdim = sphereMap.width;
 	var sbound = sdim - 1;
 	var isOpaque = material.transparency == 0;
-	var trans = material.transparency * 255;
+	var trans = ~~(material.transparency * 255);
 	var opaci = 255 - trans;
+	var drawBothSides = mesh.isDoubleSided || this.isCullingDisabled;
 
 	// fix for http://code.google.com/p/jsc3d/issues/detail?id=8
 	// By Vasile Dirla <vasile@dirla.ro>.
@@ -3157,8 +3165,6 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	JSC3D.Math3D.transformVectors(this.rotMatrix, mesh.vertexNormalBuffer, vnbuf);
 	JSC3D.Math3D.transformVectorZs(this.rotMatrix, mesh.faceNormalBuffer, fnbuf);
 
-	var isDoubleSided = mesh.isDoubleSided;
-
 	var Xs = new Array(3);
 	var Ys = new Array(3);
 	var Zs = new Array(3);
@@ -3168,7 +3174,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 	var i = 0, j = 0;
 	while(i < numOfFaces) {
 		var xformedFNz = fnbuf[i++];
-		if(isDoubleSided)
+		if(drawBothSides)
 			xformedFNz = xformedFNz > 0 ? xformedFNz : -xformedFNz;
 		if(xformedFNz < 0) {
 			do {
@@ -3208,7 +3214,7 @@ JSC3D.Viewer.prototype.renderSolidSphereMapped = function(mesh) {
 				NXs[2] = vnbuf[vn2    ];
 				NYs[2] = vnbuf[vn2 + 1];
 				NZs[2] = vnbuf[vn2 + 2];
-				if(isDoubleSided) {
+				if(drawBothSides) {
 					if(NZs[0] < 0)
 						NZs[0] = -NZs[0];
 					if(NZs[1] < 0)
@@ -3421,6 +3427,7 @@ JSC3D.Viewer.prototype.bkgColor1 = 0xffffff;
 JSC3D.Viewer.prototype.bkgColor2 = 0xffff80;
 JSC3D.Viewer.prototype.renderMode = 'flat';
 JSC3D.Viewer.prototype.definition = 'standard';
+JSC3D.Viewer.prototype.isCullingDisabled = false;
 JSC3D.Viewer.prototype.isMipMappingOn = false;
 JSC3D.Viewer.prototype.creaseAngle = -180;
 JSC3D.Viewer.prototype.sphereMapUrl = '';
@@ -4371,6 +4378,9 @@ JSC3D.Texture.prototype.width = 0;
  * {Number} Height of the texture. Read only.
  */
 JSC3D.Texture.prototype.height = 0;
+/**
+ * {Boolean} Whether the texture contains tranparent texels. Read only.
+ */
 JSC3D.Texture.prototype.hasTransparency = false;
 /**
  * {String} URL of the image source of the texture. Read only.

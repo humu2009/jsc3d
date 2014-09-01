@@ -466,7 +466,7 @@ JSC3D.WebGLRenderBackend.prototype.endFrame = function() {
 /**
  * Do render a new frame.
  */
-JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix, normalMatrix, renderMode, defaultMaterial, sphereMap) {
+JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix, normalMatrix, renderMode, defaultMaterial, sphereMap, isCullingDisabled) {
 	var gl = this.gl;
 
 	var transformMat4Flattened = new Float32Array([
@@ -516,12 +516,12 @@ JSC3D.WebGLRenderBackend.prototype.render = function(renderList, transformMatrix
 	renderList = sortRenderList(renderList);
 
 	// render the color pass
-	this.renderColorPass(renderList, transformMat4Flattened, normalMat3Flattened, renderMode, defaultMaterial, sphereMap);
+	this.renderColorPass(renderList, transformMat4Flattened, normalMat3Flattened, renderMode, defaultMaterial, sphereMap, isCullingDisabled);
 
 	// render the picking pass
 	if(this.pickingFB) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.pickingFB);
-		this.renderPickingPass(renderList, transformMat4Flattened, defaultMaterial);
+		this.renderPickingPass(renderList, transformMat4Flattened, defaultMaterial, isCullingDisabled);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 };
@@ -548,7 +548,7 @@ JSC3D.WebGLRenderBackend.prototype.pick = function(x, y) {
  * Render a given list of meshes, generating colored stuff of this frame.
  * @private
  */
-JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transformMat4, normalMat3, renderMode, defaultMaterial, sphereMap) {
+JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transformMat4, normalMat3, renderMode, defaultMaterial, sphereMap, isCullingDisabled) {
 	if(sphereMap && sphereMap.hasData() && !sphereMap.compiled)
 		this.compileTexture(sphereMap);
 
@@ -577,7 +577,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
 		if(texture && !texture.compiled)
 			this.compileTexture(texture);
 
-		if(mesh.isDoubleSided)
+		if(isCullingDisabled || mesh.isDoubleSided)
 			gl.disable(gl.CULL_FACE);
 		else
 			gl.enable(gl.CULL_FACE);
@@ -764,7 +764,7 @@ JSC3D.WebGLRenderBackend.prototype.renderColorPass = function(renderList, transf
  * Fill the picking buffer of this frame.
  * @private
  */
-JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, transformMat4, defaultMaterial) {
+JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, transformMat4, defaultMaterial, isCullingDisabled) {
 	var gl = this.gl;
 
 	gl.disable(gl.BLEND);
@@ -788,7 +788,7 @@ JSC3D.WebGLRenderBackend.prototype.renderPickingPass = function(renderList, tran
 		if(material.transparency > 0.99)
 			continue;
 
-		if(mesh.isDoubleSided)
+		if(isCullingDisabled || mesh.isDoubleSided)
 			gl.disable(gl.CULL_FACE);
 		else
 			gl.enable(gl.CULL_FACE);
