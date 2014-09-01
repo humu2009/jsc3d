@@ -8,7 +8,7 @@
  <BODY>
 	<div style="width:490px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
 		<canvas id="cv" style="border: 1px solid;" width="490" height="368" ></canvas>
-		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:10px; top:315px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5;"> 
+		<div id="tip" style="display:block; color:#ffffff; padding:5px; position:absolute; left:10px; top:315px; background-color:#000000; height:32px; width:250px; border-radius:5px; border:1px solid #777777; font-family:Arial,sans-serif; opacity:0.5; pointer-events:none;"> 
 			Drag mouse to rotate <br> Drag mouse with shift pressed to zoom
 		</div>
 		<p style="font-family:Arial,sans-serif;">The movie clip is part of the Big Buck Bunny project, Copyright (c) 2008, Blender Foundation <a href="http://www.bigbuckbunny.org">www.bigbuckbunny.org</a>.</p>
@@ -62,26 +62,6 @@
 			}
 		}
 
-		var pointerX = -1;
-		var pointerY = -1;
-		var LEFT_BUTTON = 0;
-		
-		function onMouseDown(x, y, button, depth, object) {
-			pointerX = x;
-			pointerY = y;
-		}
-
-		function onMouseUp(x, y, button, depth, object) {
-			if(x == pointerX && y == pointerY  && button == LEFT_BUTTON && object != null && object == tvScreen) {
-				if(!video.paused && !video.ended) {
-					video.pause();
-				}
-				else {
-					video.play();
-				}
-			}
-		}
-
 		function onMouseMove(x, y, button, depth, object) {
 			if(object != null && object == tvScreen) {
 				if(canvas.style.cursor != 'pointer')
@@ -93,10 +73,20 @@
 			}
 		}
 
+		function OnMouseClick(x, y, button, depth, object) {
+			if(object != null && object == tvScreen) {
+				if(!video.paused && !video.ended) {
+					video.pause();
+				}
+				else {
+					video.play();
+				}
+			}
+		}
+
 		// setup mouse event handlers
-		viewer.onmousedown = onMouseDown;
-		viewer.onmouseup = onMouseUp;
-		viewer.onmousemove = onMouseMove;
+		viewer.onmousemove  = onMouseMove;
+		viewer.onmouseclick = OnMouseClick;
 		// extract frames from the video and update display at an expected frequency of 12 per second		
 		setInterval(onTimer, 1000 / 12);
   </script>
