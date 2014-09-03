@@ -4371,15 +4371,15 @@ JSC3D.Texture.prototype.data = null;
 JSC3D.Texture.prototype.mipmaps = null;
 JSC3D.Texture.prototype.mipentries = null;
 /**
- * {Number} Width of the texture. Read only.
+ * {Number} Width of the texture in pixels. Read only.
  */
 JSC3D.Texture.prototype.width = 0;
 /**
- * {Number} Height of the texture. Read only.
+ * {Number} Height of the texture in pixels. Read only.
  */
 JSC3D.Texture.prototype.height = 0;
 /**
- * {Boolean} Whether the texture contains tranparent texels. Read only.
+ * {Boolean} Whether the texture contains tranparent pixels. Read only.
  */
 JSC3D.Texture.prototype.hasTransparency = false;
 /**
