@@ -3,6 +3,7 @@
 == External Projects ==
 
  * [https://www.drupal.org/project/v3dm v3dm]: 3D viewer for _Drupal_ framework, based on _JSC3D_.
+ * [http://www.opencart.com/index.php?route=extension/extension/info&extension_id=17979 3D Object Viewer Opencart]: Extension for _OpenCart_ E-commerce framework that allows adding interactive display of goods to online store.
 
 
 == Articles ==
