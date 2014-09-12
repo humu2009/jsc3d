@@ -8,12 +8,12 @@
 
 == Articles ==
 
- * [https://blogs.cul.columbia.edu/dcip/2012/11/20/jsc3d-what-we-are-using-to-show-3d-models/ JSC3D – What we are using to show 3D Models] _by Fanghua Li_
+ * [https://blogs.cul.columbia.edu/dcip/2012/11/20/jsc3d-what-we-are-using-to-show-3d-models/ JSC3D – What we are using to show 3D Models] _by Fanghua Li_.
  * [http://www.jpereira.net/apuntes-breves/publicacion-3d-via-web-con-jsc3d Publicación 3D via web con JSC3D] _by José Pereira_.
 
 == Experiments ==
 
- * [http://sourceforge.net/projects/face3dchung/ face3D_chung]: A 3D avatar head editor 
+ * [http://sourceforge.net/projects/face3dchung/ face3D_chung]: A 3D avatar builder that takes a single photo and generates animating avatar head with TTS and lip-sync. It allows publishing speaking avatar to web pages that can be used to build chatbot like applications, powered by _JSC3D_.
 
 
 == Useful Tools ==
