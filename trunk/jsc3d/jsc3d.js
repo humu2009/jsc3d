@@ -1011,11 +1011,19 @@ JSC3D.Viewer.prototype.loadScene = function() {
 	if(this.sceneUrl == '')
 		return false;
 
-	var lastSlashAt = this.sceneUrl.lastIndexOf('/');
+
+	/*
+	 * Discard the query part of the URL string, if any, to get the correct file name.
+	 * By negatif@gmail.com
+	 */
+	var questionMarkAt = this.sceneUrl.indexOf('?');
+	var sceneUrlNoQuery = questionMarkAt == -1 ? this.sceneUrl : this.sceneUrl.substring(0, questionMarkAt);
+
+	var lastSlashAt = sceneUrlNoQuery.lastIndexOf('/');
 	if(lastSlashAt == -1)
-		lastSlashAt = this.sceneUrl.lastIndexOf('\\');
+		lastSlashAt = sceneUrlNoQuery.lastIndexOf('\\');
 	
-	var fileName = this.sceneUrl.substring(lastSlashAt + 1);
+	var fileName = sceneUrlNoQuery.substring(lastSlashAt + 1);
 	var lastDotAt = fileName.lastIndexOf('.');
 	if(lastDotAt == -1) {
 		if(JSC3D.console)
@@ -3521,6 +3529,7 @@ JSC3D.PickInfo = function() {
  */
 JSC3D.Scene = function(name) {
 	this.name = name || '';
+	this.srcUrl = '';
 	this.aabb = null;
 	this.children = [];
 	this.maxChildId = 1;
@@ -3627,6 +3636,10 @@ JSC3D.Scene.prototype.calcAABB = function() {
  * {String} Name of the scene.
  */
 JSC3D.Scene.prototype.name = '';
+/**
+ * {String} Source URL of the scene, empty if none. Read only.
+ */
+JSC3D.Scene.prototype.srcUrl = '';
 /**
  * {JSC3D.AABB} The Axis-aligned bounding box of the whole scene. Read only.
  */
@@ -5017,6 +5030,13 @@ JSC3D.ObjLoader = function(onload, onerror, onprogress, onresource) {
 JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 	var urlPath = '';
 	var fileName = urlName;
+	var queryPart = '';
+
+	var questionMarkAt = urlName.indexOf('?');
+	if(questionMarkAt >= 0) {
+		queryPart = urlName.substring(questionMarkAt);
+		fileName = urlName = urlName.substring(0, questionMarkAt);
+	}
 
 	var lastSlashAt = urlName.lastIndexOf('/');
 	if(lastSlashAt == -1)
@@ -5027,7 +5047,7 @@ JSC3D.ObjLoader.prototype.loadFromUrl = function(urlName) {
 	}
 
 	this.requestCount = 0;
-	this.loadObjFile(urlPath, fileName);
+	this.loadObjFile(urlPath, fileName, queryPart);
 };
 
 /**
@@ -5045,8 +5065,8 @@ JSC3D.ObjLoader.prototype.abort = function() {
 	Load scene from the obj file using the given url path and file name.
 	@private
  */
-JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
-	var urlName = urlPath + fileName;
+JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName, queryPart) {
+	var urlName = urlPath + fileName + queryPart;
 	var self = this;
 	var xhr = new XMLHttpRequest;
 	xhr.open('GET', encodeURI(urlName), true);
@@ -5060,6 +5080,7 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName) {
 					if(JSC3D.console)
 						JSC3D.console.logInfo('Finished loading obj file "' + urlName + '".');
 					var scene = new JSC3D.Scene;
+					scene.srcUrl = urlName;
 					var mtllibs = self.parseObj(scene, this.responseText);
 					if(mtllibs.length > 0) {
 						for(var i=0; i<mtllibs.length; i++)
@@ -5493,6 +5514,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 						var blobReader = new FileReader;
 						blobReader.onload = function(event) {
 							var scene = new JSC3D.Scene;
+							scene.srcUrl = urlName;
 							self.parseStl(scene, event.target.result);
 							self.onload(scene);
 						};
@@ -5502,6 +5524,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 						// decode data from XHR's responseBody into a binary string, since it cannot be accessed directly from javascript.
 						// this would work on IE6~IE9
 						var scene = new JSC3D.Scene;
+						scene.srcUrl = urlName;
 						try {
 							self.parseStl(scene, JSC3D.Util.ieXHRResponseBodyToString(this.responseBody));
 						} catch(e) {}
@@ -5509,6 +5532,7 @@ JSC3D.StlLoader.prototype.loadFromUrl = function(urlName) {
 					}
 					else {
 						var scene = new JSC3D.Scene;
+						scene.srcUrl = urlName;
 						self.parseStl(scene, this.responseText);
 						self.onload(scene);
 					}
