@@ -24,7 +24,7 @@
 
 
 /**
-	@namespace JSC3D
+ * @namespace JSC3D
  */
 var JSC3D = JSC3D || {};
 
@@ -92,11 +92,13 @@ JSC3D.Autodesk3DSLoader.prototype.loadFromUrl = function(urlName) {
 //					}
 					if(JSC3D.PlatformInfo.browser == 'ie') {
 						var scene = new JSC3D.Scene;
+						scene.srcUrl = urlName;
 						self.parse3DS(scene, JSC3D.Util.ieXHRResponseBodyToString(this.responseBody));
 						self.onload(scene);
 					}
 					else {
 						var scene = new JSC3D.Scene;
+						scene.srcUrl = urlName;
 						self.parse3DS(scene, this.responseText);
 						self.onload(scene);
 					}

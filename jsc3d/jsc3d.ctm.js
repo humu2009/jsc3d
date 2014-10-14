@@ -149,6 +149,11 @@ JSC3D.OpenCTMLoader = function(onload, onerror, onprogress, onresource) {
  * @param {String} urlName a string specifying where to fetch the CTM file.
  */
 JSC3D.OpenCTMLoader.prototype.loadFromUrl = function(urlName) {
+	// ignore query substring if any
+	var questionMarkAt = urlName.indexOf('?');
+	if(questionMarkAt >= 0)
+		urlName = urlName.substring(0, questionMarkAt);
+
 	// extract parent path name
 	var lastSlashAt = urlName.lastIndexOf('/');
 	if(lastSlashAt < 0)
@@ -173,6 +178,7 @@ JSC3D.OpenCTMLoader.prototype.loadFromUrl = function(urlName) {
 						self.onprogress('Loading CTM file ...', 1);
 					// parse the loaded stuff into a scene
 					var scene = new JSC3D.Scene;
+					scene.srcUrl = urlName;
 					self.parseCTM(scene, this.responseText);
 					self.onload(scene);
 				}
