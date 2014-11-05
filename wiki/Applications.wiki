@@ -67,7 +67,7 @@ _*UGOBAGS*_ is an innovative company focusing on improving experience of travell
 
 == Illustration of Nanostructures ==
 
-_*Colouratom*_ is a research project launched by the _EMAT group_ at the _University of Antwerp_, to explore complex nanosystems on the atomic scale, using the most advanced electron microscopy and 3D reconstruction technology. The project is expected to enlighten the design of new types of nanomaterials, based on in-depth understanding of physical behaviour at the quantum mechanical level. The team uses _JSC3D_ to establish showcase for their research.
+_*Colouratom*_ is a research project launched by the _EMAT group_ at the _University of Antwerp_, to explore complex nanosystems on the atomic scale, using the most advanced electron microscopy and 3D reconstruction technology. The project is expected to enlighten the design of new types of nanomaterials, based on in-depth understanding of physical behaviour at the quantum mechanical level. The team uses _JSC3D_ to establish online showcase for their research.
 
 [http://ematweb.uantwerpen.be/colouratoms/index.html [Website]]
 
