@@ -81,7 +81,7 @@ _*Colouratom*_ is a research project launched by the _EMAT group_ at the _Univer
 
 == Virtual Museum ==
 
-_*Paweł Wojnarowski IT*_ and the _*Foundry Reaserch Institute in Krakow*_ add to their online museum new exhibits of casting artefacts from different ages. Each artefact is displayed in an interactive view powered by _JSC3D_.
+_*Paweł Wojnarowski IT*_ and the _*Foundry Reaserch Institute in Krakow*_ add to their online museum new exhibits of casting artefacts from ancient ages. Visitors can click into an item to be navigated to the corresponding artefact that is displayed in an interactive view powered by _JSC3D_.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-ifc-museum.jpg]
 
