@@ -78,3 +78,11 @@ _*Техпривод*_ is a solution providing company that offers products and 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-tehprivod.jpg]
 
 [http://tehprivod.ru/ [Website]]
+
+== Virtual Museum ==
+
+_*Paweł Wojnarowski IT*_ and the _*Foundry Reaserch Institute in Krakow*_ add to their online museum new exhibits of casting artefacts from different ages. Each artefact is displayed in an interactive view powered by _JSC3D_.
+
+[http://jsc3d.googlecode.com/svn/screenshots/screen-ifc-museum.jpg]
+
+[https://www.iod.krakow.pl/pl/muzeum/all/ [Website]]
