@@ -4069,6 +4069,9 @@ JSC3D.Mesh.prototype.texture = null;
  * {Number} Number of faces of the mesh. Read only.
  */
 JSC3D.Mesh.prototype.faceCount = 0;
+/**
+ * {Number} An angle to preserve sharp edges in smooth rendering. If the angle between the normals of two adjacent faces exceeds this value, the edge will be recognized as an sharp edge thus it will not be smoothed.
+ */
 JSC3D.Mesh.prototype.creaseAngle = -180;
 /**
  * {Boolean} If set to true, both sides of the faces will be rendered.

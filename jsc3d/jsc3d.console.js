@@ -1,5 +1,5 @@
 /**
- * @preserve Copyright (c) 2011~2013 Humu <humu2009@gmail.com>
+ * @preserve Copyright (c) 2011~2014 Humu <humu2009@gmail.com>
  * This file is part of jsc3d project, which is freely distributable under the 
  * terms of the MIT license.
  *
@@ -24,7 +24,7 @@
 
 
 /**
-	@namespace JSC3D
+ * @namespace JSC3D
  */
 var JSC3D = JSC3D || {};
 
@@ -34,8 +34,9 @@ var JSC3D = JSC3D || {};
 	Based upon code originally provided by X3DOM project, under the MIT license.
 */
 JSC3D.console = (function() {
+
 	var _container = null;
-	var _isActive = false;
+	var _isActive = true;
 
 	var _icons = {
 		info:	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAj0lEQVQ4jc2SMRKEIAxFUzokZ7Ky8hjW3kQ+VpQWHs/IHdxqZ2eJIp1mJlV4j5BA9LpQuD6B1xTk+EvwqnB9GQ4yGjBLDTJe35wd/taM5KyTBF5qBQm8WMFN61fyoqCm9iKBeonVW/ASjWCbuKsd4DZxZwRERAo33H4kuOEU/j2laXfwnIM7eFbftEX4kfgAqhIisuNA6JsAAAAASUVORK5CYII=', 
@@ -144,4 +145,5 @@ JSC3D.console = (function() {
 		logError:	_logError, 
 		clear:		_clear
 	};
+
 }) ();
