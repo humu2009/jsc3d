@@ -59,7 +59,7 @@ The _*Learning and Teaching Centre (LTC)*_ and the _*Department of Ancient Histo
 
 == Online Luggage Store ==
 
-_*UGOBAGS*_ is an innovative company focusing on improving experience of travelling by providing distinctive luggage service that invites customers into the design of luggages. On website of their store, a web based platform has been developed where a well-designed standard suitcase model is shown, together with a dozen of options via which one can custumize the basic model and add in personal elements to make it individual. All configurations are interactive. Changes are shown immediately after an option has been modified. The most inspiring part is that a customer can choose a picture for the cover of a suitcase, either from his/her own painting or from the library provided by artists of _UGOBAGS_. As its display component, _JSC3D_ works fine in the luggage configuration platform.
+_*UGOBAGS*_ is an innovative company focusing on improving experience of travelling by providing distinctive luggage service that invites customers into the design of luggages. On website of their store, a web based platform has been developed where a well-designed standard suitcase model is shown, together with a dozen of options via which one can custumize the basic model and add in personal elements to make it individual. All configurations are interactive. Changes are shown immediately after an option has been modified. The most inspiring part is that a customer can choose a picture for the cover of a suitcase, either from his/her own painting or from the library provided by artists of _UGOBAGS_. As its display component, _JSC3D_ works perfectly in the luggage configuration platform.
 
 [http://jsc3d.googlecode.com/svn/screenshots/screen-ugobags.jpg]
 
@@ -75,7 +75,7 @@ _*Техпривод*_ is a solution providing company that offers products and 
 
 == Illustration of Nanostructures ==
 
-_*Colouratom*_ is a research project launched by the _EMAT group_ at the _University of Antwerp_, to explore complex nanosystems on the atomic scale, using the most advanced electron microscopy and 3D reconstruction technology. The project is expected to enlighten the design of new types of nanomaterials, based on in-depth understanding of physical behaviour at the quantum mechanical level. The team uses _JSC3D_ to establish online showcase for their research.
+_*Colouratom*_ is a research project launched by the _EMAT group_ at the _University of Antwerp_, to explore complex nanosystems on the atomic scale, using the most advanced electron microscopy and 3D reconstruction technology. The project is expected to enlighten the design of new types of nanomaterials, based on in-depth understanding of physical behaviour at the quantum mechanical level. The team uses _JSC3D_ to set up online showcase for their research.
 
 [http://ematweb.uantwerpen.be/colouratoms/index.html [Website]]
 
