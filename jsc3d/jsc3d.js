@@ -5108,7 +5108,7 @@ JSC3D.ObjLoader.prototype.loadObjFile = function(urlPath, fileName, queryPart) {
 	if(this.onprogress) {
 		this.onprogress('Loading obj file ...', 0);
 		xhr.onprogress = function(event) {
-			self.onprogress('Loading obj file ...', event.position / event.totalSize);
+			self.onprogress('Loading obj file ...', event.loaded / event.total);
 		};
 	}
 
@@ -5170,7 +5170,7 @@ JSC3D.ObjLoader.prototype.loadMtlFile = function(scene, urlPath, fileName) {
 	if(this.onprogress) {
 		this.onprogress('Loading mtl file ...', 0);
 		xhr.onprogress = function(event) {
-			self.onprogress('Loading mtl file ...', event.position / event.totalSize);
+			self.onprogress('Loading mtl file ...', event.loaded / event.total);
 		};
 	}
 
