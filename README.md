@@ -19,4 +19,4 @@ A detailed introduction of this project can be read [here](https://github.com/hu
 ![Japanese Architecture](https://raw.github.com/humu2009/jsc3d/wiki/screenshots/wallcorner.png)
 
 ## Application
-The development of this project was promoted by many people who were contributing feedbacks, patches, implementations as well as ideas. And there were a dozen of serious and interesting applications utilizing this library, some of which are introduced [here](https://github.com/humu2009/jsc3d/wiki/JSC3D-in-Applications).
+The development of this project was promoted by many people who were contributing patches, implementations as well as feedbacks and ideas. And there were a dozen of serious and interesting applications utilizing this library, some of which are introduced [here](https://github.com/humu2009/jsc3d/wiki/JSC3D-in-Applications).
