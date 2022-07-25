@@ -4,7 +4,7 @@
 
 _**Princeton Ring**_ provides an online ring design interface where a client can fully customize and preview a new alumni ring. After an order placement, the result is generated immediately using the draft from the previous step with 3D printing. Then it will be polished and delivered. _JSC3D_ is integrated into the online design system for presenting each new ring.
 
-![http://jsc3d.googlecode.com/svn/screenshots/screen-princeton-ring.jpg](http://jsc3d.googlecode.com/svn/screenshots/screen-princeton-ring.jpg)
+![https://raw.github.com/jsc3d/wiki/screenshots/screen-princeton-ring.jpg](http://jsc3d.googlecode.com/svn/screenshots/screen-princeton-ring.jpg)
 
 [[Website](http://www.alumnirings.com)]
 
